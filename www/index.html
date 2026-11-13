@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
-<meta name="theme-color" content="#eef4fa">
-<title>人生RPG · 数据驱动的日常决策</title>
+<meta name="theme-color" content="#f6f3ec">
+<title>意 · 把注意力花在你在意的事上</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -359,6 +359,162 @@ canvas.chart{width:100%;height:190px;display:block}
 #page-diary .dy-entry{grid-template-columns:44px 1fr}
 #page-diary .dy-sheet-body{padding:14px}
 }
+/* ---------- 意 · 专注与奖励 ---------- */
+.yi-brand{letter-spacing:3px!important;font-weight:700!important}
+.yi-seal{width:38px;height:38px;flex:none;border-radius:10px;background:#b3382f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-family:"Songti SC","Noto Serif SC",SimSun,serif}
+.yi-head{display:flex;align-items:center;gap:10px;padding:4px 2px 14px}
+.yi-head .yi-ht{min-width:0;display:flex;flex-direction:column;line-height:1.4}
+.yi-head .yi-ht b{font-size:17px;letter-spacing:3px;font-family:"Songti SC","Noto Serif SC",SimSun,serif;font-weight:600}
+.yi-head .yi-ht span{font-size:11px;color:var(--sub)}
+.yi-streak{margin-left:auto;text-align:right;font-size:11px;color:var(--sub);white-space:nowrap}
+.yi-streak b{font-size:19px;color:var(--accent);font-family:"Songti SC",SimSun,serif;font-weight:600}
+.yi-sec{display:flex;align-items:baseline;gap:8px;margin:20px 2px 9px;font-size:15px;font-weight:700;letter-spacing:1px}
+.yi-sec span{font-size:11px;color:var(--sub);font-weight:400;letter-spacing:0}
+.yi-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:11px}
+.yi-lbl{font-size:11px;color:var(--sub);letter-spacing:1px}
+.yi-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.yi-time{font-size:40px;font-weight:800;letter-spacing:-1px;line-height:1.25;color:var(--text);margin:4px 0}
+.yi-time i{font-size:13px;font-style:normal;font-weight:600;color:var(--sub);margin-left:4px;letter-spacing:0}
+.yi-bar{height:5px;border-radius:5px;background:var(--card2);overflow:hidden;margin:9px 0}
+.yi-bar i{display:block;height:100%;background:var(--accent);border-radius:5px;transition:width .3s}
+.yi-dark{background:#2f2b25;border-color:#2f2b25;color:#f4efe5}
+.yi-dark .yi-lbl,.yi-dark .yi-hint{color:#a49b8c}
+.yi-dark .yi-time{color:#f4efe5}
+.yi-dark .yi-bar{background:rgba(255,255,255,.14)}
+.yi-dark .yi-bar i{background:#d98a63}
+.yi-dark .yi-vbtn{background:#d98a63;color:#2b2823}
+.yi-hint{font-size:11px;color:var(--sub);line-height:1.7}
+.yi-num{font-size:34px;font-weight:800;line-height:1.3;color:var(--text);margin:2px 0 6px}
+.yi-num i{font-size:13px;font-style:normal;font-weight:600;color:var(--sub);margin-left:5px}
+.yi-rank{font-size:14px;color:var(--accent);font-weight:700;letter-spacing:2px}
+.yi-foot{font-size:11px;color:var(--sub);border-top:1px solid var(--line);padding-top:9px;margin-top:10px;line-height:1.7}
+.yi-quote{font-family:"Songti SC","Noto Serif SC",SimSun,serif;font-size:13px;color:var(--sub);line-height:1.9;padding:2px 3px 12px}
+.yi-quote b{color:var(--accent);font-size:18px;font-weight:400;margin-right:4px}
+.yi-voucher{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:13px;padding:11px 12px;margin-bottom:8px}
+.yi-voucher .grow{min-width:0;display:flex;flex-direction:column;line-height:1.5}
+.yi-voucher b{font-size:13px}
+.yi-voucher span{font-size:11px;color:var(--sub)}
+.yi-vbtn{flex:none;margin-left:auto;padding:7px 11px;border-radius:9px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit}
+.yi-vbtn.off{background:var(--card2);color:var(--sub);border:1px solid var(--line)}
+.yi-pass{display:flex;gap:9px;align-items:center;background:rgba(5,150,105,.07);border:1px solid rgba(5,150,105,.22);border-radius:12px;padding:11px 12px;margin-bottom:10px}
+.yi-pass .dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:none}
+.yi-pass div{display:flex;flex-direction:column;line-height:1.5;min-width:0}
+.yi-pass b{font-size:12px;color:var(--green)}
+.yi-pass span{font-size:10px;color:var(--sub)}
+.yi-mode{display:flex;gap:8px;margin-bottom:11px}
+.yi-mode button{flex:1;padding:11px 10px;border-radius:12px;border:1px solid var(--line);background:var(--card2);text-align:left;line-height:1.5;cursor:pointer;font-family:inherit}
+.yi-mode button b{display:block;font-size:13px}
+.yi-mode button span{font-size:10px;color:var(--sub)}
+.yi-mode button.on{border-color:var(--accent);background:var(--acc-08)}
+.yi-mode button.on b{color:var(--accent)}
+.yi-rate{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--line)}
+.yi-rate:last-child{border-bottom:none}
+.yi-rate .dot{width:9px;height:9px;border-radius:3px;flex:none}
+.yi-rate b{font-size:13px;min-width:48px}
+.yi-rate .grow{flex:1;font-size:10px;color:var(--sub)}
+.yi-rate input{width:62px;padding:6px;text-align:center;border:1px solid var(--line);border-radius:8px;background:var(--card2);color:var(--text);font-size:13px;font-family:inherit}
+.yi-app{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.yi-app:last-child{border-bottom:none}
+.yi-app .grow{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.4}
+.yi-app b{font-size:12px}
+.yi-app span{font-size:9px;color:var(--sub);word-break:break-all}
+.yi-app select{font-size:10px;padding:5px;border:1px solid var(--line);border-radius:7px;background:var(--card2);color:var(--text);max-width:86px}
+.yi-del{font-size:11px;color:var(--red);font-weight:600;flex:none;padding:4px}
+.yi-sw{width:40px;height:23px;border-radius:99px;background:var(--line);position:relative;flex:none;cursor:pointer}
+.yi-sw i{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff}
+.yi-sw.on{background:var(--accent)}
+.yi-sw.on i{left:20px}
+.yi-note{background:var(--card2);border:1px dashed var(--line);border-radius:12px;padding:11px 12px;font-size:11px;color:var(--sub);line-height:1.8}
+.yi-note b{color:var(--text)}
+.yi-sync{border-top:1px solid var(--line);margin-top:12px;padding-top:11px;font-size:11px;color:var(--sub);line-height:1.9}
+.yi-sync b{color:var(--text)}
+.yi-code{font-family:Consolas,monospace;font-size:10px;background:var(--card2);border:1px solid var(--line);border-radius:6px;padding:1px 5px}
+.yi-backup{margin-top:7px;font-size:10px;color:var(--sub);line-height:1.8}
+.yi-confirm{margin-top:10px;padding:11px;border-radius:10px;background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.2);font-size:11px;color:var(--red);line-height:1.7}
+.yi-pill{display:inline-block;font-size:10px;padding:3px 8px;border-radius:999px;background:var(--card2);border:1px solid var(--line);color:var(--sub)}
+.yi-btn{display:inline-block;padding:8px 13px;border-radius:10px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer;white-space:nowrap;font-family:inherit}
+.yi-btn.ghost{background:var(--card2);color:var(--text);border:1px solid var(--line);font-weight:600}
+.yi-btn:disabled{opacity:.45;cursor:not-allowed}
+.yi-warn{margin-top:9px;font-size:11px;color:var(--red);background:rgba(220,38,38,.06);border:1px solid rgba(220,38,38,.18);border-radius:10px;padding:8px 10px;line-height:1.6}
+.yi-ok{margin-top:8px;font-size:11px;color:var(--green)}
+.yi-log{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:12px}
+.yi-log:last-child{border-bottom:none}
+.yi-log span{color:var(--sub);font-size:10px;width:44px;flex:none}
+#yiOverlay{position:fixed;inset:0;z-index:70;background:rgba(28,25,21,.96);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto}
+#yiOverlay.hidden{display:none}
+.yi-full{position:relative;width:100%;max-width:420px;color:#f4efe5;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:72vh}
+.yi-back{position:absolute;top:0;left:0;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);color:#fff;font-size:14px;padding:6px 15px;border-radius:99px;cursor:pointer;font-family:inherit}
+.yi-pbar{width:78%;max-width:300px;height:8px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden}
+.yi-pbar>i{display:block;height:100%;width:0;background:#f4efe5;border-radius:99px;transition:width .4s linear}
+.yi-full .mark{width:46px;height:46px;margin:0 auto;border-radius:11px;background:#b3382f;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:"Songti SC",SimSun,serif}
+.yi-full .sub2{font-size:11px;color:#a49b8c;letter-spacing:3px;margin-top:14px}
+.yi-ring{position:relative;width:210px;height:210px;margin:18px auto 6px}
+.yi-ring svg{width:100%;height:100%}
+.yi-ring .rt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.yi-ring .rt b{font-size:40px;font-weight:400;letter-spacing:1px;font-family:"Songti SC",SimSun,serif}
+.yi-ring .rt span{font-size:10px;color:#a49b8c}
+.yi-fq{font-size:15px;line-height:2;color:#e2d8c8;max-width:320px;margin:8px auto 0;min-height:62px;font-family:"Songti SC",SimSun,serif}
+.yi-noti{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:11px 13px;font-size:11px;color:#c9bfae;line-height:1.7;text-align:left;margin-top:14px}
+.yi-noti b{display:block;color:#f4efe5;margin-bottom:2px}
+.yi-fbtns{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.yi-fbtns button{padding:11px;border-radius:11px;font-size:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#c9bfae;cursor:pointer;font-family:inherit}
+.yi-fbtns button.hi{background:#d98a63;color:#2b2823;border-color:#d98a63;font-size:13px;font-weight:700}
+.yi-pop{width:100%;max-width:340px;background:var(--card);border-radius:22px;padding:28px 24px 22px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.4)}
+.yi-pop .mark{width:46px;height:46px;margin:0 auto 14px;border-radius:12px;background:#b3382f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-family:"Songti SC",SimSun,serif}
+.yi-pop h2{font-size:21px;letter-spacing:2px;font-weight:600;font-family:"Songti SC",SimSun,serif}
+.yi-pop .gain{font-size:32px;color:var(--accent);font-weight:800;margin:12px 0 5px}
+.yi-pop .line{font-size:12px;color:var(--sub);line-height:1.8}
+.yi-pop .up{margin-top:13px;padding:9px;border-radius:10px;background:var(--acc-08);color:var(--accent);font-size:12px;letter-spacing:1px}
+.yi-pop .btns{display:flex;gap:8px;margin-top:20px}
+.yi-pop .btns button{flex:1;padding:11px;border-radius:11px;font-size:13px;border:1px solid var(--line);background:var(--card2);color:var(--text);cursor:pointer;font-family:inherit}
+.yi-pop .btns button.hi{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+/* 剩余时间卡：技能页唯一入口，点击进入「意」 */
+.yi-heart{cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.yi-heart:hover{border-color:var(--accent);box-shadow:0 3px 14px rgba(168,86,58,.10)}
+.yi-heart:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.yi-card-enter{font-size:11px;color:var(--accent);font-weight:700;white-space:nowrap;letter-spacing:0}
+.yi-card-enter b{font-size:16px;margin-left:3px;font-weight:400;line-height:1}
+.yi-rank-inline{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1px}
+.yi-foot .yi-link{color:var(--accent);font-weight:600}
+.yi-focusline{margin-top:10px;padding:9px 11px;border-radius:10px;background:var(--acc-08);font-size:11px;color:var(--accent);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.yi-focusline b{font-size:13px;font-variant-numeric:tabular-nums}
+.yi-focusline button{margin-left:auto;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:inherit}
+.yi-mini{margin-top:9px;font-size:11px;color:var(--sub);line-height:1.7}
+.yi-mini button,.yi-mini a{border:1px solid var(--line);background:var(--card2);color:var(--text);border-radius:8px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:inherit;text-decoration:none;margin-left:5px}
+.yi-mini.warn{color:var(--red)}
+/* 静心提示可编辑 */
+.yi-qedit{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+.yi-qedit:first-child{padding-top:0}
+.yi-qedit .yi-qno{color:var(--accent);font-size:11px;flex:none;width:14px;text-align:center}
+.yi-qedit input{flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:8px 10px;font-size:12px;font-family:inherit;line-height:1.6}
+.yi-qdel{flex:none;width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--sub);font-size:16px;line-height:1;cursor:pointer;font-family:inherit}
+.yi-qreset{background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;font-family:inherit;text-decoration:underline;padding:0 2px}
+/* 数据管理里的坚果云卡 */
+#jgyCardBox .field input[type=password]{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;font-family:inherit;outline:none}
+#jgyCardBox .field input[type=password]:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--acc-12)}
+/* ---- 打卡统计条 ---- */
+.ck-stat{display:flex;margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
+.ck-stat span{flex:1;text-align:center;font-size:11px;color:var(--sub);letter-spacing:.2px}
+.ck-stat b{display:inline-block;margin:0 3px;font-size:18px;color:var(--accent);font-family:"Songti SC",SimSun,serif;font-weight:600;vertical-align:-1px}
+.ck-stat.alone{margin-top:0;padding-top:0;border-top:none}
+/* 修炼卡：默认只读，点进卡片才展开「升到下一级需打卡」的修改 */
+#practiceCard{cursor:pointer}
+#practiceCard.ck-editing{cursor:default;border-color:var(--acc-40)}
+.ck-need-line{margin-top:11px;font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ck-need-line b{color:var(--text);font-size:14px}
+.ck-need-line em{font-style:normal;color:var(--accent);font-size:11px;margin-left:auto}
+/* ---- 专注页：占满全屏的背景图 ---- */
+#yiOverlay.yi-bgmode{padding:0;background:#10171e;align-items:stretch;justify-content:stretch;overflow:hidden}
+.yi-full.yi-cover{position:fixed;inset:0;width:100%;max-width:none;min-height:100vh;justify-content:flex-end;align-items:center;padding:0 0 max(38px,calc(env(safe-area-inset-bottom) + 28px));background-image:linear-gradient(160deg,#1b2a38 0%,#3d5a66 55%,#82959a 100%);background-size:cover;background-position:center center;background-repeat:no-repeat;background-color:#1b2a38}
+.yi-full.yi-cover::before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.45),rgba(0,0,0,0) 45%);pointer-events:none}
+.yi-full.yi-cover .yi-back{top:max(16px,env(safe-area-inset-top));left:16px;z-index:2;background:rgba(0,0,0,.38);border-color:rgba(255,255,255,.38);color:#fff;backdrop-filter:blur(6px);padding:8px 16px}
+.yi-full.yi-cover .yi-pbar{position:relative;z-index:2;width:72%;max-width:420px;height:6px;background:rgba(255,255,255,.34)}
+.yi-full.yi-cover .yi-pbar>i{background:#fff}
+/* ---- 日记「设置与备份」里的背景图预览 ---- */
+.fb-thumb{width:100%;height:124px;border-radius:11px;border:1px solid var(--line);background:linear-gradient(160deg,#1b2a38,#3d5a66 55%,#82959a);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;text-shadow:0 1px 4px rgba(0,0,0,.5)}
+.fb-label{font-size:12px;font-weight:700;color:var(--text);margin:14px 0 2px;letter-spacing:.3px}
+/* 从日记设置里打开「数据管理」时压在设置弹层之上 */
+#modalRoot.over-diary{z-index:75}
 </style>
 </head>
 <body>
@@ -366,12 +522,9 @@ canvas.chart{width:100%;height:190px;display:block}
   <header class="topbar">
     <button id="backBtn" class="backbtn hidden" onclick="goBack()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>返回</button>
     <div class="titles">
-      <div class="t1">LIFE · RPG</div>
+      <div class="t1 yi-brand">意</div>
       <div class="t2" id="pageTitle">技能</div>
     </div>
-    <button class="topicon" onclick="openDataModal()" title="数据导出 / 导入" aria-label="数据管理">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg>
-    </button>
   </header>
 
   <main>
@@ -477,8 +630,30 @@ canvas.chart{width:100%;height:190px;display:block}
             <button id="dySettingsClose">关闭</button>
           </div>
           <div class="dy-sheet-body">
+            <div class="fb-label">专注页背景图</div>
             <div class="dy-panel-row">
-<div class="lab"><b>主题颜色</b><small>蓝色 / 暖黄 / 黑色 / iOS，全应用生效</small></div>
+              <div class="lab"><b>上传图片</b><small id="fbTip">当前：默认渐变</small></div>
+              <button onclick="FocusBg.pick()">选择图片</button>
+            </div>
+            <div class="dy-panel-row">
+              <div class="lab"><b>效果预览</b><small>缩略图 + 全屏预览专注页</small></div>
+              <button onclick="FocusBg.preview()">全屏预览</button>
+            </div>
+            <div class="dy-panel-row" style="display:block">
+              <div class="fb-thumb" id="fbThumb">未设置 · 当前显示默认渐变</div>
+              <div class="row" style="gap:8px;margin-top:9px">
+                <span class="sub" style="flex:1;font-size:11px;line-height:1.5">图片只存在本机，不随备份 / 云同步</span>
+                <button class="dy-btn-danger" onclick="FocusBg.clear()">恢复默认</button>
+              </div>
+            </div>
+            <input type="file" id="fbFile" accept="image/*" style="display:none" onchange="FocusBg.onFile(this)">
+            <div class="fb-label">数据与同步</div>
+            <div class="dy-panel-row">
+              <div class="lab"><b>数据管理</b><small>导入 / 导出全部数据、Cloudflare R2、坚果云同步</small></div>
+              <button onclick="openDataFromDiary()">打开</button>
+            </div>
+            <div class="dy-panel-row">
+              <div class="lab"><b>主题颜色</b><small>蓝色 / 暖黄 / 黑色 / iOS，全应用生效</small></div>
 <div class="dy-seg" id="dyThemeSeg">
 <button data-t="blue">蓝色</button><button data-t="paper">暖黄</button><button data-t="dark">黑色</button><button data-t="ios">iOS</button>
               </div>
@@ -529,6 +704,11 @@ canvas.chart{width:100%;height:190px;display:block}
       <div id="dyToast"></div>
       <input type="file" id="dyImportFile" accept="application/json,.json" hidden>
     </section>
+
+    <!-- ============ 意 · 专注 / 奖励 / 同步 ============ -->
+    <section class="page" id="page-yi">
+      <div id="yiPage"></div>
+    </section>
   </main>
 
   <nav class="bottomnav">
@@ -545,6 +725,7 @@ canvas.chart{width:100%;height:190px;display:block}
   <div class="modal-sheet" id="modalSheet"></div>
 </div>
 <div id="toast" class="hidden"></div>
+<div id="yiOverlay" class="hidden"></div>
 
 <div id="celebrate" class="hidden" onclick="closeCelebrate()">
   <div class="cel-card" onclick="event.stopPropagation()">
@@ -670,6 +851,9 @@ const DEFAULT_STATE = {
   skills: [],
   insights: [],
   pref: { skillSort: 'recent', skillTab: 'list' },
+  /* 打卡总账：total 是累计次数，days 是打过卡的日期（YYYY-MM-DD），用来算连续天数。
+     与每个技能的 checkins（当前等级经验，升级会清零）分开记，互不影响。 */
+  checkinStats: { total: 0, days: [] },
   wealth: { items: [], incomes: [], expenses: [], assets: [], fixed: [], goal: null },
   health: { birthday: null, diseases: [] },
   career: {
@@ -687,6 +871,12 @@ function loadState(){
     const s = JSON.parse(raw);
     const merged = Object.assign(clone(DEFAULT_STATE), s);
     merged.pref = Object.assign({skillSort:'recent'}, merged.pref);
+    /* 旧数据没有打卡总账：补上，历史累计无法回溯，从这次改动之后开始记 */
+    merged.checkinStats = Object.assign({total:0,days:[]}, merged.checkinStats||{});
+    if(!Array.isArray(merged.checkinStats.days)) merged.checkinStats.days=[];
+    merged.checkinStats.days = merged.checkinStats.days.filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
+    const _ct = Number(merged.checkinStats.total);
+    merged.checkinStats.total = isFinite(_ct) && _ct>0 ? Math.round(_ct) : 0;
     if(['recent','created','level'].indexOf(merged.pref.skillSort)<0) merged.pref.skillSort='recent';
     merged.wealth = Object.assign({items:[],incomes:[],expenses:[],assets:[],fixed:[],goal:null}, merged.wealth);
     merged.insights = (merged.insights||[]).filter(x=>x&&x.id&&x.skillId);
@@ -749,11 +939,19 @@ function openModal(html){
   $('#modalRoot').classList.remove('hidden');
 }
 function closeModal(){
-  $('#modalRoot').classList.add('hidden');
+  const mr=$('#modalRoot');
+  if(mr){ mr.classList.add('hidden'); mr.classList.remove('over-diary'); }
+}
+/* 数据管理入口已移进「日记 → 设置与备份」：打开时把弹层临时抬到设置弹层之上，
+   关掉数据管理后仍停留在设置与备份里。 */
+function openDataFromDiary(){
+  const mr=$('#modalRoot');
+  if(mr) mr.classList.add('over-diary');
+  openDataModal();
 }
 
 /* ---------- 页面路由 / 返回 ---------- */
-const PAGE_TITLES = { skill:'技能', wealth:'财富', health:'健康', career:'职业', diary:'日记' };
+const PAGE_TITLES = { skill:'技能', wealth:'财富', health:'健康', career:'职业', diary:'日记', yi:'意' };
 let currentPage = 'skill';
 let careerEditPart = null; // 'current' | 'target'
 function switchPage(p, keepSub){
@@ -780,7 +978,11 @@ function resetSubViews(){
   $('#backBtn').classList.add('hidden');
 }
 function showBackBtn(){ $('#backBtn').classList.remove('hidden'); }
-function goBack(){ resetSubViews(); renderCurrentPage(); }
+function goBack(){
+  /* 「意」是从技能页剩余时间卡进入的子页，不在底部导航里 */
+  if(currentPage==='yi'){ switchPage('skill'); return; }
+  resetSubViews(); renderCurrentPage();
+}
 
 function renderCurrentPage(){
   if(currentPage==='skill')  renderSkillPage();
@@ -788,6 +990,7 @@ function renderCurrentPage(){
   if(currentPage==='health') renderHealthPage();
   if(currentPage==='career') renderCareerPage();
   if(currentPage==='diary' && window.dyAPI){ dyAPI.refresh(); setFab(null); }
+  if(currentPage==='yi')     renderYiPage();
 }
 
 /* ============ 轻量图表引擎（Canvas，无外部依赖） ============ */
@@ -1072,41 +1275,436 @@ const RewardBridge = (function(){
            addApp, removeApp, listApps, openA11y, openOverlay, openBattery, openAutoStart, requestRoot, fmt };
 })();
 
-/* ---- 技能页顶部的「娱乐额度」卡 ---- */
-function renderRewardCard(){
-  const box = $('#rewardCard');
-  if(!box) return;
-  const st = RewardBridge.state();
-  const s  = RewardBridge.status();
-  const bal = st.balanceMs || 0;
-  const apps = st.apps || [];
-  const totalMin = Math.floor(bal/60000);
-  const hh = Math.floor(totalMin/60), mm = totalMin%60;
-  const big = hh > 0
-    ? `${hh}<i>小时</i>${mm>0?(mm+'<i>分</i>'):''}`
-    : `${mm}<i>分钟</i>`;
-
-  const warn = [];
-  if(!s.local && st.guardOn && st.enforce){
-    if(!s.accessibility) warn.push('无障碍服务未开启');
-    if(st.rootKill && !s.root) warn.push('还没拿到 root');
+/* ============ 专注页背景图：只在日记「设置与备份」里上传 / 预览 / 恢复默认 ============
+   图片压成 JPEG dataURL，存独立的 localStorage key；不写进 lifeRPG.v1，
+   也不进导出与云同步，避免几 MB 图片塞进主数据和每次同步。 */
+const FocusBg = (function(){
+  const KEY='lifeRPG.focusBg.v1', MAX_EDGE=1600, LIMIT=2200000;
+  function get(){ try{ return localStorage.getItem(KEY)||''; }catch(e){ return ''; } }
+  function put(v){ try{ localStorage.setItem(KEY,v); return true; }catch(e){ return false; } }
+  function paint(){
+    const thumb=document.getElementById('fbThumb'), tip=document.getElementById('fbTip');
+    const u=get();
+    if(thumb){
+      thumb.style.backgroundImage = u ? 'url("'+u+'")' : '';
+      thumb.textContent = u ? '' : '未设置 · 当前显示默认渐变';
+    }
+    if(tip) tip.textContent = u
+      ? '当前：自定义图片（约 '+Math.round(u.length/1024)+' KB）'
+      : '当前：默认渐变 · 建议上传一张大图，竖屏效果更好';
   }
-  const tip = warn.length
-    ? `<div class="rw-warn">${warn.join('，')} · 额度只会记录，管不住应用 · <a href="javascript:openRewardSettings()" style="color:inherit;font-weight:700">去开启</a></div>`
-    : (st.guardOn && st.enforce && apps.length ? `<div class="rw-ok">● 守护运行中</div>` : '');
+  function pick(){ const f=document.getElementById('fbFile'); if(f) f.click(); }
+  function onFile(input){
+    const file = input && input.files && input.files[0];
+    if(!file) return;
+    if(file.type && file.type.indexOf('image/')!==0){ toast('请选择图片文件'); input.value=''; return; }
+    const reader = new FileReader();
+    reader.onerror = ()=>{ toast('读取失败，换一张试试'); input.value=''; };
+    reader.onload = ()=>{
+      const raw = String(reader.result||'');
+      const im = new Image();
+      im.onerror = ()=>{ toast('这张图读不出来，换一张试试'); input.value=''; };
+      im.onload = ()=>{
+        let out = raw;
+        try{
+          const cv=document.createElement('canvas'), cx=cv.getContext && cv.getContext('2d');
+          if(cx){
+            const scale=Math.min(1, MAX_EDGE/Math.max(im.width||1, im.height||1));
+            cv.width=Math.max(1,Math.round((im.width||1)*scale));
+            cv.height=Math.max(1,Math.round((im.height||1)*scale));
+            cx.fillStyle='#ffffff'; cx.fillRect(0,0,cv.width,cv.height);
+            cx.drawImage(im,0,0,cv.width,cv.height);
+            out=cv.toDataURL('image/jpeg',.82);
+            if(out.length>LIMIT) out=cv.toDataURL('image/jpeg',.62);
+          }
+        }catch(e){ /* 环境不支持 canvas 时退回原图 */ }
+        if(!/^data:image\//.test(out)){ toast('这张图格式不支持'); input.value=''; return; }
+        if(out.length>LIMIT){ toast('图片太大，换一张小一点的'); input.value=''; return; }
+        if(!put(out)){ toast('本机存储空间不足，换一张小一点的图'); input.value=''; return; }
+        paint(); toast('背景已更新，点「全屏预览」看效果');
+        input.value='';
+      };
+      im.src = raw;
+    };
+    reader.readAsDataURL(file);
+  }
+  function clear(){
+    try{ localStorage.removeItem(KEY); }catch(e){}
+    paint(); toast('已恢复默认背景');
+  }
+  function preview(){ if(typeof Yi!=='undefined' && typeof Yi.previewFocus==='function') Yi.previewFocus(); }
+  function init(){
+    paint();
+    const b=document.getElementById('dyBtnSettings');
+    if(b) b.addEventListener('click', paint);
+  }
+  return { get, pick, onFile, clear, preview, paint, init };
+})();
 
-  box.innerHTML = `
-    <div class="card reward-card">
-      <div class="rw-head">
-        <div style="min-width:0">
-          <div class="rw-label">娱乐额度</div>
-          <div class="rw-num">${big}</div>
+/* ============ 意 · 专注闭环 / 剩余时间 / 坚果云 ============
+   剩余时间就是原有额度余额（RewardBridge.balanceMs / 60000），不另起一套数据；
+   专注时间戳、静心提示、时长与单日上限、同步配置存 lifeRPG.yi.v1。 */
+const Yi = (function(){
+  const KEY='lifeRPG.yi.v1';
+  const DEFAULT_QUOTES=[
+    '先把手机放远一点。不用想着学完，只要坐满这一段时间。',
+    '慢一点，先呼吸三次。开始比坚持更难，你已经完成了最难的那一步。',
+    '这不是任务，是一张入场券。坐下来，就已经赢了一半。',
+    '不用做得多好，只要不走开。念头跑了，轻轻带回来就好。',
+    '快到了。再稳一会儿，这一程就算数了。'
+  ];
+
+  function def(){
+    return { focusStartAt:0, focusName:'', durationMin:15,
+      quotes:DEFAULT_QUOTES.slice(),
+      dailyCapOn:false, dailyCapMin:120, usedToday:0, todayKey:'',
+      jgy:{email:'',secret:'',lastUp:0,lastDown:0,backups:[]}, pendingDown:false };
+  }
+  let s=def();
+  /* 静心提示可以由自己改写；删空或留空都回到默认五句 */
+  function quotes(){
+    const q=s.quotes;
+    if(Array.isArray(q)){
+      const ok=q.filter(x=>typeof x==='string' && x.trim());
+      if(ok.length) return ok;
+    }
+    return DEFAULT_QUOTES;
+  }
+
+  const pad=n=>n<10?'0'+n:''+n;
+  function dayKey(t){ const d=new Date(t); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function shortDay(t){ const d=new Date(t); return pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function stamp(t){ const d=new Date(t); return shortDay(t)+' '+pad(d.getHours())+':'+pad(d.getMinutes()); }
+  function fmtClock(ms){ const x=Math.floor(Math.max(0,ms||0)/1000); return pad(Math.floor(x/60))+':'+pad(x%60); }
+  function load(){
+    try{
+      const raw=localStorage.getItem(KEY);
+      if(raw){ const o=JSON.parse(raw), d=def(); for(const k in d){ if(!(k in o)) o[k]=d[k]; } if(!o.jgy) o.jgy=d.jgy; s=o; }
+    }catch(e){}
+    const t=dayKey(Date.now());
+    if(s.todayKey!==t){ s.todayKey=t; s.usedToday=0; save(); }
+  }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){} }
+
+  function total(){ return Math.max(1,num(s.durationMin)||15)*60000; }
+  function elapsed(){ return s.focusStartAt?Date.now()-s.focusStartAt:0; }
+  function focusing(){ return !!s.focusStartAt && elapsed()<total(); }
+  function isLocal(){ return !!RewardBridge.status().local; }
+  /* 专注页背景图：和日记设置里的 FocusBg 共用同一个 key */
+  function bgURL(){ try{ return localStorage.getItem('lifeRPG.focusBg.v1')||''; }catch(e){ return ''; } }
+
+  /* ---------------- 提示文案 ---------------- */
+  function localWarn(st){
+    if(isLocal()){
+      return `<div class="yi-note" style="margin-top:10px"><b>浏览器预览模式</b>：原生管控（无障碍 / root 强杀 / 坚果云 WebDAV）不会生效，界面与算法都是真的。`
+        + (focusing()?`<div style="margin-top:8px"><button class="yi-btn" onclick="Yi.skipFocus()">跳到这一段结束（预览用）</button></div>`:'')
+        + `</div>`;
+    }
+    const w=[], rw=RewardBridge.state();
+    if(rw.guardOn && rw.enforce){
+      if(!st.accessibility) w.push('无障碍服务未开启');
+      if(rw.rootKill && !st.root) w.push('还没拿到 root');
+    }
+    return w.length ? `<div class="yi-warn">${w.join('，')} · 剩余时间只会记录，管不住应用 · <a href="javascript:openRewardSettings()" style="color:inherit;font-weight:700">去开启</a></div>`
+      : (rw.guardOn&&rw.enforce?`<div class="yi-ok">● 守护运行中</div>`:'');
+  }
+  function permHTML(st){
+    const p=(name,hint,ok,act)=>`<div class="yi-row" style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="grow"><b style="font-size:13px">${name}</b><div class="yi-hint">${hint}</div></div>${ok?'<span class="yi-pill">已就绪</span>':`<button class="yi-btn ghost" onclick="${act}">去开启</button>`}</div>`;
+    return p('无障碍服务','判断当前打开的是哪个应用，不读取屏幕内容',!!st.accessibility,'RewardBridge.openA11y()')
+      + p('悬浮窗权限','拦截页更稳、跳转更顺',!!st.overlay,'RewardBridge.openOverlay()')
+      + p('root 权限',st.rootChecked?(st.root?'已获得，可强制退出应用':'未获得，只能遮挡'):'Magisk 授权一次即可',!!st.root,'RewardBridge.requestRoot()')
+      + '<div class="row" style="gap:8px;margin-top:11px"><button class="yi-btn ghost" style="flex:1" onclick="RewardBridge.openAutoStart()">自启动</button><button class="yi-btn ghost" style="flex:1" onclick="RewardBridge.openBattery()">省电策略</button></div>'
+      + '<div class="yi-hint" style="margin-top:8px">小米必设三项：自启动允许、省电策略无限制、最近任务里加锁。不设服务会被系统杀掉。</div>';
+  }
+
+  /* ---------------- 技能页顶部：只留一张剩余时间卡，点击进入「意」 ---------------- */
+  function cardWarn(st){
+    if(isLocal()){
+      return focusing()
+        ? `<div class="yi-mini">浏览器预览：不用真等 ${Math.round(total()/60000)} 分钟。<button onclick="event.stopPropagation();Yi.skipFocus()">跳到这一段结束</button></div>`
+        : '';
+    }
+    const w=[], rw=RewardBridge.state();
+    if(rw.guardOn && rw.enforce){
+      if(!st.accessibility) w.push('无障碍服务未开启');
+      if(rw.rootKill && !st.root) w.push('还没拿到 root');
+    }
+    return w.length
+      ? `<div class="yi-mini warn">${w.join('，')} · 剩余时间只会记录，管不住应用<button onclick="event.stopPropagation();openRewardSettings()">去开启</button></div>`
+      : '';
+  }
+  function renderCard(){
+    const box=document.getElementById('rewardCard'); if(!box) return;
+    const run=focusing(), rem=run?Math.max(0,total()-elapsed()):total();
+    const rw=RewardBridge.state(), st=RewardBridge.status();
+    const balMs=rw.balanceMs||0;
+    const totalMin=Math.floor(balMs/60000);
+    const hh=Math.floor(totalMin/60), mm=totalMin%60;
+    const big = hh>0 ? `${hh}<i>小时</i>${mm>0?mm+'<i>分</i>':''}` : `${mm}<i>分钟</i>`;
+    box.innerHTML=`
+      <div class="yi-card card" role="button" tabindex="0"
+           onclick="Yi.openPanel()" onkeypress="if(event.key==='Enter')Yi.openPanel()">
+        <div class="yi-row">
+          <span class="yi-lbl">剩余时间</span>
+          <span class="yi-card-enter">进入「意」<b>›</b></span>
         </div>
-        <button class="rw-btn" onclick="openRewardSettings()">管理</button>
+        <div class="yi-num">${big}</div>
+        <div class="yi-foot">每完成一段专注 +${rw.rewardMinutes||30} 分钟</div>
+        ${run?`<div class="yi-focusline">● 这一段专注中，还剩 <b id="yiCardTime">${fmtClock(rem)}</b><button onclick="event.stopPropagation();Yi.openFocus()">回到专注</button></div>`:''}
       </div>
-      <div class="rw-sub">每次打卡 +${st.rewardMinutes||30} 分钟 · ${apps.length ? apps.length+' 个应用共用这一份额度' : '还没有受管应用'}</div>
-      ${tip}
+      ${cardWarn(st)}`;
+  }
+
+  /* ---------------- 「意」页 ---------------- */
+  function renderPage(){
+    const box=document.getElementById('yiPage'); if(!box) return;
+    const run=focusing(), rem=run?Math.max(0,total()-elapsed()):total();
+    const pct=run?Math.round(elapsed()/total()*100):0;
+    const rw=RewardBridge.state(), st=RewardBridge.status();
+    const apps=rw.apps||[];
+    const balMs=rw.balanceMs||0;
+    const totalMin=Math.floor(balMs/60000);
+    const hh=Math.floor(totalMin/60), mm=totalMin%60;
+    const big = hh>0 ? `${hh}<i>小时</i>${mm>0?mm+'<i>分</i>':''}` : `${mm}<i>分钟</i>`;
+    box.innerHTML=`
+      <div class="yi-head"><div class="yi-seal">意</div>
+        <div class="yi-ht"><b>意</b><span>把注意力花在你在意的事上</span></div></div>
+
+      <div class="yi-card card">
+        <div class="yi-lbl">剩余时间</div>
+        <div class="yi-num">${big}</div>
+        <div class="yi-foot">每完成一段专注 +${rw.rewardMinutes||30} 分钟 · 全部受管应用共用这一份</div>
+      </div>
+
+      <div class="yi-card card yi-dark">
+        <div class="yi-row"><span class="yi-lbl">${run?'这一段专注进行中':'下一段专注'}</span>
+          <span class="yi-pill" style="background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.14);color:#d8cdbb">${Math.round(total()/60000)} 分钟</span></div>
+        <div class="yi-time" id="yiPageTime">${fmtClock(rem)}</div>
+        <div class="yi-bar"><i id="yiPageBar" style="width:${pct}%"></i></div>
+        <div class="yi-hint">${run?'这一段没走完，还不能开下一段':'打卡不是领奖，是给自己一段安静的时间'}</div>
+        <button class="btn" style="margin-top:12px;background:#d98a63;color:#2b2823" onclick="${run?'Yi.openFocus()':'yiStartHint()'}">${run?'回到专注':'开始一段 · 点技能打卡'}</button>
+      </div>
+
+      <div class="yi-sec">这个模式的意思</div>
+      <div class="yi-card card" style="font-size:12px;line-height:1.9;color:var(--sub)">它不是「只学 15 分钟」。打卡之后你可能会学很久，而这 15 分钟是<b style="color:var(--accent)">强制的最低下限</b>——帮你把心收回来、真正坐进去。过了这一段，才能开下一段，也才领得到奖励。奖励是一段共享的剩余时间，打开任意一个受管应用就开始按秒扣。</div>
+
+      <div class="yi-sec">静心提示 <span>专注页里轮换出现，可以自己改</span></div>
+      <div class="yi-card card">
+        ${quotes().map((q,i)=>`<div class="yi-qedit"><span class="yi-qno">${i+1}</span>`
+          + `<input type="text" value="${esc(q)}" placeholder="写一句想对自己说的话" onchange="Yi.setQuote(${i},this.value)">`
+          + `<button class="yi-qdel" title="删掉这句" onclick="Yi.delQuote(${i})">×</button></div>`).join('')}
+        <div class="row" style="gap:8px;margin-top:11px"><input type="text" id="yiNewQuote" placeholder="再加一句…" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit"><button class="yi-btn" onclick="Yi.addQuote()">+ 添加</button></div>
+        <div class="yi-hint" style="margin-top:9px">改完立刻生效，下一句就按新文案轮换；清空或删光会回到默认五句。<button class="yi-qreset" onclick="Yi.resetQuotes()">恢复默认</button></div>
+      </div>
+
+      <div class="yi-sec">受管应用 <span>共 ${apps.length} 个</span></div>
+      <div class="yi-card card">${apps.length?apps.map(a=>`<div class="yi-app"><div class="grow"><b>${esc(a.label||a.pkg)}</b><span>${esc(a.pkg)}</span></div>`
+        + `<button class="yi-del" onclick="Yi.delApp('${a.pkg}')">移除</button></div>`).join(''):'<div class="yi-hint" style="padding:10px 0">还没有受管应用。</div>'}
+        <div class="row" style="gap:8px;margin-top:11px"><input type="text" id="yiNewPkg" placeholder="应用包名，如 com.xxx" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit"><button class="yi-btn" onclick="Yi.addApp()">+ 添加</button></div>
+        <div class="yi-hint" style="margin-top:8px">所有受管应用共用一份剩余时间，打开即按秒扣。真机上添加会校验包名是否装过；浏览器预览不校验。</div>
+      </div>
+
+      <div class="yi-sec">设置</div>
+      <div class="yi-card card">
+        <div class="yi-lbl">一段专注的时长</div>
+        <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:9px">${[5,15,25,45].map(m=>`<button class="yi-btn${s.durationMin===m?'':' ghost'}" onclick="Yi.setDuration(${m})">${m} 分钟</button>`).join('')}</div>
+        <div class="yi-hint" style="margin-top:8px">真机上用墙上时间戳记录开始时刻，熄屏、清后台、重启都不会让倒计时归零。</div>
+        <div class="field" style="margin-top:15px"><label>每完成一段，奖励多少分钟</label><input type="number" min="1" max="600" value="${rw.rewardMinutes||30}" onchange="rwSaveMinutesFromYi(this.value)"></div>
+        <div class="yi-hint">奖励在专注结束时才入账，不是打卡那一刻。</div>
+        <div class="yi-row" style="margin-top:15px"><div class="grow"><b style="font-size:13px">单日消费上限</b><div class="yi-hint">攒得再多，一天也只让用这么多。默认关闭。</div></div><div class="yi-sw${s.dailyCapOn?' on':''}" onclick="Yi.toggleCap()"><i></i></div></div>
+        ${s.dailyCapOn?`<div class="field" style="margin-top:10px"><label>每天最多消费（分钟）</label><input type="number" min="10" max="600" value="${s.dailyCapMin}" onchange="Yi.setCap(this.value)"></div>`:''}
+        <div class="yi-row" style="margin-top:15px;padding-top:12px;border-top:1px solid var(--line)"><div class="grow"><b style="font-size:13px">云同步</b><div class="yi-hint">坚果云、Cloudflare R2 都在「日记 → 设置与备份 → 数据管理」里，和导入导出放在一起。</div></div><button class="yi-btn ghost" onclick="openDataModal()">去设置 ›</button></div>
+      </div>
+
+      <div class="yi-sec">运行条件</div>
+      <div class="yi-card card">${st.local?'<div class="yi-hint">浏览器预览模式：额度存在本地 localStorage，无障碍、root、WebDAV 这些原生能力要装到手机上才有。</div>':permHTML(st)}</div>
+
+      <div class="yi-sec">关于「意」</div>
+      <div class="yi-card card"><div class="yi-hint" style="font-size:12px">应用显示名改成「意」，无障碍服务保留为「意 · 专注守护」。包名 <span class="yi-code">com.liferpg.control</span> 不改——改了会被系统当成新应用，原有数据、无障碍授权和 root 授权全要重来一遍。</div></div>
+      ${localWarn(st)}
+      <div style="height:20px"></div>`;
+  }
+
+  /* ---------------- 实时刷新 ---------------- */
+  function updateLive(){
+    const run=focusing(), el=run?elapsed():0, rem=run?Math.max(0,total()-el):total();
+    const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    set('yiCardTime',fmtClock(rem)); set('yiPageTime',fmtClock(rem));
+    const pct=run?Math.round(el/total()*100):0;
+    const b2=document.getElementById('yiPageBar'), b3=document.getElementById('yiBar2');
+    if(b2) b2.style.width=pct+'%'; if(b3) b3.style.width=pct+'%';
+  }
+  function refresh(){
+    renderCard();
+    if(typeof currentPage!=='undefined' && currentPage==='yi') renderPage();
+  }
+  /* 「意」不占底部导航：从技能页的剩余时间卡进入，顶栏出现返回 */
+  function openPanel(){
+    switchPage('yi');
+    const b=document.getElementById('backBtn'); if(b) b.classList.remove('hidden');
+    const nb=document.querySelector('.nav-btn[data-page="skill"]'); if(nb) nb.classList.add('active');
+  }
+  function closeOverlay(){ const ov=document.getElementById('yiOverlay'); if(ov){ ov.classList.add('hidden'); ov.classList.remove('yi-bgmode'); ov.innerHTML=''; } }
+
+  /* ---------------- 闭环 ---------------- */
+  /* 专注页只保留三样东西：占满全屏的背景图、时间进度条、一个返回键。
+     没有上传图片时用柔和渐变兜底；preview=true 是设置页里的全屏预览，不影响真实专注。 */
+  function focusHTML(preview){
+    const back = preview
+      ? `<button class="yi-back" onclick="Yi.closeOverlay()">‹ 返回</button>`
+      : `<button class="yi-back" onclick="Yi.closeOverlay();Yi.refresh()">‹ 返回</button>`;
+    return `<div class="yi-full yi-cover" id="yiCover">
+      ${back}
+      <div class="yi-pbar"><i id="yiBar2" style="width:${preview?'35%':'0%'}"></i></div>
     </div>`;
+  }
+  function showFocus(preview){
+    const ov=document.getElementById('yiOverlay'); if(!ov) return;
+    ov.classList.remove('hidden');
+    ov.classList.add('yi-bgmode');
+    ov.innerHTML=focusHTML(preview);
+    const bg=bgURL(), cover=document.getElementById('yiCover');
+    if(bg && cover) cover.style.backgroundImage='url("'+bg+'")';
+    if(!preview) updateLive();
+  }
+  function openFocus(){
+    if(!s.focusStartAt) return;
+    showFocus(false);
+  }
+  function previewFocus(){ showFocus(true); }
+  function startFocus(id,name){
+    if(focusing()){ toast('这一段还没走完，等它结束再开下一段'); openFocus(); return false; }
+    s.focusStartAt=Date.now(); s.focusName=name||''; save();
+    openFocus(); refresh(); return true;
+  }
+  function showReward(gain){
+    const ov=document.getElementById('yiOverlay'); if(!ov) return;
+    ov.classList.remove('hidden');
+    ov.innerHTML=`<div class="yi-pop"><div class="mark">意</div><h2>这一程稳住了</h2>
+      <div class="gain">剩余时间 +${gain} 分钟</div>
+      <div class="line">是你坐满这一段挣来的。<br>去用吧，下次还坐得进来。</div>
+      <div class="btns"><button onclick="Yi.closeReward()">收下</button></div></div>`;
+  }
+  function finishFocus(){
+    if(!s.focusStartAt) return;
+    const rw=RewardBridge.checkIn();
+    const gain=(rw && rw.addedMinutes) || (RewardBridge.state().rewardMinutes||30);
+    s.focusStartAt=0; s.focusName='';
+    save();
+    closeOverlay(); refresh();
+    showReward(gain);
+  }
+  function skipFocus(){
+    if(!isLocal()){ toast('这个按钮只在浏览器预览里有效'); return; }
+    if(!s.focusStartAt){ toast('现在没有进行中的专注'); return; }
+    finishFocus();
+  }
+  function giveUp(){
+    s.focusStartAt=0; s.focusName=''; save();
+    closeOverlay(); refresh();
+    toast('这一段没算数，奖励也没发。随时可以重新开始');
+  }
+  function closeReward(){ closeOverlay(); refresh(); }
+  function tick(){
+    if(s.focusStartAt && elapsed()>=total()){ finishFocus(); return; }
+    if(focusing()) updateLive();
+  }
+
+  /* ---------------- 静心提示：自己编辑 ---------------- */
+  function setQuote(i,v){
+    const t=String(v||'').trim();
+    const q=quotes().slice();
+    if(!t){ q.splice(i,1); s.quotes=q; save(); refresh(); toast('已删掉这一句'); return; }
+    q[i]=t; s.quotes=q; save(); refresh();
+  }
+  function addQuote(){
+    const el=document.getElementById('yiNewQuote'), t=el&&el.value.trim();
+    if(!t){ toast('先写一句想对自己说的话'); return; }
+    const q=quotes().slice(); q.push(t); s.quotes=q; save(); refresh();
+    toast('已加进轮换');
+  }
+  function delQuote(i){
+    const q=quotes().slice(); q.splice(i,1); s.quotes=q; save(); refresh();
+    toast('已删掉这一句');
+  }
+  function resetQuotes(){ s.quotes=DEFAULT_QUOTES.slice(); save(); refresh(); toast('已恢复默认五句'); }
+
+  /* ---------------- 设置 ---------------- */
+  function setDuration(m){ if(focusing()){ toast('专注进行中不能改时长'); return; } s.durationMin=clamp(Math.round(num(m))||15,1,180); save(); refresh(); }
+  function addApp(){
+    const el=document.getElementById('yiNewPkg'), p=el&&el.value.trim();
+    if(!p){ toast('先填应用包名'); return; }
+    RewardBridge.addApp(p,''); refresh();
+  }
+  function delApp(p){ RewardBridge.removeApp(p); save(); refresh(); }
+  function toggleCap(){ s.dailyCapOn=!s.dailyCapOn; save(); refresh(); }
+  function setCap(v){ s.dailyCapMin=clamp(Math.round(num(v))||120,10,600); save(); refresh(); }
+  /* ---------------- 坚果云：设置卡片住在「数据管理」弹层里 ---------------- */
+  function jgyCardHTML(){
+    const j=s.jgy;
+    return `<div class="card" style="margin-bottom:10px">
+      <h3 style="margin-bottom:6px">☁ 云同步 · 坚果云 WebDAV</h3>
+      <div class="sub" style="margin-bottom:6px">全手动：不自动上传、不自动下载。凭证只存本机，不写进云端文件。</div>
+      <div class="field"><label>坚果云账号（邮箱）</label><input type="text" value="${esc(j.email)}" placeholder="you@example.com" onchange="Yi.saveJgy('email',this.value)"></div>
+      <div class="field"><label>应用密码</label><input type="password" value="${esc(j.secret)}" placeholder="16 位应用密码" onchange="Yi.saveJgy('secret',this.value)"></div>
+      <div class="sub" style="margin-bottom:10px">坚果云网页版 → 账户信息 → 安全选项 → 添加应用密码，<b>不是登录密码</b>。真机上由原生层用 WebDAV 直连，不受浏览器跨域限制。</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1" onclick="Yi.syncUp()">上传</button>
+        <button class="btn btn-ghost" style="flex:1" onclick="Yi.syncDown()">下载 / 恢复</button>
+      </div>
+      ${s.pendingDown?`<div class="yi-confirm">确认用云端数据覆盖本机？会覆盖技能主数据和心力钱包。<div class="row" style="gap:8px;margin-top:9px"><button class="yi-btn" onclick="Yi.syncDownYes()">确认覆盖</button><button class="yi-btn ghost" onclick="Yi.syncDownNo()">取消</button></div></div>`:''}
+      <div class="yi-sync"><b>上次上传：</b>${j.lastUp?stamp(j.lastUp):'还没有'}　<b>上次恢复：</b>${j.lastDown?stamp(j.lastDown):'还没有'}<br>
+        云端两份文件：<span class="yi-code">lifeRPG.v1.json</span>（技能等主数据）和 <span class="yi-code">wallet.json</span>（心力、专注记录、受管应用）。分开存，避免钱包秒级读写和主数据互相覆盖。<br>
+        每次覆盖前会在云端留一份带时间戳的历史备份。
+        ${j.backups.length?`<div class="yi-backup">历史备份：<br>${j.backups.slice(0,4).map(b=>'· '+esc(b)+'<br>').join('')}</div>`:''}
+      </div>
+    </div>`;
+  }
+  function jgyTouch(){ if(typeof jgyRefreshCard==='function') jgyRefreshCard(); }
+  function saveJgy(f,v){ s.jgy[f]=String(v||'').trim(); save(); }
+  function syncUp(){
+    if(!s.jgy.email||!s.jgy.secret){ toast('先填坚果云账号和应用密码'); return; }
+    s.jgy.lastUp=Date.now();
+    s.jgy.backups.unshift(stamp(Date.now())+' · 覆盖前备份 2 个文件');
+    if(s.jgy.backups.length>8) s.jgy.backups.length=8;
+    save(); refresh(); jgyTouch();
+    toast(isLocal()?'浏览器预览不会真联网：真机上由原生层走 WebDAV 上传两份文件':'已提交上传请求');
+  }
+  function syncDown(){ s.pendingDown=true; save(); refresh(); jgyTouch(); }
+  function syncDownNo(){ s.pendingDown=false; save(); refresh(); jgyTouch(); }
+  function syncDownYes(){
+    s.pendingDown=false; s.jgy.lastDown=Date.now(); save(); refresh(); jgyTouch();
+    toast(isLocal()?'浏览器预览不会真改动数据：真机上会先确认再覆盖':'已从云端恢复');
+  }
+
+  load();
+  return { renderCard, renderPage, tick, refresh, openFocus, previewFocus, startFocus, skipFocus, giveUp,
+    closeOverlay, closeReward, openPanel, setDuration,
+    addApp, delApp, toggleCap, setCap,
+    setQuote, addQuote, delQuote, resetQuotes,
+    jgyCardHTML, saveJgy, syncUp, syncDown, syncDownNo, syncDownYes,
+    focusing, quotes };
+})();
+
+/* ---- 技能页顶部卡片（保持原有函数名，供 renderSkillPage 调用） ---- */
+function renderRewardCard(){ Yi.renderCard(); }
+function renderYiPage(){ Yi.renderPage(); }
+/* 坚果云设置在「数据管理」弹层里，操作后只重画那一张卡，不重建整个弹层 */
+function jgyRefreshCard(){
+  const box=document.getElementById('jgyCardBox');
+  if(box && typeof Yi!=='undefined') box.innerHTML=Yi.jgyCardHTML();
+}
+function yiTick(){ try{ Yi.tick(); }catch(e){} }
+function yiStartHint(){
+  toast('点下面任意技能的「打卡」，就开始这一段专注');
+  const el=document.getElementById('skillList');
+  if(el && el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function rwSaveMinutesFromYi(v){
+  const n=clamp(Math.round(num(v))||30,1,600);
+  RewardBridge.setRewardMinutes(n);
+  toast('每完成一段奖励 '+n+' 分钟');
+  try{ renderRewardCard(); if(currentPage==='yi') renderYiPage(); }catch(e){}
 }
 
 /* ---- 额度设置弹窗 ---- */
@@ -1299,12 +1897,15 @@ function rwAddByPkg(){
 /* ---- 安卓返回键：弹窗 → 详情页 → 退出 ---- */
 window.__androidBack = function(){
   try{
+    const yo = $('#yiOverlay');
+    if(yo && !yo.classList.contains('hidden')){ Yi.closeOverlay(); return true; }
     const mr = $('#modalRoot');
     if(mr && !mr.classList.contains('hidden')){ closeModal(); return true; }
     const subs = document.querySelectorAll('.subview');
     for(let i=0;i<subs.length;i++){
       if(!subs[i].classList.contains('hidden')){ goBack(); return true; }
     }
+    if(currentPage==='yi'){ switchPage('skill'); return true; }
   }catch(e){}
   return false;
 };
@@ -1313,6 +1914,31 @@ window.__androidBack = function(){
 document.addEventListener('visibilitychange', function(){
   if(!document.hidden){ try{ renderRewardCard(); }catch(e){} }
 });
+
+/* ---- 打卡总账：连续天数 / 累计次数（与技能内的当前等级经验分开记） ---- */
+function ckStats(){
+  if(!state.checkinStats || typeof state.checkinStats!=='object') state.checkinStats={total:0,days:[]};
+  if(!Array.isArray(state.checkinStats.days)) state.checkinStats.days=[];
+  return state.checkinStats;
+}
+function ckDay(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function ckStreak(){
+  const st=ckStats(); if(!st.days.length) return 0;
+  const set=new Set(st.days), d=new Date(); d.setHours(0,0,0,0);
+  if(!set.has(ckDay(d))) d.setDate(d.getDate()-1); // 今天还没打卡不算断，从昨天接着数
+  let n=0;
+  while(set.has(ckDay(d))){ n++; d.setDate(d.getDate()-1); if(n>2000) break; }
+  return n;
+}
+function ckRecord(){
+  const st=ckStats(), t=todayStr();
+  st.total=(st.total||0)+1;
+  if(st.days.indexOf(t)<0) st.days.push(t);
+  if(st.days.length>900) st.days=st.days.slice(-900); // 控制体积，足够回溯两年
+}
+function ckStatHTML(){
+  return `<div class="ck-stat"><span>连续打卡 <b>${ckStreak()}</b> 天</span><span>累计打卡 <b>${ckStats().total||0}</b> 次</span></div>`;
+}
 
 /* ---- 修炼打卡 · 经验：checkins 是当前等级已打卡数，lv.need 是升到下一级所需次数；满 need 自动升级 ---- */
 function lvNeed(sk){ const lv=sk.levels[clamp(sk.level,1,5)-1]; return Math.max(1, num(lv&&lv.need)||DEFAULT_LV_NEED); }
@@ -1325,25 +1951,36 @@ function xpInfo(sk){
 function checkin(id){
   const sk = findSkill(id); if(!sk) return;
   if(sk.level>=5){ toast(sk.name+' 已达大师'); return; }
+  if(Yi.focusing()){
+    toast('这一段专注还没走完，等它结束再开下一段');
+    Yi.openFocus();
+    return;
+  }
   const need = lvNeed(sk);
   sk.checkins = num(sk.checkins)+1;
+  ckRecord();                 // 全局打卡总账：累计次数 +1、记录今天
   touchSkill(sk);
-  const rw = RewardBridge.checkIn();
-  const rwTxt = (rw && rw.addedMinutes) ? ' · 娱乐额度 +'+rw.addedMinutes+' 分钟' : '';
+  let leveled = false;
   if(sk.checkins>=need){
     sk.checkins = 0;
     sk.level = clamp(sk.level+1,1,5);
-    save();
-    if(navigator.vibrate){ try{ navigator.vibrate([16,40,16]); }catch(_){} }
-    if(sk.level===5) celebrateMaster(sk);
-    else toast('成就达成：'+sk.name+' → '+LEVEL_NAMES[sk.level-1]+rwTxt);
-  }else{
-    save();
-    toast('打卡成功 · '+sk.name+' 经验 '+sk.checkins+'/'+need+rwTxt);
+    leveled = true;
   }
+  save();
+  if(navigator.vibrate){ try{ navigator.vibrate([16,40,16]); }catch(_){} }
   renderRewardCard();
   renderSkillPage();
   if(editing && editing.skillId===id) renderLevelDetail();
+  /* 提示只鼓励进入状态，不再显示「经验 3/5」，也不再写「娱乐额度 +30 分钟」。 */
+  if(leveled){
+    if(sk.level===5) celebrateMaster(sk);
+    else toast('成就达成：'+sk.name+' → '+LEVEL_NAMES[sk.level-1]);
+  }else{
+    toast('静下心来，先坐满这一段时间');
+  }
+  /* 奖励不在此刻发：开一段专注，走完由 Yi.finishFocus() 才入账。 */
+  Yi.startFocus(id, sk.name);
+  Yi.refresh();
 }
 function xpBarHTML(sk, big){
   const x = xpInfo(sk);
@@ -1542,7 +2179,8 @@ function deleteInsight(id){
 function renderSkillSummary(){
   const n = state.skills.length;
   const masters = state.skills.filter(s=>s.level===5);
-  if(!n){ $('#skillSum').innerHTML=''; return; }
+  const statLine = ckStatHTML();
+  if(!n){ $('#skillSum').innerHTML = `<div class="card" style="padding:12px 14px">${statLine.replace('class="ck-stat"','class="ck-stat alone"')}</div>`; return; }
   const total = state.skills.reduce((a,s)=>a+s.level,0);
   const next = Math.max(0, 5*(masters.length+1) - total);
   $('#skillSum').innerHTML = `
@@ -1558,6 +2196,7 @@ function renderSkillSummary(){
       }).join('')}</div>`:''}
       ${masters.length<5 ? `<div class="sub" style="margin-top:10px">${masters.length?'距离下一位大师还差 '+next+' 级':'写满等级档案、提升等级，攒下你的总等级'}</div>
       <div class="sum-track"><i style="width:${Math.min(100,Math.round(masters.length/5*100))}%"></i></div>`:''}
+      ${statLine}
     </div>`;
 }
 
@@ -1670,11 +2309,13 @@ function confirmDeleteSkill(id){
 /* ---- 等级详情（编辑当前等级） ---- */
 let editing = null; // {skillId, lv}
 let levelEditState = {}; // {text:'view'|'edit', hint:'view'|'edit'}；进入/openLv 切换时复位为 view
+let needEditOpen = false; // 「修炼打卡 · 经验」卡：点进卡片后才展开升级门槛的修改入口
 
 function openLevelDetail(id, lv){
   const sk = findSkill(id);
   editing = { skillId:id, lv:clamp(lv,1,5) };
   levelEditState = {text:'view', hint:'view'};
+  needEditOpen = false;
   skillDetailTab = 'practice';
   $('#view-skill-list').classList.add('hidden');
   $('#view-skill-detail').classList.add('hidden');
@@ -1705,6 +2346,22 @@ function renderLevelDetail(){
     return;
   }
   $('#view-level-detail').innerHTML = tabBar + `
+    <div class="card${needEditOpen?' ck-editing':''}" id="practiceCard" onclick="toggleNeedEdit()">
+      <h3>修炼打卡 · 经验</h3>
+      ${xpBarHTML(sk,true)}
+      ${ckStatHTML()}
+      ${needEditOpen
+        ? `<div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap" onclick="event.stopPropagation()">
+             <label class="sub" style="flex:none">升到下一级需打卡</label>
+             <input type="number" min="1" max="999" inputmode="numeric" value="${lvNeed(sk)}" style="width:70px;text-align:center"
+               onchange="setLvNeed(this.value)">
+             <span class="sub">次</span>
+             <button class="lv-edit-btn" style="margin-left:auto" onclick="event.stopPropagation();toggleNeedEdit()">✓ 完成</button>
+           </div>
+           <p class="sub" style="margin-top:8px">每打卡一次经验 +1，满 ${lvNeed(sk)} 次自动升到下一级。改完点「✓ 完成」收起；「本等级提示」即打卡提示语，可自定义。</p>`
+        : `<div class="ck-need-line">升到下一级需打卡 <b>${lvNeed(sk)}</b> 次<em>点击卡片修改</em></div>`}
+    </div>
+
     <div class="card">
       <h3 style="display:flex;align-items:center;gap:8px"><span class="sk-badge" style="width:28px;height:28px;border-radius:9px;font-size:13px;margin-right:0;background:${skillColor(sk,editing.lv)};color:${skillInk(editing.lv)}">${esc(skillInitial(sk.name))}</span>${esc(sk.name)} · Lv.${editing.lv}「${LEVEL_NAMES[editing.lv-1]}」</h3>
       <div class="field">
@@ -1718,15 +2375,6 @@ function renderLevelDetail(){
     </div>
 
     <div class="card">
-      <h3>当前等级调整</h3>
-      <input type="range" min="1" max="5" step="1" value="${editing.lv}" style="accent-color:${skillColor(sk,editing.lv)}"
-        oninput="onLvSlider(this.value)">
-      <div class="row" style="gap:4px;margin-top:-4px">
-        ${LEVEL_NAMES.map((n,i)=>`<span class="sub" style="flex:1;text-align:center;font-size:11px;${i+1===editing.lv?'color:var(--accent);font-weight:700':''}">${n}</span>`).join('')}
-      </div>
-      <p class="sub" style="margin-top:6px">滑动选择等级 · 字段自动保存 · 调高等级即完成升级</p>
-    </div>
-    <div class="card">
       <h3>本等级提示</h3>
       <div class="field">
         <div class="field-head">
@@ -1737,21 +2385,21 @@ function renderLevelDetail(){
       </div>
       <div class="sub">✎ 自动保存 · 每个等级单独设置</div>
     </div>
+
     <div class="card">
-      <h3>修炼打卡 · 经验</h3>
-      ${xpBarHTML(sk,true)}
-      <div class="row" style="margin-top:12px;gap:8px">
-        <label class="sub" style="flex:none">升到下一级需打卡</label>
-        <input type="number" min="1" max="999" inputmode="numeric" value="${lvNeed(sk)}" style="width:70px;text-align:center"
-          onchange="setLvNeed(this.value)">
-        <span class="sub">次</span>
+      <h3>当前等级调整</h3>
+      <input type="range" min="1" max="5" step="1" value="${editing.lv}" style="accent-color:${skillColor(sk,editing.lv)}"
+        oninput="onLvSlider(this.value)">
+      <div class="row" style="gap:4px;margin-top:-4px">
+        ${LEVEL_NAMES.map((n,i)=>`<span class="sub" style="flex:1;text-align:center;font-size:11px;${i+1===editing.lv?'color:var(--accent);font-weight:700':''}">${n}</span>`).join('')}
       </div>
-      <p class="sub" style="margin-top:8px">每打卡一次经验 +1，满 ${lvNeed(sk)} 次自动升到下一级。上面的「本等级提示」即打卡提示语，可自定义。</p>
+      <p class="sub" style="margin-top:6px">滑动选择等级 · 字段自动保存 · 调高等级即完成升级</p>
     </div>
     <button class="btn btn-danger" onclick="deleteSkill('${sk.id}')">删除技能</button>`;
   if(textMode==='edit') autoGrow($('#fText'));
   if(hintMode==='edit') autoGrow($('#fHint'));
 }
+function toggleNeedEdit(){ needEditOpen = !needEditOpen; renderLevelDetail(); }
 function toggleLvFieldEdit(key){
   const cur = levelEditState[key] || 'view';
   if(cur==='view'){
@@ -3385,6 +4033,7 @@ function openDataModal(){
         <button class="btn btn-ghost" onclick="openR2Settings()">设置</button>
       </div>
     </div>
+    <div id="jgyCardBox">${Yi.jgyCardHTML()}</div>
     <div class="card" style="margin-bottom:10px">
       <h3 style="margin-bottom:6px">${ic('upload',15)} 导入数据</h3>
       <div class="sub" style="margin-bottom:10px">用之前导出的 JSON：生活数据将被覆盖，日记按较新版本合并</div>
@@ -4135,6 +4784,7 @@ g("dyBtnTheme").textContent = t === "blue" ? "蓝" : (t === "paper" ? "黄" : (t
 
 /* ============ 启动 ============ */
 renderCurrentPage();
+FocusBg.init();   // 初始化「设置与备份」里的专注背景图缩略图
 window.addEventListener('resize', ()=>{ if(currentPage==='wealth') renderWealthPage(); });
 /* ============ 自检（仅 ?selftest=1 时运行，结果写入标题） ============ */
 if(location.search.indexOf('selftest')>=0){
@@ -4491,6 +5141,9 @@ if(location.search.indexOf('selftest')>=0){
     document.title = 'SELFTEST_ERROR:'+(e && e.message);
   }
 }
+
+/* 意 · 每秒刷新专注倒计时；到点自动结算并发奖励 */
+setInterval(yiTick, 1000);
 </script>
 </body>
 </html>
