@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,7 +54,19 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee /tmp/build.log
+
+      - name: Publish build log on failure
+        if: failure()
+        run: |
+          mkdir -p ci-logs
+          cp /tmp/build.log ci-logs/build.log 2>/dev/null || echo "no log" > ci-logs/build.log
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@local"
+          git add -f ci-logs/build.log
+          git commit -m "ci: build log [skip ci]" || true
+          git push || true
 
       - name: Rename APK
         run: |
