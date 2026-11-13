@@ -28,6 +28,25 @@ tasks.withType(JavaCompile) {
     options.encoding = "UTF-8"
 }
 
+// 直接按需把 ../../www 拷进 assets，任何构建方式（Android Studio / gradlew / CI）
+// 都会用上最新的页面，不依赖手动跑 npx cap copy。
+def webSourceDir = new File(rootProject.projectDir, "../www").canonicalFile
+def capConfigFile = new File(rootProject.projectDir, "../capacitor.config.json").canonicalFile
+
+tasks.register("copyWebAssets", Copy) {
+    from webSourceDir
+    into new File(projectDir, "src/main/assets/public")
+}
+
+tasks.register("copyCapacitorConfig", Copy) {
+    from capConfigFile
+    into new File(projectDir, "src/main/assets")
+}
+
+afterEvaluate {
+    preBuild.dependsOn "copyWebAssets", "copyCapacitorConfig"
+}
+
 repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'

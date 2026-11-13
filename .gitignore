@@ -12,9 +12,11 @@ android/.idea/
 android/capacitor-cordova-android-plugins/build/
 android/app/src/main/assets/public
 android/app/src/main/assets/capacitor.config.json
-android/app/src/main/assets/capacitor.plugins.json
 
 *.iml
 .idea/
 .DS_Store
 Thumbs.db
+
+# 本地 Agent 记忆，不进仓库
+.workbuddy/
