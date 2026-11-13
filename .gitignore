@@ -20,3 +20,4 @@ Thumbs.db
 
 # 本地 Agent 记忆，不进仓库
 .workbuddy/
+ci-logs/
