@@ -35,14 +35,22 @@ android/                Android 工程（Capacitor 生成，已提交）
 
 1. `git push` 到 `main`
 2. 打开仓库的 **Actions** → 最新的 `Build APK` 运行
-3. 跑完在页面底部 **Artifacts** 下载 `life-control-apk`
+3. 跑完在页面底部 **Artifacts** 下载 `life-control-apk.zip`
 4. 解压得到 `.apk`，传到手机安装（小米会提示"未知来源"，允许即可）
 
-首次编译大约 5～8 分钟，之后有缓存会快一些。
+一次编译约 1～2 分钟。
+
+### 改完页面之后
+
+只改 `www/index.html` 的话，**直接 push 就行** —— Gradle 在构建时会把 `www/` 整个拷进 `android/app/src/main/assets/public`，不需要手动跑 `cap copy`。
+
+只有两种情况需要本地先执行 `npm install && npm run sync`：
+- 在 `package.json` 里新加了 Capacitor 插件
+- 改了 `capacitor.config.json` 里的 `appId` / `appName`
 
 ### 本地预览界面
 
-直接双击 `www/index.html` 用浏览器打开即可。没有原生环境时，额度会降级存进 `localStorage`，界面上所有交互都能试。
+直接双击 `www/index.html` 用浏览器打开即可。没有原生环境时，额度会降级存进 `localStorage`，界面上所有交互都能试（打卡加额度、加应用、改时长都正常，只是不会真的去管应用）。
 
 ---
 
