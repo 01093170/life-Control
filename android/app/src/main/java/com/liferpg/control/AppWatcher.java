@@ -1,0 +1,107 @@
+package com.liferpg.control;
+
+import android.accessibilityservice.AccessibilityService;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.inputmethod.InputMethodInfo;
+import android.view.inputmethod.InputMethodManager;
+
+import java.lang.ref.WeakReference;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * 只做一件事：告诉系统"现在前台是谁"。
+ * 不读屏幕内容（canRetrieveWindowContent=false），纯窗口切换事件驱动，几乎不耗电。
+ */
+public class AppWatcher extends AccessibilityService {
+
+    private final Set<String> imePackages = new HashSet<String>();
+
+    @Override
+    protected void onServiceConnected() {
+        super.onServiceConnected();
+        GuardState.watcher = new WeakReference<AppWatcher>(this);
+        GuardState.accessibilityConnected = true;
+        loadImePackages();
+        GuardService.start(this);
+    }
+
+    /** 把已安装的输入法包名缓存起来，输入法弹窗不能算作"切走了"。 */
+    private void loadImePackages() {
+        try {
+            InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            if (imm == null) return;
+            for (InputMethodInfo info : imm.getInputMethodList()) {
+                if (info != null) imePackages.add(info.getPackageName());
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (event == null) return;
+        int type = event.getEventType();
+        if (type != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+                && type != AccessibilityEvent.TYPE_WINDOWS_CHANGED) return;
+
+        CharSequence cs = event.getPackageName();
+        if (cs == null) return;
+        String pkg = cs.toString();
+        if (pkg.length() == 0) return;
+
+        // 回到自己 App，顺手把拦截页收掉
+        if (pkg.equals(getPackageName())) {
+            BlockOverlay.hide();
+            GuardState.reportForeground(pkg);
+            return;
+        }
+        if (isNoise(pkg)) return;
+
+        GuardState.reportForeground(pkg);
+
+        Wallet w = Wallet.get(this);
+        boolean managed = w.isManaged(pkg);
+        if (!managed) {
+            if (BlockOverlay.isShowing()) BlockOverlay.hide();
+            return;
+        }
+        if (w.guardOn() && w.enforce() && w.balance() <= 0) {
+            showBlock(w.labelOf(pkg));
+        }
+    }
+
+    /** 输入法、系统 UI 这类窗口不该覆盖"当前前台 App"。 */
+    private boolean isNoise(String pkg) {
+        if ("com.android.systemui".equals(pkg)) return true;
+        if ("android".equals(pkg)) return true;
+        if (imePackages.contains(pkg)) return true;
+        String p = pkg.toLowerCase();
+        if (p.contains("inputmethod")) return true;
+        if (p.startsWith("com.android.permissioncontroller")) return true;
+        return false;
+    }
+
+    public void showBlock(String label) {
+        BlockOverlay.show(this, label);
+    }
+
+    @Override
+    public void onInterrupt() {
+    }
+
+    @Override
+    public boolean onUnbind(android.content.Intent intent) {
+        GuardState.accessibilityConnected = false;
+        BlockOverlay.hide();
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        GuardState.accessibilityConnected = false;
+        GuardState.watcher = null;
+        BlockOverlay.hide();
+        super.onDestroy();
+    }
+}

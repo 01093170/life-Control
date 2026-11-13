@@ -1,0 +1,20 @@
+node_modules/
+.tmpcheck/
+
+# 根目录的 index.html 是迁移前的副本（与 backup/ 内容一致），正式文件在 www/index.html
+/index.html
+
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/capacitor-cordova-android-plugins/build/
+android/app/src/main/assets/public
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+
+*.iml
+.idea/
+.DS_Store
+Thumbs.db

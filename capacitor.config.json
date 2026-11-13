@@ -1,0 +1,12 @@
+{
+  "appId": "com.liferpg.control",
+  "appName": "LifeRPG",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": true
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
