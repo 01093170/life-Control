@@ -51,21 +51,8 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      # runner 每次临时生成 ~/.android/debug.keystore，签名各不相同 → 手机上无法覆盖
-      # 安装，必须先卸载（会丢数据）。这里用仓库里固定的自签 debug key 覆盖它。
-      # 这是 debug 用途的自签证书，不用于正式发布。
-      - name: Use fixed debug keystore
-        run: |
-          mkdir -p "$HOME/.android"
-          rm -f "$HOME/.android/debug.keystore"
-          keytool -importkeystore \
-            -srckeystore android/app/yi-debug.p12 -srcstoretype PKCS12 -srcstorepass android \
-            -destkeystore "$HOME/.android/debug.keystore" -deststoretype JKS \
-            -deststorepass android -destkeypass android \
-            -alias androiddebugkey -noprompt
-          keytool -list -v -keystore "$HOME/.android/debug.keystore" -storepass android \
-            -alias androiddebugkey | grep -i -E "Alias name|SHA256:" | head -3
-
+      # 签名由 android/app/build.gradle 的 signingConfigs.yiDebug 固定指向
+      # android/app/yi-debug.p12，不依赖 runner 的 ~/.android/debug.keystore。
       - name: Build debug APK
         working-directory: android
         run: |

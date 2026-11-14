@@ -16,7 +16,22 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // CI runner 每次临时生成的 debug.keystore 会让每个 APK 签名都不同，手机上无法
+    // 覆盖安装（必须先卸载，会丢数据）。这里显式指向仓库里固定的自签 debug key。
+    // 这是 debug 用途的自签证书，不用于正式发布。
+    signingConfigs {
+        yiDebug {
+            storeFile file('yi-debug.p12')
+            storeType 'PKCS12'
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.yiDebug
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
