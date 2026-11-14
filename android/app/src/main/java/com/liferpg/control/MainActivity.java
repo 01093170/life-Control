@@ -40,8 +40,7 @@ public class MainActivity extends BridgeActivity {
                 }
             }, 1500);
 
-            if (Wallet.get(this).guardOn()) GuardService.start(this);
-            ensureNotificationPermission();
+            // 守护由系统绑定的无障碍服务承载，不再启动前台服务、也不再申请通知权限。
         } catch (Exception ignored) {
         }
     }
@@ -54,19 +53,6 @@ public class MainActivity extends BridgeActivity {
                 + "r.style.setProperty('--sat','" + top + "px');"
                 + "r.style.setProperty('--sab','" + bottom + "px');}catch(e){}";
         web.evaluateJavascript(js, null);
-    }
-
-    private void ensureNotificationPermission() {
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= 33) {
-                boolean granted = checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                        == android.content.pm.PackageManager.PERMISSION_GRANTED;
-                if (!granted) {
-                    requestPermissions(new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1001);
-                }
-            }
-        } catch (Exception ignored) {
-        }
     }
 
     /** 系统返回键先问前端要不要接管（技能详情 → 回列表），前端说没接管才退出。 */

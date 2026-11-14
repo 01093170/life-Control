@@ -1,8 +1,12 @@
 package com.liferpg.control;
 
 import android.accessibilityservice.AccessibilityService;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -40,6 +44,13 @@ public class AppWatcher extends AccessibilityService {
 
     /** 真实前台连续多久不是受管应用，才认定真的离开了。用于吞掉瞬时弹窗。 */
     private static final long LEAVE_GRACE_MS = 2500L;
+    private static final long CHARGE_CHUNK_MS = 10000L;
+
+    /* 按秒扣费与拦截裁决都放在无障碍服务里：它由系统绑定，不需要前台服务，
+       也就不需要那条「专注守护运行中」的常驻通知。 */
+    private Handler handler;
+    private long lastTickAt = 0L;
+    private long accMs = 0L;
 
     private final Set<String> imePackages = new HashSet<String>();
     private final Set<String> launcherPackages = new HashSet<String>();
@@ -52,9 +63,65 @@ public class AppWatcher extends AccessibilityService {
         GuardState.accessibilityConnected = true;
         loadImePackages();
         loadLauncherPackages();
-        GuardService.start(this);
+        startTicker();
         Log.d(TAG, "service connected");
         postSync();
+    }
+
+    private void startTicker() {
+        if (handler == null) handler = new Handler(Looper.getMainLooper());
+        handler.removeCallbacks(ticker);
+        handler.postDelayed(ticker, 1000);
+    }
+
+    private void stopTicker() {
+        if (handler != null) handler.removeCallbacks(ticker);
+        flushAcc();
+    }
+
+    private final Runnable ticker = new Runnable() {
+        @Override
+        public void run() {
+            try {
+                tick();
+            } catch (Exception ignored) {
+            }
+            if (handler != null) handler.postDelayed(this, 1000);
+        }
+    };
+
+    /** 每秒：按前台时长扣额度，并让拦截裁决跟着最新状态走。 */
+    private void tick() {
+        Wallet w = Wallet.get(this);
+        long now = SystemClock.elapsedRealtime();
+        long dt = lastTickAt == 0L ? 1000L : now - lastTickAt;
+        lastTickAt = now;
+        if (dt <= 0 || dt > 8000L) dt = 1000L;
+
+        String pkg = GuardState.fgPackage;
+        boolean counting = w.isManaged(pkg) && isScreenOn() && w.guardOn() && w.enforce();
+        if (counting) {
+            accMs += dt;
+            if (accMs >= CHARGE_CHUNK_MS || w.balance() <= 0) flushAcc();
+        } else {
+            flushAcc();
+        }
+        syncNow();
+    }
+
+    private void flushAcc() {
+        if (accMs <= 0) return;
+        Wallet.get(this).charge(accMs);
+        accMs = 0L;
+    }
+
+    private boolean isScreenOn() {
+        try {
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            return pm == null || pm.isInteractive();
+        } catch (Exception e) {
+            return true;
+        }
     }
 
     private void loadImePackages() {
@@ -338,6 +405,7 @@ public class AppWatcher extends AccessibilityService {
 
     @Override
     public boolean onUnbind(Intent intent) {
+        stopTicker();
         GuardState.accessibilityConnected = false;
         GuardState.clearBlock();
         BlockOverlay.hide();
@@ -346,6 +414,7 @@ public class AppWatcher extends AccessibilityService {
 
     @Override
     public void onDestroy() {
+        stopTicker();
         GuardState.accessibilityConnected = false;
         GuardState.watcher = null;
         GuardState.clearBlock();

@@ -163,10 +163,14 @@ h3 svg{color:var(--sub);flex:none}
 /* ---------- 简单富文本：**粗体** + 行首「•」项目符号 ---------- */
 .rt-li{display:inline-block;max-width:100%;padding-left:1.2em;text-indent:-1.2em;vertical-align:top}
 .lv-read b,.dy-readbody b{font-weight:700}
+/* ==文字== 蓝色字：固定蓝色，不跟着主题的强调色跑 */
+.rt-blue{color:#3b82f6;font-weight:600}
+body[data-theme="dark"] .rt-blue{color:#7db3ff}
+body[data-theme="paper"] .rt-blue{color:#2563eb}
 .rt-hint{font-size:11px;color:var(--sub);opacity:.85;margin-top:7px;line-height:1.55;letter-spacing:.2px}
 .rt-hint i{font-style:normal;background:var(--acc-08);color:var(--accent);padding:1px 5px;border-radius:5px;font-size:10.5px;font-weight:700}
 /* ---------- 富文本快捷条：长按选中文字后浮出来，省得记语法 ---------- */
-#rtBar{position:fixed;left:0;top:0;z-index:210;display:none;gap:6px;padding:6px;border-radius:13px;
+#rtBar{position:fixed;left:0;top:0;z-index:900;display:none;gap:6px;padding:6px;border-radius:13px;
   background:rgba(26,32,40,.97);border:1px solid rgba(255,255,255,.14);
   box-shadow:0 12px 30px rgba(0,0,0,.32);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 #rtBar.on{display:flex}
@@ -174,6 +178,7 @@ h3 svg{color:var(--sub);flex:none}
   font-size:14px;font-weight:700;font-family:inherit;white-space:nowrap;cursor:pointer;transition:background .12s}
 #rtBar button:active{background:#415061}
 #rtBar .rtb-b{font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:16px}
+#rtBar .rtb-blue{color:#8ec1ff}
 /* ---------- 进度：技能等级改用勋章进度环（见 .sk-medal-ring） ---------- */
 .lv-badge{font-size:12px;font-weight:700;color:var(--accent);background:var(--acc-08);border:1px solid var(--acc-20);padding:3px 10px;border-radius:10px;white-space:nowrap}
 .sk-badge{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none;margin-right:10px;letter-spacing:.5px}
@@ -687,7 +692,7 @@ body.has-wall #app{background:transparent}
           <div class="dy-sheet-body" style="display:flex;flex-direction:column">
             <input type="text" id="dyEditorTitle" placeholder="标题（可不填）" autocomplete="off">
             <textarea id="dyEditorBody" class="js-rt" placeholder="今天发生了什么？随便写点什么都行……"></textarea>
-            <div class="rt-hint" style="flex:none;padding:4px 0 0">正文支持 <i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div>
+            <div class="rt-hint" style="flex:none;padding:4px 0 0">正文支持 <i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div>
           </div>
           <div class="dy-sheet-foot">
             <span id="dyEditorStatus">已保存</span>
@@ -1063,22 +1068,23 @@ const $  = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-/* ---- 简单富文本：**粗体** 与行首「•」项目符号，所有多行文本域共用 ----
+/* ---- 简单富文本：**粗体**、==蓝色字==、行首「•」项目符号 ----
    rich() 出 HTML（已转义，不会注入）；plain() 出纯文本，给标题、字数、搜索、导出用。 */
 const rtLi = /^\s*[•·‣▪]\s*/;
 const rich = s => String(s??'').split('\n').map(ln=>{
   let h = esc(ln).replace(/\*\*([^*\n]+?)\*\*/g,'<b>$1</b>');
+  h = h.replace(/==([^=\n]+?)==/g,'<span class="rt-blue">$1</span>');
   if(rtLi.test(ln)) h = '<span class="rt-li">'+h+'</span>';
   return h;
 }).join('\n');
-const plain = s => String(s??'').replace(/\*\*/g,'').split('\n').map(l=>l.replace(rtLi,'')).join('\n');
+const plain = s => String(s??'').replace(/\*\*/g,'').replace(/==/g,'').split('\n').map(l=>l.replace(rtLi,'')).join('\n');
 const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
 const money = n => '¥' + (Math.round(n*10)/10).toLocaleString('zh-CN',{maximumFractionDigits:1});
 const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const daysBetween = (a,b) => Math.floor((new Date(b) - new Date(a)) / 86400000);
 const clamp = (v,lo,hi) => Math.min(hi, Math.max(lo, v));
 
-/* ---- 富文本快捷条：在 .rt-ta 里长按选中一段文字，浮出「B / • 列表」两个按钮 ----
+/* ---- 富文本快捷条：长按选中一段文字，浮出「B / • 列表 / 蓝色」三个按钮 ----
    只改 textarea 的 value 与选区，然后派发一次 input 事件，原有的自动保存和
    autoGrow 照旧生效，不需要每个输入框单独接线。按钮按下时阻止默认行为，
    避免选区在点击瞬间被清掉。 */
@@ -1090,7 +1096,8 @@ const Rt = (function(){
     bar=document.createElement('div');
     bar.id='rtBar';
     bar.innerHTML='<button type="button" class="rtb-b" data-a="b" aria-label="加粗">B</button>'
-                + '<button type="button" data-a="li" aria-label="项目符号">• 列表</button>';
+                + '<button type="button" data-a="li" aria-label="项目符号">• 列表</button>'
+                + '<button type="button" class="rtb-blue" data-a="blue" aria-label="蓝色字">蓝色</button>';
     const hold=e=>{ e.preventDefault(); };               // 别抢走 textarea 的焦点和选区
     bar.addEventListener('pointerdown', hold);
     bar.addEventListener('mousedown', hold);
@@ -1098,23 +1105,29 @@ const Rt = (function(){
     bar.addEventListener('click', function(e){
       const b=e.target.closest('button'); if(!b || !ta) return;
       e.preventDefault();
-      if(b.dataset.a==='b') bold(); else bullet();
+      const a=b.dataset.a;
+      if(a==='b') bold(); else if(a==='blue') blue(); else bullet();
     });
     document.body.appendChild(bar);
     return bar;
   }
   function isRt(el){ return !!el && el.tagName==='TEXTAREA' && (el.classList.contains('rt-ta') || el.classList.contains('js-rt')); }
   function selected(el){ return el.value.slice(el.selectionStart, el.selectionEnd); }
+  /* 系统自带的「复制 / 粘贴 / 全选」是原生浮层，网页元素永远盖不过它，
+     而且它出现在选中文字的上方 —— 旧版快捷条也贴在输入框上方，正好被顶掉。
+     现在固定在可视区底部；软键盘弹出时 visualViewport 变矮，条自动跟到键盘上沿。
+     两块浮层各占一头，页面滚动也不再收起它。 */
   function place(){
     if(!ta || !bar) return;
-    const r=ta.getBoundingClientRect();
-    const bw=bar.offsetWidth||150, bh=bar.offsetHeight||48;
-    const vh=window.innerHeight||800, vw=window.innerWidth||400;
-    let top = r.top - bh - 8;
-    if(top < 8) top = r.top + 8;                 // 上方放不下就压到框内顶部
-    top = Math.max(8, Math.min(vh - bh - 8, top));
-    let left = r.left + (r.width - bw)/2;
-    left = Math.max(8, Math.min(vw - bw - 8, left));
+    const bw=bar.offsetWidth||210, bh=bar.offsetHeight||48;
+    const vv=window.visualViewport;
+    const vw=(vv && vv.width) || window.innerWidth || 400;
+    const vh=(vv && vv.height) || window.innerHeight || 800;
+    const offX=(vv && vv.offsetLeft) || 0, offY=(vv && vv.offsetTop) || 0;
+    let top = offY + vh - bh - 14;
+    top = Math.max(offY + 8, Math.min(offY + vh - bh - 8, top));
+    let left = offX + (vw - bw)/2;
+    left = Math.max(offX + 8, Math.min(offX + vw - bw - 8, left));
     bar.style.top=Math.round(top)+'px';
     bar.style.left=Math.round(left)+'px';
   }
@@ -1143,6 +1156,15 @@ const Rt = (function(){
     const out=wrapped ? sel.slice(2,-2) : '**'+sel+'**';
     commit(el, v.slice(0,s)+out+v.slice(e), s, s+out.length);
   }
+  function blue(){
+    const el=ta; if(!el) return;
+    const s=el.selectionStart, e=el.selectionEnd;
+    if(s===e) return;
+    const v=el.value, sel=v.slice(s,e);
+    const wrapped=/^==[\s\S]*==$/.test(sel);
+    const out=wrapped ? sel.slice(2,-2) : '=='+sel+'==';
+    commit(el, v.slice(0,s)+out+v.slice(e), s, s+out.length);
+  }
   function bullet(){
     const el=ta; if(!el) return;
     const v=el.value, s=el.selectionStart, e=el.selectionEnd;
@@ -1167,7 +1189,8 @@ const Rt = (function(){
   document.addEventListener('touchend', check, true);
   document.addEventListener('mouseup', check, true);
   document.addEventListener('keyup', check, true);
-  document.addEventListener('scroll', hide, true);
+  /* 系统选择菜单弹出时 WebView 常会轻微滚动，旧版一滚就 hide，浮条直接消失 */
+  document.addEventListener('scroll', function(){ if(ta) place(); }, true);
   window.addEventListener('resize', function(){ if(ta) place(); });
   /* 软键盘弹出会改变可视区域，位置要跟着重算 */
   if(window.visualViewport){
@@ -2766,7 +2789,7 @@ function openInsightModal(skillId){
     <h2>${ic('sprout',18)} 新的感悟 · ${esc(sk?sk.name:'')}</h2>
     <p class="sub" style="margin-bottom:12px">这棵树上会多一颗发光果实：外面是它的名字，里面是你的内容。</p>
     <div class="field"><label class="req">感悟名字</label><input type="text" id="inTitle" placeholder="例如：慢即是快、先完成再完美"></div>
-    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto rt-ta" style="min-height:120px" placeholder="写下你悟到了什么、为什么……" oninput="autoGrow(this)"></textarea><div class="rt-hint"><i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div></div>
+    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto rt-ta" style="min-height:120px" placeholder="写下你悟到了什么、为什么……" oninput="autoGrow(this)"></textarea><div class="rt-hint"><i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div></div>
     <button class="btn btn-primary" onclick="saveInsight(null,'${skillId}')">种到树上</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeModal()">取消</button>`);
   setTimeout(()=>{$('#inTitle')?.focus(); autoGrow($('#inBody'));},100);
@@ -2777,7 +2800,7 @@ function openInsightEdit(id){
   openModal(`
     <h2>${ic('sprout',18)} 编辑感悟 · ${esc(sk?sk.name:'')}</h2>
     <div class="field"><label class="req">感悟名字</label><input type="text" id="inTitle" value="${esc(it.title)}"></div>
-    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto rt-ta" style="min-height:120px" oninput="autoGrow(this)">${esc(it.content)}</textarea><div class="rt-hint"><i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div></div>
+    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto rt-ta" style="min-height:120px" oninput="autoGrow(this)">${esc(it.content)}</textarea><div class="rt-hint"><i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div></div>
     <button class="btn btn-primary" onclick="saveInsight('${id}')">保存</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeModal()">取消</button>`);
   setTimeout(()=>autoGrow($('#inBody')),100);
@@ -2969,7 +2992,7 @@ function renderLevelDetail(){
   const lvData = sk.levels[editing.lv-1];
   const textMode = levelEditState.text || 'view';
   const hintMode = levelEditState.hint || 'view';
-  const rtTip = `<div class="rt-hint"><i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div>`;
+  const rtTip = `<div class="rt-hint"><i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div>`;
   const textBlock = textMode==='edit'
     ? `<textarea id="fText" class="auto rt-ta" placeholder="写下本等级的内容：训练目标、识别信号、有效/无效做法示例……" oninput="saveLvField('text',this.value);autoGrow(this)">${esc(lvData.text)}</textarea>${rtTip}`
     : (lvData.text && lvData.text.trim()
@@ -4402,7 +4425,7 @@ function openDiseaseModal(id){
     <div class="field"><label class="req">疾病名称</label><input type="text" id="dName" value="${d?esc(d.name):''}" placeholder="例如：近视"></div>
     <div class="field"><label class="req">确诊日期</label><input type="date" id="dDate" value="${d?d.diagnoseDate:todayStr()}"></div>
     <div class="field"><label class="req">总花费（元）</label><input type="number" id="dCost" inputmode="decimal" value="${d?d.cost:''}" placeholder="例如：2800"></div>
-    <div class="field"><label>注意事项（支持换行）</label><textarea id="dNotes" class="rt-ta" style="min-height:96px" placeholder="例如：每20分钟看远处">${d?esc(d.notes):''}</textarea><div class="rt-hint"><i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div></div>
+    <div class="field"><label>注意事项（支持换行）</label><textarea id="dNotes" class="rt-ta" style="min-height:96px" placeholder="例如：每20分钟看远处">${d?esc(d.notes):''}</textarea><div class="rt-hint"><i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div></div>
     <div class="field"><label>当前状态</label>
       <select id="dStatus">
         <option value="治疗中" ${d&&d.status==='治疗中'?'selected':''}>治疗中</option>
@@ -5890,6 +5913,11 @@ if(location.search.indexOf('selftest')>=0){
       ok('壁纸模糊度仍在 0–30 内', (function(){ const b=Wall.blur(); return b>=0 && b<=30 && typeof Wall.apply==='function'; })());
       ok('空闲时 tick 不报错（计时器会自己收掉）', (function(){ Yi.tick(); return true; })());
       ok('富文本快捷条默认收起', typeof Rt.isOpen==='function' && Rt.isOpen()===false);
+
+      // -- 第 18 轮：==蓝色字== 富文本 --
+      ok('==文字== 渲染成蓝色 span', /<span class="rt-blue">蓝色<\/span>/.test(rich('==蓝色==')));
+      ok('蓝色与加粗、项目符号可叠加', /<span class="rt-li">/.test(rich('• ==重点==')) && /<b>粗<\/b>/.test(rich('**粗**')));
+      ok('plain() 会去掉蓝色标记', plain('==蓝色== **粗**')==='蓝色 粗');
 
       const rent = {id:'rt-leaf', name:'房租', category:'购物', amount:3000, startDate:'2026-01-01', cycle:'quarter', settled:{}};
       state.wealth.fixed = (state.wealth.fixed||[]).filter(f=>f.name!=='房租').concat([rent]);

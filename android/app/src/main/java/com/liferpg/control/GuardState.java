@@ -2,7 +2,7 @@ package com.liferpg.control;
 
 import java.lang.ref.WeakReference;
 
-/** 无障碍服务与前台服务之间的共享内存状态（同一进程）。 */
+/** 无障碍服务与桥接层共用的运行状态（同一进程，没有前台服务）。 */
 public class GuardState {
 
     /** 最近一次全屏窗口事件的包名；只作为兜底，不再是拦截判定的唯一依据。 */

@@ -184,7 +184,7 @@ public class NativeBridge {
     @JavascriptInterface
     public String setGuardOn(boolean b) {
         w().setGuardOn(b);
-        if (b) GuardService.start(act);
+        // 守护循环由系统绑定的无障碍服务承载，开/关只改钱包状态即可。
         return getState();
     }
 
@@ -339,7 +339,7 @@ public class NativeBridge {
 
     @JavascriptInterface
     public void startGuard() {
-        GuardService.start(act);
+        // 无障碍服务一旦绑定就在跑计时循环；这里只催一次立即裁决。
         AppWatcher w = GuardState.watcher();
         if (w != null) w.syncNow();
     }
