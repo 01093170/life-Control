@@ -1,9 +1,11 @@
 package com.liferpg.control;
 
 import android.accessibilityservice.AccessibilityService;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -64,8 +66,21 @@ public class AppWatcher extends AccessibilityService {
         loadImePackages();
         loadLauncherPackages();
         startTicker();
+        cleanupLegacyNotificationChannels();
         Log.d(TAG, "service connected");
         postSync();
+    }
+
+    /** 旧版前台服务留下的通知类别，覆盖升级不会自动消失，主动删掉。 */
+    private void cleanupLegacyNotificationChannels() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
+        try {
+            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
+            nm.deleteNotificationChannel("guard_v2");
+            nm.deleteNotificationChannel("reward_guard");
+        } catch (Exception ignored) {
+        }
     }
 
     private void startTicker() {
