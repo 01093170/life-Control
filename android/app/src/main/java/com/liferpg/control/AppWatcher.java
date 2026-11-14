@@ -96,11 +96,19 @@ public class AppWatcher extends AccessibilityService {
 
         boolean full = event.isFullScreen();
         CharSequence cn = event.getClassName();
-        Log.d(TAG, "event pkg=" + pkg + " class=" + (cn == null ? "" : cn.toString())
-                + " full=" + full);
+        final String cls = cn == null ? "" : cn.toString();
+        Log.d(TAG, "event pkg=" + pkg + " class=" + cls + " full=" + full);
 
-        // 明确离开优先：无论窗口是否全屏，都要立即收掉拦截页。
+        // 拦截页本身也是本包的窗口（TYPE_ACCESSIBILITY_OVERLAY），一加窗系统就会回送
+        // TYPE_WINDOW_STATE_CHANGED。旧逻辑把它当成「用户回到本 App」，于是刚盖上就被
+        // 自己关掉、守护服务每秒再盖一次 —— 这正是「闪一下然后又能继续滑」的真凶。
+        // 只有真正全屏的 MainActivity 才算离开；其余本包窗口一律忽略并保持拦截页。
         if (pkg.equals(getPackageName())) {
+            if (!full || cls.contains("BlockOverlay")) {
+                String keep = GuardState.blockedPkg;
+                if (keep.length() > 0) reassert(keep);
+                return;
+            }
             GuardState.reportForeground(pkg);
             GuardState.explicitLeave = true;
             release("back to self");
@@ -179,6 +187,12 @@ public class AppWatcher extends AccessibilityService {
             String probe = auth.length() > 0 ? auth : ev;
 
             if (probe.equals(getPackageName()) || isLauncher(probe)) {
+                // 某些 ROM 的 getRootInActiveWindow() 会把我们自己的覆盖层当成活动窗口；
+                // 只要还锁着、且没有明确的 HOME / 回本 App 事件，就按瞬时窗口处理，别自己放行。
+                if (b.length() > 0 && !GuardState.explicitLeave) {
+                    hold(probe, now);
+                    return;
+                }
                 release("home / self");
                 return;
             }

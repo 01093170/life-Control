@@ -28,6 +28,14 @@ public class BlockOverlay {
     private static WindowManager sWm;
     private static String sLabel;
 
+    /**
+     * 用自己的 View 子类，让无障碍事件的 className 带上 BlockOverlay 标记，
+     * AppWatcher 才能把「覆盖层窗口」和「真正的 MainActivity」区分开。
+     */
+    public static class BlockView extends FrameLayout {
+        public BlockView(Context c) { super(c); }
+    }
+
     public static boolean isShowing() {
         return sView != null;
     }
@@ -42,7 +50,7 @@ public class BlockOverlay {
             if (sWm == null) return;
 
             final Context app = ctx.getApplicationContext();
-            FrameLayout root = new FrameLayout(ctx);
+            FrameLayout root = new BlockView(ctx);
             root.setBackgroundColor(Color.parseColor("#0F172A"));
             // 明确吃掉落在拦截页上的所有触摸，避免某些 ROM 把事件透传给下面的 App。
             root.setClickable(true);
