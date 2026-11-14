@@ -5,5 +5,5 @@
     <string name="package_name">com.liferpg.control</string>
     <string name="custom_url_scheme">com.liferpg.control</string>
     <string name="a11y_label">意 · 专注守护</string>
-    <string name="a11y_desc">识别当前打开的应用，在剩余时间用完后盖住受管应用。本服务不读取屏幕上的任何内容，也不需要 root。</string>
+    <string name="a11y_desc">识别当前打开的应用，在剩余时间用完后盖住受管应用。只读取窗口所属的应用包名用于判断，不读取屏幕文字、输入内容或任何界面数据，也不需要 root。</string>
 </resources>
