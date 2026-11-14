@@ -84,13 +84,42 @@ public class NativeBridge {
         JSONObject s = new JSONObject();
         try {
             s.put("accessibility", a11yEnabled());
-            s.put("overlay", canOverlay());
-            s.put("root", GuardState.rootReady);
-            s.put("rootChecked", GuardState.rootChecked);
+            s.put("sms", smsGranted());
             s.put("screenOn", true);
         } catch (Exception ignored) {
         }
         return s;
+    }
+
+    /* ---------------- 短信自动记账 ---------------- */
+
+    private boolean smsGranted() {
+        try {
+            return act.checkSelfPermission(android.Manifest.permission.RECEIVE_SMS)
+                    == PackageManager.PERMISSION_GRANTED;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /** 取走短信解析出的交易队列（取完即清空），返回 JSON 数组。 */
+    @JavascriptInterface
+    public String drainPayments() {
+        try {
+            return PayQueue.drain(act).toString();
+        } catch (Exception e) {
+            return "[]";
+        }
+    }
+
+    /** 请求短信读取权限（只用于识别银行消费短信，不读取验证码以外的内容）。 */
+    @JavascriptInterface
+    public void requestSms() {
+        try {
+            if (smsGranted()) return;
+            act.requestPermissions(new String[]{android.Manifest.permission.RECEIVE_SMS}, 9101);
+        } catch (Exception ignored) {
+        }
     }
 
     private boolean a11yEnabled() {
@@ -108,14 +137,6 @@ public class NativeBridge {
                 if (flat.contains(t)) return true;
             }
             return GuardState.accessibilityConnected;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private boolean canOverlay() {
-        try {
-            return Settings.canDrawOverlays(act);
         } catch (Exception e) {
             return false;
         }
@@ -157,12 +178,6 @@ public class NativeBridge {
     @JavascriptInterface
     public String setEnforce(boolean b) {
         w().setEnforce(b);
-        return getState();
-    }
-
-    @JavascriptInterface
-    public String setRootKill(boolean b) {
-        w().setRootKill(b);
         return getState();
     }
 
@@ -261,19 +276,6 @@ public class NativeBridge {
     /* ---------------- 权限 / 跳转 ---------------- */
 
     @JavascriptInterface
-    public String requestRoot() {
-        GuardState.rootChecked = false;
-        RootShell.checkRoot(new RootShell.Callback() {
-            @Override
-            public void onResult(boolean ok, String output) {
-                GuardState.rootReady = ok;
-                GuardState.rootChecked = true;
-            }
-        });
-        return "{\"ok\":true}";
-    }
-
-    @JavascriptInterface
     public void openAccessibilitySettings() {
         try {
             Intent i = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
@@ -338,11 +340,8 @@ public class NativeBridge {
     @JavascriptInterface
     public void startGuard() {
         GuardService.start(act);
-    }
-
-    @JavascriptInterface
-    public void killNow(String pkg) {
-        RootShell.forceStop(pkg, null);
+        AppWatcher w = GuardState.watcher();
+        if (w != null) w.syncNow();
     }
 
     @JavascriptInterface

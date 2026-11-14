@@ -10,8 +10,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 只做一件事：告诉系统"现在前台是谁"。
- * 不读屏幕内容（canRetrieveWindowContent=false），纯窗口切换事件驱动，几乎不耗电。
+ * 只做一件事：告诉系统"现在前台是谁"，并在剩余时间用光时盖住受管应用。
+ * 不读屏幕内容（canRetrieveWindowContent=false），只用 activity 切换事件，几乎不耗电。
+ *
+ * 只认 TYPE_WINDOW_STATE_CHANGED：TYPE_WINDOWS_CHANGED 会把输入法、Toast、系统弹窗
+ * 甚至桌面残留窗口的包名当成"前台变了"，导致拦截页被误判成"切走了"而反复闪现／消失。
  */
 public class AppWatcher extends AccessibilityService {
 
@@ -24,6 +27,8 @@ public class AppWatcher extends AccessibilityService {
         GuardState.accessibilityConnected = true;
         loadImePackages();
         GuardService.start(this);
+        // 服务刚连上时，如果前台已经是受管应用且没时间了，立刻补上拦截页
+        postSync();
     }
 
     /** 把已安装的输入法包名缓存起来，输入法弹窗不能算作"切走了"。 */
@@ -41,16 +46,14 @@ public class AppWatcher extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event == null) return;
-        int type = event.getEventType();
-        if (type != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
-                && type != AccessibilityEvent.TYPE_WINDOWS_CHANGED) return;
+        if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
 
         CharSequence cs = event.getPackageName();
         if (cs == null) return;
         String pkg = cs.toString();
         if (pkg.length() == 0) return;
 
-        // 回到自己 App，顺手把拦截页收掉
+        // 回到自己 App：收掉拦截页
         if (pkg.equals(getPackageName())) {
             BlockOverlay.hide();
             GuardState.reportForeground(pkg);
@@ -59,16 +62,48 @@ public class AppWatcher extends AccessibilityService {
         if (isNoise(pkg)) return;
 
         GuardState.reportForeground(pkg);
+        syncBlock(pkg);
+    }
 
-        Wallet w = Wallet.get(this);
-        boolean managed = w.isManaged(pkg);
-        if (!managed) {
-            if (BlockOverlay.isShowing()) BlockOverlay.hide();
-            return;
+    /** 按当前前台与余额决定盖还是不盖；幂等，重复调用不会重建窗口。 */
+    private void syncBlock(String pkg) {
+        try {
+            Wallet w = Wallet.get(this);
+            boolean want = w.guardOn() && w.enforce() && w.isManaged(pkg) && w.balance() <= 0L;
+            if (want) BlockOverlay.show(this, w.labelOf(pkg));
+            else BlockOverlay.hide();
+        } catch (Exception ignored) {
         }
-        if (w.guardOn() && w.enforce() && w.balance() <= 0) {
-            showBlock(w.labelOf(pkg));
+    }
+
+    private void postSync() {
+        try {
+            new android.os.Handler(getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    String p = GuardState.fgPackage;
+                    if (p != null && p.length() > 0 && !p.equals(getPackageName()) && !isNoise(p)) {
+                        syncBlock(p);
+                    }
+                }
+            }, 600);
+        } catch (Exception ignored) {
         }
+    }
+
+    /** 守护服务每秒调用，余额从 0 变正（或暂停守护）时把拦截页收掉。 */
+    public void syncNow() {
+        String p = GuardState.fgPackage;
+        if (p != null && p.length() > 0 && !p.equals(getPackageName()) && !isNoise(p)) syncBlock(p);
+        else BlockOverlay.hide();
+    }
+
+    public void showBlock(String label) {
+        BlockOverlay.show(this, label);
+    }
+
+    public void hideBlock() {
+        BlockOverlay.hide();
     }
 
     /** 输入法、系统 UI 这类窗口不该覆盖"当前前台 App"。 */
@@ -80,10 +115,6 @@ public class AppWatcher extends AccessibilityService {
         if (p.contains("inputmethod")) return true;
         if (p.startsWith("com.android.permissioncontroller")) return true;
         return false;
-    }
-
-    public void showBlock(String label) {
-        BlockOverlay.show(this, label);
     }
 
     @Override

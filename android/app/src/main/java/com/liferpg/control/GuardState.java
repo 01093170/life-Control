@@ -11,14 +11,7 @@ public class GuardState {
     /** 前台包名的更新时刻（elapsedRealtime）。 */
     public static volatile long fgSince = 0L;
 
-    /** 上次强杀时刻，用于冷却。 */
-    public static volatile long lastKillAt = 0L;
-
     public static volatile boolean accessibilityConnected = false;
-
-    /** root 检测结果缓存（由 RootShell 异步回填）。 */
-    public static volatile boolean rootReady = false;
-    public static volatile boolean rootChecked = false;
 
     public static volatile WeakReference<AppWatcher> watcher = null;
 

@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -60,9 +63,35 @@ jobs:
           cp android/app/build/outputs/apk/debug/app-debug.apk "out/life-control-${{ github.run_number }}.apk"
           ls -lh out
 
+      # 包里那份网页必须和仓库里的 www/index.html 完全一致，否则直接失败，
+      # 避免"构建成功但装上去还是旧页面"这种最难查的问题。
+      - name: Verify packaged web matches www
+        run: |
+          APK="out/life-control-${{ github.run_number }}.apk"
+          IN_APK=$(unzip -p "$APK" assets/public/index.html | sha256sum | cut -d' ' -f1)
+          IN_REPO=$(sha256sum www/index.html | cut -d' ' -f1)
+          echo "packaged=$IN_APK"
+          echo "repo    =$IN_REPO"
+          test "$IN_APK" = "$IN_REPO"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: life-control-apk
           path: out/*.apk
           retention-days: 30
+
+      # 再发一份到 Releases：artifacts 下载要登录，Release 的直链谁都能拿，
+      # 拿不到写权限时（fork/PR）就跳过，不拖垮构建。
+      - name: Publish APK to Release
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="apk-${{ github.run_number }}"
+          gh release create "$TAG" "out/life-control-${{ github.run_number }}.apk" \
+            --repo "${{ github.repository }}" \
+            --title "意 · APK #${{ github.run_number }}" \
+            --notes "由 ${{ github.sha }} 构建。包内 assets/public/index.html 已校验与 www/index.html 一致。" \
+            || gh release upload "$TAG" "out/life-control-${{ github.run_number }}.apk" --clobber --repo "${{ github.repository }}"

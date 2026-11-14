@@ -4,6 +4,10 @@ node_modules/
 # 根目录的 index.html 是迁移前的副本（与 backup/ 内容一致），正式文件在 www/index.html
 /index.html
 
+# 每轮改动前的本地回退点，只是本机保险，不进仓库
+/index.html.bak.*
+/backup/
+
 android/.gradle/
 android/build/
 android/app/build/

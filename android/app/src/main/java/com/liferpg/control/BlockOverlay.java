@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
-import android.provider.Settings;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -15,13 +13,25 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-/** 额度耗尽时盖在受管 App 上的全屏拦截页（纯代码构建，不依赖布局文件）。 */
+/**
+ * 剩余时间用光时盖在受管 App 上的全屏拦截页（纯代码构建，不依赖布局文件）。
+ *
+ * 只用 TYPE_ACCESSIBILITY_OVERLAY：由无障碍服务自己加窗，不需要 root、也不需要悬浮窗权限。
+ * show() 是幂等的——同一个应用已经在盖着就直接返回，避免守护服务每秒 tick 都拆窗重建造成闪烁。
+ */
 public class BlockOverlay {
 
     private static View sView;
     private static WindowManager sWm;
+    private static String sLabel;
+
+    public static boolean isShowing() {
+        return sView != null;
+    }
 
     public static void show(Context ctx, String appLabel) {
+        final String label = appLabel == null ? "" : appLabel;
+        if (sView != null && label.equals(sLabel)) return;   // 已经盖着同一个应用，不重建
         hide();
         try {
             sWm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
@@ -38,14 +48,14 @@ public class BlockOverlay {
             box.setPadding(pad, pad, pad, pad);
 
             TextView tag = new TextView(ctx);
-            tag.setText("娱乐额度");
+            tag.setText("意 · 专注守护");
             tag.setTextColor(Color.parseColor("#64748B"));
             tag.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             tag.setLetterSpacing(0.2f);
             box.addView(tag);
 
             TextView title = new TextView(ctx);
-            title.setText("额度已用完");
+            title.setText("时间用完了");
             title.setTextColor(Color.WHITE);
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
             title.setTypeface(Typeface.DEFAULT_BOLD);
@@ -55,8 +65,8 @@ public class BlockOverlay {
             box.addView(title, tp);
 
             TextView desc = new TextView(ctx);
-            desc.setText((appLabel == null || appLabel.length() == 0 ? "该应用" : appLabel)
-                    + " 已暂停使用\n去技能页打卡，攒够额度再来");
+            desc.setText((label.length() == 0 ? "该应用" : label)
+                    + " 先放一放\n去技能页走完一段专注，换回来的时间再来");
             desc.setTextColor(Color.parseColor("#94A3B8"));
             desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
             desc.setGravity(Gravity.CENTER);
@@ -108,7 +118,7 @@ public class BlockOverlay {
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT,
-                    windowType(ctx),
+                    WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
                             | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
                             | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -116,8 +126,10 @@ public class BlockOverlay {
                     android.graphics.PixelFormat.OPAQUE);
             sWm.addView(root, lp);
             sView = root;
+            sLabel = label;
         } catch (Exception e) {
             sView = null;
+            sLabel = null;
         }
     }
 
@@ -129,25 +141,8 @@ public class BlockOverlay {
             }
         }
         sView = null;
-    }
-
-    public static boolean isShowing() {
-        return sView != null;
-    }
-
-    private static int windowType(Context ctx) {
-        boolean overlayOk = true;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            try {
-                overlayOk = Settings.canDrawOverlays(ctx);
-            } catch (Exception e) {
-                overlayOk = false;
-            }
-        }
-        if (overlayOk && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            return WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
-        }
-        return WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY;
+        sLabel = null;
+        sWm = null;
     }
 
     private static TextView makeButton(Context ctx, String text, String bg, int fg) {

@@ -60,7 +60,6 @@ public class Wallet {
             if (!o.has("balanceMs")) o.put("balanceMs", 0L);
             if (!o.has("rewardMinutes")) o.put("rewardMinutes", (int) (DEFAULT_REWARD_MS / 60000L));
             if (!o.has("enforce")) o.put("enforce", true);
-            if (!o.has("rootKill")) o.put("rootKill", true);
             if (!o.has("guardOn")) o.put("guardOn", true);
             if (!o.has("apps")) o.put("apps", new JSONArray());
             if (!o.has("earnedMs")) o.put("earnedMs", 0L);
@@ -107,10 +106,6 @@ public class Wallet {
 
     public synchronized boolean enforce() {
         return data.optBoolean("enforce", true);
-    }
-
-    public synchronized boolean rootKill() {
-        return data.optBoolean("rootKill", true);
     }
 
     public synchronized boolean guardOn() {
@@ -189,14 +184,6 @@ public class Wallet {
         flush();
     }
 
-    public synchronized void setRootKill(boolean b) {
-        try {
-            data.put("rootKill", b);
-        } catch (Exception ignored) {
-        }
-        flush();
-    }
-
     public synchronized void setGuardOn(boolean b) {
         try {
             data.put("guardOn", b);
@@ -251,7 +238,6 @@ public class Wallet {
             o.put("balanceMs", balance());
             o.put("rewardMinutes", rewardMinutes());
             o.put("enforce", enforce());
-            o.put("rootKill", rootKill());
             o.put("guardOn", guardOn());
             o.put("earnedMs", data.optLong("earnedMs", 0L));
             o.put("usedMs", data.optLong("usedMs", 0L));

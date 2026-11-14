@@ -124,6 +124,18 @@ h3 svg{color:var(--sub);flex:none}
 .rw-pill.on{background:rgba(5,150,105,.1);color:var(--green)}
 .rw-pill.off{background:rgba(220,38,38,.08);color:var(--red)}
 .rw-list{max-height:44vh;overflow:auto;-webkit-overflow-scrolling:touch}
+/* 注意：阶段考核已改为每级独立（levels[i].tip），且只在等级详情页可见，技能列表卡片不再展示 */
+/* 受管应用勾选器 */
+.ap-list{max-height:46vh;overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:12px}
+.ap-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;margin:0}
+.ap-row:last-child{border-bottom:none}
+.ap-row.on{background:var(--acc-08)}
+.ap-row input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent);flex:none;margin:0}
+.ap-meta{display:flex;flex-direction:column;min-width:0}
+.ap-meta b{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ap-meta span{font-size:11px;color:var(--sub);word-break:break-all}
+.ap-count{font-size:12px;color:var(--sub);margin-top:8px}
+.ap-hint{font-size:12px;color:var(--sub);line-height:1.9;padding:8px 0}
 .empty{text-align:center;color:var(--sub);font-size:13px;padding:28px 10px;line-height:2}
 .empty svg{display:block;margin:0 auto 8px;color:var(--sub)}
 /* ---------- 表单 ---------- */
@@ -132,6 +144,9 @@ h3 svg{color:var(--sub);flex:none}
 .field input[type=text],.field input[type=number],.field input[type=date],.field select,.field textarea{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px 12px;font-size:15px;font-family:inherit;outline:none;transition:border-color .15s,box-shadow .15s}
 .field textarea{min-height:64px;resize:vertical;line-height:1.5}
 .field textarea.auto{resize:none;overflow:hidden}
+/* 长文本编辑区：行高/字距/内边距对齐阅读态，避免中文大段堆在一起 */
+.field textarea.rt-ta{min-height:150px;line-height:1.9;letter-spacing:.2px;padding:14px 16px}
+.field textarea.rt-ta::placeholder{line-height:1.8;color:var(--sub);opacity:.75}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--acc-12)}
 .field .req::after{content:" *";color:var(--red)}
 /* ---------- 本等级内容：阅读态 ⇌ 编辑态 ---------- */
@@ -139,12 +154,26 @@ h3 svg{color:var(--sub);flex:none}
 .field-head label{margin-bottom:0}
 .lv-edit-btn{background:none;border:none;color:var(--accent);font-size:12px;font-weight:700;padding:4px 6px;cursor:pointer;font-family:inherit;border-radius:6px}
 .lv-edit-btn:active{background:var(--acc-08)}
-.lv-read{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;line-height:1.75;letter-spacing:.15px;white-space:pre-wrap;word-break:break-word;cursor:text;transition:background .15s}
+.lv-read{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;color:var(--text);font-size:15px;line-height:1.85;letter-spacing:.2px;white-space:pre-wrap;word-break:break-word;cursor:text;transition:background .15s}
 .lv-read:hover{background:var(--card)}
 .lv-read p{margin:0 0 10px}
 .lv-read p:last-child{margin-bottom:0}
 .lv-read-empty{color:var(--sub);font-style:italic;line-height:1.6}
 .lv-read-hint{color:var(--sub);font-size:11.5px;margin-top:6px;text-align:right;opacity:.6}
+/* ---------- 简单富文本：**粗体** + 行首「•」项目符号 ---------- */
+.rt-li{display:inline-block;max-width:100%;padding-left:1.2em;text-indent:-1.2em;vertical-align:top}
+.lv-read b,.dy-readbody b{font-weight:700}
+.rt-hint{font-size:11px;color:var(--sub);opacity:.85;margin-top:7px;line-height:1.55;letter-spacing:.2px}
+.rt-hint i{font-style:normal;background:var(--acc-08);color:var(--accent);padding:1px 5px;border-radius:5px;font-size:10.5px;font-weight:700}
+/* ---------- 富文本快捷条：长按选中文字后浮出来，省得记语法 ---------- */
+#rtBar{position:fixed;left:0;top:0;z-index:210;display:none;gap:6px;padding:6px;border-radius:13px;
+  background:rgba(26,32,40,.97);border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 12px 30px rgba(0,0,0,.32);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+#rtBar.on{display:flex}
+#rtBar button{min-width:48px;height:36px;padding:0 11px;border:0;border-radius:10px;background:#313b47;color:#eef3f8;
+  font-size:14px;font-weight:700;font-family:inherit;white-space:nowrap;cursor:pointer;transition:background .12s}
+#rtBar button:active{background:#415061}
+#rtBar .rtb-b{font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:16px}
 /* ---------- 进度：技能等级改用勋章进度环（见 .sk-medal-ring） ---------- */
 .lv-badge{font-size:12px;font-weight:700;color:var(--accent);background:var(--acc-08);border:1px solid var(--acc-20);padding:3px 10px;border-radius:10px;white-space:nowrap}
 .sk-badge{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex:none;margin-right:10px;letter-spacing:.5px}
@@ -229,6 +258,19 @@ h3 svg{color:var(--sub);flex:none}
 .goal-meta b{color:var(--text);font-weight:700}
 .goal-bar{height:8px;border-radius:999px;background:var(--card2);border:1px solid var(--line);overflow:hidden;margin-top:12px}
 .goal-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc-40),var(--accent));border-radius:999px;transition:width .6s cubic-bezier(.2,.8,.3,1)}
+/* 资产页：精简后的层级 */
+.as-hero{display:flex;align-items:baseline;gap:8px;margin-top:2px}
+.as-badge{font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--acc-08);color:var(--accent)}
+.as-badge.up{background:rgba(16,185,129,.13);color:var(--green)}
+.as-badge.down{background:rgba(220,38,38,.12);color:var(--red)}
+.as-meta{font-size:12px;color:var(--sub);line-height:1.65}
+.as-card{display:flex;align-items:center;gap:11px;padding:12px 14px}
+.as-name{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.as-val{font-size:15px;font-weight:700;flex:none;font-variant-numeric:tabular-nums}
+.as-goal-line{display:flex;align-items:baseline;gap:7px;margin-top:6px}
+.as-goal-line .g-num{font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--accent)}
+.as-goal-line .g-unit{font-size:12px;color:var(--sub);font-weight:600}
+.as-goal-empty{display:flex;align-items:center;gap:11px;border-style:dashed}
 /* ---------- 大师庆祝层 ---------- */
 #celebrate{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);animation:celFade .3s}
 #celebrate.hidden{display:none}
@@ -513,8 +555,63 @@ canvas.chart{width:100%;height:190px;display:block}
 /* ---- 日记「设置与备份」里的背景图预览 ---- */
 .fb-thumb{width:100%;height:124px;border-radius:11px;border:1px solid var(--line);background:linear-gradient(160deg,#1b2a38,#3d5a66 55%,#82959a);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;text-shadow:0 1px 4px rgba(0,0,0,.5)}
 .fb-label{font-size:12px;font-weight:700;color:var(--text);margin:14px 0 2px;letter-spacing:.3px}
+/* ---------- 图片裁剪器：固定手机比例框，拖动 + 缩放取景 ---------- */
+#cropOv{position:fixed;inset:0;z-index:120;background:#0b0f14;display:flex;flex-direction:column;touch-action:none}
+#cropOv.hidden{display:none}
+.crop-stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.crop-box{position:relative;overflow:hidden;background:#000;box-shadow:0 0 0 100vmax rgba(0,0,0,.66);border-radius:2px}
+.crop-box img{position:absolute;left:0;top:0;user-select:none;-webkit-user-drag:none;pointer-events:none;will-change:transform}
+.crop-grid{position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.55) 1px,transparent 1px);
+  background-size:33.33% 33.33%}
+.crop-ctrl{flex:none;padding:16px 20px calc(18px + env(safe-area-inset-bottom));background:#11161d;color:#e8ecf1}
+.crop-tip{font-size:11.5px;color:#9aa6b2;margin-bottom:12px;line-height:1.6}
+.crop-zoom{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.crop-zoom span{font-size:11.5px;color:#9aa6b2;flex:none}
+.crop-zoom input[type=range]{flex:1;accent-color:#4b9dff}
+.crop-btns{display:flex;gap:10px}
+.crop-btns button{flex:1;padding:12px 0;border-radius:11px;border:1px solid #2b3540;background:#1a222b;color:#e8ecf1;font-size:14.5px;font-weight:600;font-family:inherit}
+.crop-btns button.primary{background:#2f7fe0;border-color:#2f7fe0;color:#fff}
+/* ---------- 自定义壁纸：图片铺满页面，模糊可调；卡片转半透明保证文字可读 ---------- */
+body.has-wall::before{
+  content:'';position:fixed;inset:-42px;z-index:-1;pointer-events:none;
+  background-image:var(--wall);background-size:cover;background-position:center;background-repeat:no-repeat;
+  filter:blur(var(--wall-blur,6px));
+}
+body.has-wall.wall-baked::before{filter:none}
+body.has-wall{--bg:transparent;--card:rgba(255,255,255,.87);--card2:rgba(241,245,249,.72);--line:rgba(15,23,42,.10)}
+body.has-wall[data-theme="paper"]{--card:rgba(255,253,248,.89);--card2:rgba(251,248,242,.75);--line:rgba(120,100,70,.18)}
+body.has-wall[data-theme="ios"]{--card:rgba(255,255,255,.85);--card2:rgba(242,242,247,.7);--line:rgba(0,0,0,.07)}
+body.has-wall[data-theme="dark"]{--card:rgba(35,32,25,.89);--card2:rgba(42,38,32,.72);--line:rgba(255,255,255,.12)}
+body.has-wall #app{background:transparent}
 /* 从日记设置里打开「数据管理」时压在设置弹层之上 */
 #modalRoot.over-diary{z-index:75}
+/* ---- 自动记账规则卡（日记 → 设置与备份） ---- */
+.ac-card{border:1px solid var(--line);border-radius:11px;padding:12px 12px 11px;background:var(--card2);margin-top:8px}
+.ac-head{display:flex;align-items:center;gap:10px}
+.ac-head b{font-size:13.5px}
+.ac-sub{font-size:11.5px;color:var(--sub);margin-top:2px;line-height:1.5}
+.ac-count{font-size:11px;color:var(--sub);flex:none}
+.ac-rule{display:flex;align-items:center;gap:8px;margin-top:9px}
+.ac-rule input{width:78px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:7px 8px;font-size:14px;font-family:inherit;outline:none}
+.ac-rule input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--acc-12)}
+.ac-l{font-size:12.5px;color:var(--sub)}
+.ac-hint{font-size:11px;color:var(--sub);margin-top:9px;line-height:1.6}
+.ac-actions{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ac-actions button{font-size:11.5px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);font-family:inherit;cursor:pointer}
+.ac-note{font-size:11px;color:var(--sub)}
+.ac-mem{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+.ac-mem:last-child{border-bottom:0}
+.ac-mem b{font-size:12.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ac-x{flex:none;width:24px;height:24px;border-radius:7px;border:1px solid var(--line);background:transparent;color:var(--sub);font-size:14px;line-height:1;cursor:pointer;font-family:inherit}
+.ac-empty{font-size:11.5px;color:var(--sub);padding:9px 0 3px;line-height:1.6}
+.ac-sw{position:relative;flex:none;width:42px;height:24px;display:block}
+.ac-sw input{position:absolute;opacity:0;width:0;height:0}
+.ac-sw i{position:absolute;inset:0;border-radius:999px;background:var(--line);transition:background .2s}
+.ac-sw i::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ac-sw input:checked + i{background:var(--accent)}
+.ac-sw input:checked + i::after{transform:translateX(18px)}
+.tag.gray{background:rgba(148,163,184,.16);color:var(--sub)}
 </style>
 </head>
 <body>
@@ -589,7 +686,8 @@ canvas.chart{width:100%;height:190px;display:block}
           </div>
           <div class="dy-sheet-body" style="display:flex;flex-direction:column">
             <input type="text" id="dyEditorTitle" placeholder="标题（可不填）" autocomplete="off">
-            <textarea id="dyEditorBody" placeholder="今天发生了什么？随便写点什么都行……"></textarea>
+            <textarea id="dyEditorBody" class="js-rt" placeholder="今天发生了什么？随便写点什么都行……"></textarea>
+            <div class="rt-hint" style="flex:none;padding:4px 0 0">正文支持 <i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div>
           </div>
           <div class="dy-sheet-foot">
             <span id="dyEditorStatus">已保存</span>
@@ -652,12 +750,34 @@ canvas.chart{width:100%;height:190px;display:block}
               <div class="lab"><b>数据管理</b><small>导入 / 导出全部数据、Cloudflare R2、坚果云同步</small></div>
               <button onclick="openDataFromDiary()">打开</button>
             </div>
+            <div class="fb-label">自动记账 · 银行短信</div>
+            <div id="autoCatBox"></div>
             <div class="dy-panel-row">
               <div class="lab"><b>主题颜色</b><small>蓝色 / 暖黄 / 黑色 / iOS，全应用生效</small></div>
 <div class="dy-seg" id="dyThemeSeg">
 <button data-t="blue">蓝色</button><button data-t="paper">暖黄</button><button data-t="dark">黑色</button><button data-t="ios">iOS</button>
               </div>
             </div>
+            <div class="fb-label">自定义壁纸</div>
+            <div class="dy-panel-row">
+              <div class="lab"><b>背景图片</b><small id="wallTip">未设置 · 使用主题底色</small></div>
+              <button onclick="Wall.pick()">选择图片</button>
+            </div>
+            <div class="dy-panel-row" style="display:block">
+              <div class="fb-thumb" id="wallThumb" style="height:92px">未设置 · 使用主题底色</div>
+              <div class="row" style="gap:8px;margin-top:9px">
+                <span class="sub" style="flex:1;font-size:11px;line-height:1.5">只看本机，不随备份 / 云同步</span>
+                <button class="dy-btn-danger" onclick="Wall.clear()">清除壁纸</button>
+              </div>
+            </div>
+            <div class="dy-panel-row" style="display:block">
+              <div class="lab" style="margin-bottom:8px"><b>背景模糊</b><small>0 最清晰 · 越大越朦胧，字更好认</small></div>
+              <div class="row" style="gap:10px;align-items:center">
+                <input type="range" id="wallBlur" min="0" max="24" step="1" value="6" style="flex:1;accent-color:var(--accent)" oninput="Wall.setBlur(this.value)">
+                <span class="sub" id="wallBlurVal" style="width:40px;text-align:right;font-variant-numeric:tabular-nums">6px</span>
+              </div>
+            </div>
+            <input type="file" id="wallFile" accept="image/*" style="display:none" onchange="Wall.onFile(this)">
             <div class="dy-panel-row">
               <div class="lab"><b>导出备份</b><small id="dyBackupInfo">复制一段 JSON，粘贴到备忘录保存为 .json</small></div>
               <button id="dyBtnExport">导出</button>
@@ -854,7 +974,9 @@ const DEFAULT_STATE = {
   /* 打卡总账：total 是累计次数，days 是打过卡的日期（YYYY-MM-DD），用来算连续天数。
      与每个技能的 checkins（当前等级经验，升级会清零）分开记，互不影响。 */
   checkinStats: { total: 0, days: [] },
-  wealth: { items: [], incomes: [], expenses: [], assets: [], fixed: [], goal: null },
+  /* autoCat：短信自动分账的金额阈值 */
+  wealth: { items: [], incomes: [], expenses: [], assets: [], fixed: [], goal: null,
+            autoCat: { on: true, lowT: 20, highT: 1000 } },
   health: { birthday: null, diseases: [] },
   career: {
     current: { name: '', income: 0, hours: 8, satisfaction: 3, pays: [] },
@@ -879,6 +1001,14 @@ function loadState(){
     merged.checkinStats.total = isFinite(_ct) && _ct>0 ? Math.round(_ct) : 0;
     if(['recent','created','level'].indexOf(merged.pref.skillSort)<0) merged.pref.skillSort='recent';
     merged.wealth = Object.assign({items:[],incomes:[],expenses:[],assets:[],fixed:[],goal:null}, merged.wealth);
+    /* 短信自动分账：阈值，旧数据补默认值 */
+    merged.wealth.autoCat = Object.assign({on:true,lowT:20,highT:1000}, merged.wealth.autoCat||{});
+    if(merged.wealth.merchantMem) delete merged.wealth.merchantMem;   // 商户记忆已移除
+    merged.wealth.expenses = (merged.wealth.expenses||[]).filter(e=>e && e.id);
+    (merged.wealth.fixed||[]).forEach(f=>{
+      if(['month','quarter','year'].indexOf(f.cycle)<0) f.cycle='month';
+      if(!f.settled || typeof f.settled!=='object') f.settled={};
+    });
     merged.insights = (merged.insights||[]).filter(x=>x&&x.id&&x.skillId);
     // 职业：补齐发薪记录数组（旧数据无 pays，首次使用时预期收入/工时作为兜底）
     merged.career = Object.assign({current:{}, target:{}}, merged.career);
@@ -890,6 +1020,7 @@ function loadState(){
       if(typeof sk.checkins!=='number') sk.checkins=0;
       (sk.levels||[]).forEach(lv=>{
         if(lv && lv.hint===undefined) lv.hint='';
+        if(lv && lv.tip===undefined) lv.tip='';
         if(lv && (typeof lv.need!=='number' || lv.need<1)) lv.need=DEFAULT_LV_NEED;
         if(lv && lv.text===undefined && (lv.flag||lv.task||lv.valid||lv.invalid)){
           lv.text=[lv.flag&&'识别标志：'+lv.flag, lv.task&&'核心任务：'+lv.task,
@@ -898,6 +1029,12 @@ function loadState(){
           delete lv.flag; delete lv.task; delete lv.valid; delete lv.invalid;
         }
       });
+      /* 阶段考核从「整项技能共用」改为「每级独立」：旧 sk.tip 迁到当前等级，其余留空 */
+      if(typeof sk.tip==='string' && sk.tip.trim()){
+        const cur = sk.levels[Math.max(0,Math.min(4,(sk.level||1)-1))];
+        if(cur && !String(cur.tip||'').trim()) cur.tip = sk.tip;
+        delete sk.tip;
+      }
     });
     // 技能：补发身份色与最近编辑时间（旧数据没有 tone / updatedAt）
     normalizeSkillTones(merged.skills||[]);
@@ -911,19 +1048,138 @@ function save(){
   try{ localStorage.setItem('lifeRPG.v1', JSON.stringify(state)); }
   catch(e){
     // 打包 App 的 WebView 若未开启本地存储 / 配额受限，会在这里失败
-    if(typeof toast==='function'){ try{ toast('⚠ 本地存储不可用，改动仅在当前会话有效'); }catch(_){} }
+    notifySaveFail();
   }
+}
+/* 写盘失败的统一提示：节流 8 秒，避免连点时刷屏 */
+let _saveFailAt = 0;
+function notifySaveFail(){
+  if(Date.now() - _saveFailAt < 8000) return;
+  _saveFailAt = Date.now();
+  if(typeof toast === 'function'){ try{ toast('⚠ 本机存储写入失败，改动可能没保存'); }catch(_){} }
 }
 
 const $  = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* ---- 简单富文本：**粗体** 与行首「•」项目符号，所有多行文本域共用 ----
+   rich() 出 HTML（已转义，不会注入）；plain() 出纯文本，给标题、字数、搜索、导出用。 */
+const rtLi = /^\s*[•·‣▪]\s*/;
+const rich = s => String(s??'').split('\n').map(ln=>{
+  let h = esc(ln).replace(/\*\*([^*\n]+?)\*\*/g,'<b>$1</b>');
+  if(rtLi.test(ln)) h = '<span class="rt-li">'+h+'</span>';
+  return h;
+}).join('\n');
+const plain = s => String(s??'').replace(/\*\*/g,'').split('\n').map(l=>l.replace(rtLi,'')).join('\n');
 const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
 const money = n => '¥' + (Math.round(n*10)/10).toLocaleString('zh-CN',{maximumFractionDigits:1});
 const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const daysBetween = (a,b) => Math.floor((new Date(b) - new Date(a)) / 86400000);
 const clamp = (v,lo,hi) => Math.min(hi, Math.max(lo, v));
+
+/* ---- 富文本快捷条：在 .rt-ta 里长按选中一段文字，浮出「B / • 列表」两个按钮 ----
+   只改 textarea 的 value 与选区，然后派发一次 input 事件，原有的自动保存和
+   autoGrow 照旧生效，不需要每个输入框单独接线。按钮按下时阻止默认行为，
+   避免选区在点击瞬间被清掉。 */
+const Rt = (function(){
+  let bar=null, ta=null, timer=0;
+
+  function ensure(){
+    if(bar) return bar;
+    bar=document.createElement('div');
+    bar.id='rtBar';
+    bar.innerHTML='<button type="button" class="rtb-b" data-a="b" aria-label="加粗">B</button>'
+                + '<button type="button" data-a="li" aria-label="项目符号">• 列表</button>';
+    const hold=e=>{ e.preventDefault(); };               // 别抢走 textarea 的焦点和选区
+    bar.addEventListener('pointerdown', hold);
+    bar.addEventListener('mousedown', hold);
+    bar.addEventListener('touchstart', hold, {passive:false});
+    bar.addEventListener('click', function(e){
+      const b=e.target.closest('button'); if(!b || !ta) return;
+      e.preventDefault();
+      if(b.dataset.a==='b') bold(); else bullet();
+    });
+    document.body.appendChild(bar);
+    return bar;
+  }
+  function isRt(el){ return !!el && el.tagName==='TEXTAREA' && (el.classList.contains('rt-ta') || el.classList.contains('js-rt')); }
+  function selected(el){ return el.value.slice(el.selectionStart, el.selectionEnd); }
+  function place(){
+    if(!ta || !bar) return;
+    const r=ta.getBoundingClientRect();
+    const bw=bar.offsetWidth||150, bh=bar.offsetHeight||48;
+    const vh=window.innerHeight||800, vw=window.innerWidth||400;
+    let top = r.top - bh - 8;
+    if(top < 8) top = r.top + 8;                 // 上方放不下就压到框内顶部
+    top = Math.max(8, Math.min(vh - bh - 8, top));
+    let left = r.left + (r.width - bw)/2;
+    left = Math.max(8, Math.min(vw - bw - 8, left));
+    bar.style.top=Math.round(top)+'px';
+    bar.style.left=Math.round(left)+'px';
+  }
+  function show(el){
+    ensure().classList.add('on');
+    ta=el; place();
+  }
+  function hide(){
+    if(bar) bar.classList.remove('on');
+    ta=null;
+  }
+  function commit(el, value, selStart, selEnd){
+    el.value=value;
+    try{ el.setSelectionRange(selStart, selEnd); }catch(e){}
+    try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
+    /* 只有自适应高度的框才重算高度；日记正文是 flex:1 铺满，别去改它的 height */
+    if(typeof autoGrow==='function' && el.classList.contains('auto')) autoGrow(el);
+    place();
+  }
+  function bold(){
+    const el=ta; if(!el) return;
+    const s=el.selectionStart, e=el.selectionEnd;
+    if(s===e) return;
+    const v=el.value, sel=v.slice(s,e);
+    const wrapped=/^\*\*[\s\S]*\*\*$/.test(sel);
+    const out=wrapped ? sel.slice(2,-2) : '**'+sel+'**';
+    commit(el, v.slice(0,s)+out+v.slice(e), s, s+out.length);
+  }
+  function bullet(){
+    const el=ta; if(!el) return;
+    const v=el.value, s=el.selectionStart, e=el.selectionEnd;
+    const ls=v.lastIndexOf('\n', s>0? s-1 : 0)+1;          // 选区起点所在行的行首
+    let le=v.indexOf('\n', e); if(le<0) le=v.length;       // 选区终点所在行的行尾
+    const lines=v.slice(ls,le).split('\n');
+    const all=lines.length>0 && lines.every(l=>rtLi.test(l));
+    const out=lines.map(l=> all ? l.replace(rtLi,'') : (rtLi.test(l) ? l : '• '+l)).join('\n');
+    commit(el, v.slice(0,ls)+out+v.slice(le), ls, ls+out.length);
+  }
+  /* 选区变化是主线索；部分 WebView 不派发 textarea 的 selectionchange，
+     再用 touchend / mouseup / keyup 兜一次，判断条件相同。 */
+  function check(){
+    clearTimeout(timer);
+    timer=setTimeout(function(){
+      const el=document.activeElement;
+      if(!isRt(el) || el.selectionStart===el.selectionEnd || !selected(el).trim()){ hide(); return; }
+      if(ta!==el) show(el); else place();
+    }, 70);
+  }
+  document.addEventListener('selectionchange', check);
+  document.addEventListener('touchend', check, true);
+  document.addEventListener('mouseup', check, true);
+  document.addEventListener('keyup', check, true);
+  document.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', function(){ if(ta) place(); });
+  /* 软键盘弹出会改变可视区域，位置要跟着重算 */
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){ if(ta) place(); });
+    window.visualViewport.addEventListener('scroll', function(){ if(ta) place(); });
+  }
+  document.addEventListener('focusout', function(ev){
+    if(!isRt(ev.target)) return;
+    setTimeout(function(){ if(!isRt(document.activeElement)) hide(); }, 140);
+  });
+  return { hide, isOpen: function(){ return !!(bar && bar.classList.contains('on')); } };
+})();
 
 /* ---------- Toast / 模态框 ---------- */
 let toastTimer = null;
@@ -961,6 +1217,7 @@ function switchPage(p, keepSub){
   $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === p));
   $('#pageTitle').textContent = PAGE_TITLES[p];
   if(!keepSub) resetSubViews();
+  try{ Rt.hide(); }catch(e){}      // 换页时把富文本快捷条收掉，别飘在别的页面上
   renderCurrentPage();
   window.scrollTo(0,0);
 }
@@ -1080,7 +1337,7 @@ function progressBar(pct, color){
 }
 /* ============ 技能页：动态技能树 ============ */
 function blankLevels(){
-  return Array.from({length:5}, ()=>({text:'',hint:'',need:DEFAULT_LV_NEED}));
+  return Array.from({length:5}, ()=>({text:'',hint:'',tip:'',need:DEFAULT_LV_NEED}));
 }
 function lvFilled(lv){ return lv && lv.text; }
 
@@ -1135,7 +1392,7 @@ const LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 /* 有原生桥（window.RewardNative）时走后端落盘；浏览器里降级为 localStorage，方便在电脑上预览界面。 */
 const RewardBridge = (function(){
   const KEY = 'lifeRPG.reward.v1';
-  const DEF = { balanceMs:0, rewardMinutes:30, enforce:true, rootKill:true, guardOn:true, apps:[], earnedMs:0, usedMs:0 };
+  const DEF = { balanceMs:0, rewardMinutes:30, enforce:true, guardOn:true, apps:[], earnedMs:0, usedMs:0 };
 
   function nat(){ return (window.RewardNative && typeof window.RewardNative.getState === 'function') ? window.RewardNative : null; }
   function parse(s){ try{ return JSON.parse(s); }catch(e){ return null; } }
@@ -1160,7 +1417,18 @@ const RewardBridge = (function(){
   function status(){
     const n = nat();
     if(n){ const o = parse(n.status()); if(o && o.status) return o.status; }
-    return { accessibility:false, overlay:false, root:false, local:true };
+    return { accessibility:false, sms:false, local:true };
+  }
+  /* 短信通道：原生把解析好的交易堆在队列里，这里取走并清空；浏览器里恒为空 */
+  function drainPayments(){
+    const n = nat();
+    if(!n || typeof n.drainPayments !== 'function') return [];
+    try{ const arr = parse(n.drainPayments()); return Array.isArray(arr) ? arr : []; }catch(e){ return []; }
+  }
+  function requestSms(){
+    const n = nat();
+    if(n && typeof n.requestSms === 'function'){ n.requestSms(); return; }
+    try{ toast('浏览器里没有短信通道，装到手机上才能读银行短信'); }catch(e){}
   }
   function checkIn(){
     const n = nat();
@@ -1193,12 +1461,6 @@ const RewardBridge = (function(){
     const n = nat();
     if(n) return settle(parse(n.setEnforce(!!b)));
     const o = localState(); o.enforce = !!b; saveLocal(o);
-    return (cache = Object.assign({}, o, { ok:true }));
-  }
-  function setRootKill(b){
-    const n = nat();
-    if(n) return settle(parse(n.setRootKill(!!b)));
-    const o = localState(); o.rootKill = !!b; saveLocal(o);
     return (cache = Object.assign({}, o, { ok:true }));
   }
   function setGuardOn(b){
@@ -1254,11 +1516,6 @@ const RewardBridge = (function(){
     if(n){ n.openAutoStartSettings(); return; }
     toast('这个入口只在手机上有效');
   }
-  function requestRoot(){
-    const n = nat();
-    if(n){ n.requestRoot(); tileLater(1200); return; }
-    toast('浏览器里没有 root');
-  }
   function fmt(ms){
     ms = Math.max(0, ms || 0);
     const total = Math.floor(ms/60000);
@@ -1271,17 +1528,279 @@ const RewardBridge = (function(){
     tileTimer = setTimeout(function(){ if(typeof openRewardSettings==='function' && !$('#modalRoot').classList.contains('hidden')) openRewardSettings(); renderRewardCard(); }, ms);
   }
 
-  return { state, status, checkIn, addMinutes, setRewardMinutes, setEnforce, setRootKill, setGuardOn,
-           addApp, removeApp, listApps, openA11y, openOverlay, openBattery, openAutoStart, requestRoot, fmt };
+  return { state, status, checkIn, addMinutes, setRewardMinutes, setEnforce, setGuardOn,
+           addApp, removeApp, listApps, drainPayments, requestSms,
+           openA11y, openOverlay, openBattery, openAutoStart, fmt };
+})();
+
+/* ============ 图片裁剪器 ============
+   给一个和手机同比例（或指定比例）的取景框，图片在框内拖动 + 滑杆缩放，
+   确认后按框内区域重绘输出 JPEG。专注页背景图和自定义壁纸共用一套。 */
+/* 按最长边等比缩放并转 JPEG（只控制体积，不改画面内容） */
+function shrinkImg(dataURL, maxEdge, quality, cb){
+  const im = new Image();
+  im.onerror = ()=>cb(dataURL);
+  im.onload = ()=>{
+    let out = dataURL;
+    try{
+      const cv=document.createElement('canvas'), cx=cv.getContext && cv.getContext('2d');
+      if(cx){
+        const scale=Math.min(1, maxEdge/Math.max(im.width||1, im.height||1));
+        cv.width=Math.max(1,Math.round((im.width||1)*scale));
+        cv.height=Math.max(1,Math.round((im.height||1)*scale));
+        cx.fillStyle='#ffffff'; cx.fillRect(0,0,cv.width,cv.height);
+        cx.drawImage(im,0,0,cv.width,cv.height);
+        out=cv.toDataURL('image/jpeg',quality);
+      }
+    }catch(e){ /* 环境不支持 canvas 时退回原图 */ }
+    cb(out);
+  };
+  im.src = dataURL;
+}
+const Cropper = (function(){
+  let st = null;
+
+  function open(dataURL, ratio, cb){
+    close();
+    const im = new Image();
+    im.onload = function(){
+      st = { src:dataURL, im:im,
+             iw: im.naturalWidth || im.width || 1,
+             ih: im.naturalHeight || im.height || 1,
+             ratio: ratio || (9/16), cb: cb, z: 1, tx: 0, ty: 0 };
+      mount();
+    };
+    im.onerror = function(){ toast('这张图读不出来，换一张试试'); };
+    im.src = dataURL;
+  }
+
+  function mount(){
+    const ov = document.createElement('div');
+    ov.id = 'cropOv';
+    ov.innerHTML = ''
+      + '<div class="crop-stage"><div class="crop-box"><img alt=""><div class="crop-grid"></div></div></div>'
+      + '<div class="crop-ctrl">'
+      +   '<div class="crop-tip">拖动图片调整位置，滑杆缩放。框里这一块就是最终显示的部分。</div>'
+      +   '<div class="crop-zoom"><span>－</span><input type="range" min="100" max="300" value="100"><span>＋</span></div>'
+      +   '<div class="crop-btns"><button class="crop-cancel">取消</button><button class="crop-ok primary">确定</button></div>'
+      + '</div>';
+    document.body.appendChild(ov);
+    st.ov = ov;
+    st.box = ov.querySelector('.crop-box');
+    st.imgEl = ov.querySelector('.crop-box img');
+    st.imgEl.src = st.src;
+
+    ov.querySelector('.crop-ctrl input[type=range]').addEventListener('input', function(){ zoom(this.value/100); });
+    ov.querySelector('.crop-cancel').addEventListener('click', close);
+    ov.querySelector('.crop-ok').addEventListener('click', done);
+    bindDrag();
+
+    fit();
+    if(typeof requestAnimationFrame === 'function') requestAnimationFrame(fit);   // 布局落定后再量一次
+    window.addEventListener('resize', fit);
+    st.prevOverflow = document.body.style.overflow || '';
+    document.body.style.overflow = 'hidden';
+  }
+
+  /* 按可用空间与比例算出取景框尺寸，并把图片以 cover 方式铺满、居中 */
+  function fit(){
+    if(!st || !st.ov) return;
+    const stage = st.ov.querySelector('.crop-stage');
+    const sw = stage.clientWidth || 360, sh = stage.clientHeight || 520;
+    let cw = Math.min(sw * 0.86, sh * 0.78 * st.ratio);
+    let ch = cw / st.ratio;
+    if(ch > sh * 0.88){ ch = sh * 0.88; cw = ch * st.ratio; }
+    st.cw = Math.max(1, Math.round(cw));
+    st.ch = Math.max(1, Math.round(ch));
+    st.box.style.width = st.cw + 'px';
+    st.box.style.height = st.ch + 'px';
+    st.base = Math.max(st.cw / st.iw, st.ch / st.ih);
+    st.z = 1;
+    const dw = st.iw * st.base, dh = st.ih * st.base;
+    st.tx = (st.cw - dw) / 2;
+    st.ty = (st.ch - dh) / 2;
+    apply();
+  }
+
+  function apply(){
+    if(!st) return;
+    const dw = st.iw * st.base * st.z, dh = st.ih * st.base * st.z;
+    st.tx = Math.min(0, Math.max(st.cw - dw, st.tx));   // 不允许露出框外空白
+    st.ty = Math.min(0, Math.max(st.ch - dh, st.ty));
+    st.imgEl.style.width = dw + 'px';
+    st.imgEl.style.height = dh + 'px';
+    st.imgEl.style.transform = 'translate(' + st.tx + 'px,' + st.ty + 'px)';
+  }
+
+  /* 以框中心为锚点缩放，避免拉近时跑偏 */
+  function zoom(zNew){
+    if(!st) return;
+    zNew = Math.min(3, Math.max(1, Number(zNew) || 1));
+    if(zNew === st.z) return;
+    const cx = st.cw / 2, cy = st.ch / 2;
+    st.tx = cx - (cx - st.tx) * (zNew / st.z);
+    st.ty = cy - (cy - st.ty) * (zNew / st.z);
+    st.z = zNew;
+    apply();
+  }
+
+  function bindDrag(){
+    let on = false, sx = 0, sy = 0, ox = 0, oy = 0;
+    st.box.addEventListener('pointerdown', function(e){
+      on = true; sx = e.clientX; sy = e.clientY; ox = st.tx; oy = st.ty;
+      try{ st.box.setPointerCapture(e.pointerId); }catch(_){}
+    });
+    st.box.addEventListener('pointermove', function(e){
+      if(!on || !st) return;
+      st.tx = ox + (e.clientX - sx);
+      st.ty = oy + (e.clientY - sy);
+      apply();
+    });
+    const end = function(){ on = false; };
+    st.box.addEventListener('pointerup', end);
+    st.box.addEventListener('pointercancel', end);
+    st.box.addEventListener('pointerleave', end);
+  }
+
+  function done(){
+    if(!st) return;
+    const k = st.base * st.z;
+    const sx = -st.tx / k, sy = -st.ty / k;
+    const sw = st.cw / k, sh = st.ch / k;
+    const outW = Math.min(1400, Math.round(st.cw * 2));
+    const outH = Math.round(outW * st.ch / st.cw);
+    let out = '';
+    try{
+      const cv = document.createElement('canvas');
+      const cx = cv.getContext && cv.getContext('2d');
+      if(cx){
+        cv.width = outW; cv.height = outH;
+        cx.fillStyle = '#ffffff'; cx.fillRect(0, 0, outW, outH);
+        cx.drawImage(st.im, sx, sy, sw, sh, 0, 0, outW, outH);
+        out = cv.toDataURL('image/jpeg', 0.86);
+      }
+    }catch(e){ out = ''; }
+    const cb = st.cb;
+    close();
+    if(!out){ toast('裁剪失败，换一张试试'); return; }
+    if(cb) cb(out);
+  }
+
+  function close(){
+    try{ window.removeEventListener('resize', fit); }catch(e){}
+    const prev = st ? (st.prevOverflow || '') : '';
+    if(st && st.ov && st.ov.parentNode) st.ov.parentNode.removeChild(st.ov);
+    st = null;
+    document.body.style.overflow = prev;   // 还原（上层可能还开着设置弹层）
+  }
+
+  return { open: open, zoom: zoom, done: done, close: close,
+           isOpen: function(){ return !!st; } };
+})();
+
+/* ============ 图片仓：大图放 IndexedDB，localStorage 只留主数据 ============
+   壁纸与专注背景以前直接塞 localStorage（上限 2.4M + 2.2M 字符），加上主数据
+   已经逼近 WebView 的 5MB，而且写失败是静默的。现在图片走 IndexedDB，容量大
+   得多；localStorage 里只保留旧数据，首次启动时迁移过去并清空，腾出空间给主
+   数据。没有 IndexedDB 的环境（老 WebView / 测试用的 jsdom）自动退回
+   localStorage，行为与以前一致，只是照旧受配额限制。 */
+const ImgStore = (function(){
+  const DB='lifeRPG.img', ST='img';
+  const LEGACY={ wall:'lifeRPG.wall.v1', focusBg:'lifeRPG.focusBg.v1' };
+  let db=null, ok=false, ready=false, mem={};
+
+  function call(cb,a){ if(typeof cb==='function'){ try{ cb(a); }catch(e){} } }
+
+  function open(cb){
+    let done=false;
+    const fin=v=>{ if(done) return; done=true; ok=!!v; call(cb,ok); };
+    try{
+      if(!window.indexedDB){ fin(false); return; }
+      const rq=window.indexedDB.open(DB,1);
+      rq.onupgradeneeded=()=>{ try{ if(!rq.result.objectStoreNames.contains(ST)) rq.result.createObjectStore(ST); }catch(e){} };
+      rq.onsuccess=()=>{ db=rq.result; fin(true); };
+      rq.onerror=()=>fin(false);
+      rq.onblocked=()=>fin(false);
+      setTimeout(()=>fin(!!db), 1500);   // 个别 WebView 不给回调，别把启动卡住
+    }catch(e){ fin(false); }
+  }
+  function idbGet(slot, cb){
+    if(!ok || !db){ call(cb,''); return; }
+    try{
+      const rq=db.transaction(ST,'readonly').objectStore(ST).get(slot);
+      rq.onsuccess=()=>call(cb, String(rq.result||''));
+      rq.onerror=()=>call(cb,'');
+    }catch(e){ call(cb,''); }
+  }
+  function idbPut(slot, v, cb){
+    if(!ok || !db){ call(cb,false); return; }
+    try{
+      const tx=db.transaction(ST,'readwrite');
+      tx.objectStore(ST).put(v, slot);
+      tx.oncomplete=()=>call(cb,true);
+      tx.onerror=()=>call(cb,false);
+      tx.onabort=()=>call(cb,false);
+    }catch(e){ call(cb,false); }
+  }
+  function idbDel(slot, cb){
+    if(!ok || !db){ call(cb,false); return; }
+    try{
+      const tx=db.transaction(ST,'readwrite');
+      tx.objectStore(ST).delete(slot);
+      tx.oncomplete=()=>call(cb,true);
+      tx.onerror=()=>call(cb,false);
+    }catch(e){ call(cb,false); }
+  }
+  function legacyGet(slot){
+    try{ return localStorage.getItem(LEGACY[slot])||''; }catch(e){ return ''; }
+  }
+  function legacyDel(slot){ try{ localStorage.removeItem(LEGACY[slot]); }catch(e){} }
+
+  /* 一个槽位的迁移：IndexedDB 有就用它；否则把 localStorage 的旧图搬过去 */
+  function migrate(slot, cb){
+    idbGet(slot, function(v){
+      if(v){ mem[slot]=v; legacyDel(slot); call(cb); return; }
+      const old=legacyGet(slot);
+      if(!old){ call(cb); return; }
+      mem[slot]=old;
+      idbPut(slot, old, function(done){ if(done) legacyDel(slot); call(cb); });
+    });
+  }
+  function init(cb){
+    if(ready){ call(cb,ok); return; }
+    open(function(){
+      const slots=Object.keys(LEGACY); let i=0;
+      const next=()=>{ if(i<slots.length) migrate(slots[i++], next); else { ready=true; call(cb,ok); } };
+      next();
+    });
+  }
+  function get(slot){ return mem[slot]||''; }
+  function set(slot, v, cb){
+    v=String(v||'');
+    mem[slot]=v;
+    if(!v){ del(slot, cb); return; }
+    idbPut(slot, v, function(done){
+      if(done){ call(cb,true); return; }
+      try{ localStorage.setItem(LEGACY[slot], v); call(cb,true); }
+      catch(e){ call(cb,false); }
+    });
+  }
+  function del(slot, cb){
+    mem[slot]='';
+    idbDel(slot, function(){ legacyDel(slot); call(cb,true); });
+  }
+  function size(slot){ return get(slot).length; }
+  function backend(){ return ok?'IndexedDB':'localStorage'; }
+  return { init, get, set, del, size, backend };
 })();
 
 /* ============ 专注页背景图：只在日记「设置与备份」里上传 / 预览 / 恢复默认 ============
-   图片压成 JPEG dataURL，存独立的 localStorage key；不写进 lifeRPG.v1，
+   图片压成 JPEG dataURL，放在 ImgStore（IndexedDB）里；不写进 lifeRPG.v1，
    也不进导出与云同步，避免几 MB 图片塞进主数据和每次同步。 */
 const FocusBg = (function(){
-  const KEY='lifeRPG.focusBg.v1', MAX_EDGE=1600, LIMIT=2200000;
-  function get(){ try{ return localStorage.getItem(KEY)||''; }catch(e){ return ''; } }
-  function put(v){ try{ localStorage.setItem(KEY,v); return true; }catch(e){ return false; } }
+  const SLOT='focusBg', MAX_EDGE=1600, LIMIT=4500000;
+  function get(){ return ImgStore.get(SLOT); }
+  function put(v, cb){ ImgStore.set(SLOT, v, cb); }
   function paint(){
     const thumb=document.getElementById('fbThumb'), tip=document.getElementById('fbTip');
     const u=get();
@@ -1294,6 +1813,7 @@ const FocusBg = (function(){
       : '当前：默认渐变 · 建议上传一张大图，竖屏效果更好';
   }
   function pick(){ const f=document.getElementById('fbFile'); if(f) f.click(); }
+  /* 选图后先进裁剪器（9:16 手机竖屏），确定后再压一道再入库 */
   function onFile(input){
     const file = input && input.files && input.files[0];
     if(!file) return;
@@ -1302,34 +1822,29 @@ const FocusBg = (function(){
     reader.onerror = ()=>{ toast('读取失败，换一张试试'); input.value=''; };
     reader.onload = ()=>{
       const raw = String(reader.result||'');
-      const im = new Image();
-      im.onerror = ()=>{ toast('这张图读不出来，换一张试试'); input.value=''; };
-      im.onload = ()=>{
-        let out = raw;
-        try{
-          const cv=document.createElement('canvas'), cx=cv.getContext && cv.getContext('2d');
-          if(cx){
-            const scale=Math.min(1, MAX_EDGE/Math.max(im.width||1, im.height||1));
-            cv.width=Math.max(1,Math.round((im.width||1)*scale));
-            cv.height=Math.max(1,Math.round((im.height||1)*scale));
-            cx.fillStyle='#ffffff'; cx.fillRect(0,0,cv.width,cv.height);
-            cx.drawImage(im,0,0,cv.width,cv.height);
-            out=cv.toDataURL('image/jpeg',.82);
-            if(out.length>LIMIT) out=cv.toDataURL('image/jpeg',.62);
-          }
-        }catch(e){ /* 环境不支持 canvas 时退回原图 */ }
-        if(!/^data:image\//.test(out)){ toast('这张图格式不支持'); input.value=''; return; }
-        if(out.length>LIMIT){ toast('图片太大，换一张小一点的'); input.value=''; return; }
-        if(!put(out)){ toast('本机存储空间不足，换一张小一点的图'); input.value=''; return; }
-        paint(); toast('背景已更新，点「全屏预览」看效果');
-        input.value='';
-      };
-      im.src = raw;
+      input.value='';
+      if(!/^data:image\//.test(raw)){ toast('这张图格式不支持'); return; }
+      Cropper.open(raw, 9/16, commitCropped);
     };
     reader.readAsDataURL(file);
   }
+  function commitCropped(dataURL){
+    shrinkImg(dataURL, MAX_EDGE, .85, out=>{
+      if(out.length <= LIMIT){ commit(out); return; }
+      shrinkImg(dataURL, MAX_EDGE, .6, out2=>{
+        if(out2.length > LIMIT){ toast('图片太大，换一张小一点的'); return; }
+        commit(out2);
+      });
+    });
+  }
+  function commit(out){
+    put(out, function(ok){
+      if(!ok){ toast('本机存储空间不足，换一张小一点的图'); return; }
+      paint(); toast('背景已更新，点「全屏预览」看效果');
+    });
+  }
   function clear(){
-    try{ localStorage.removeItem(KEY); }catch(e){}
+    ImgStore.del(SLOT);
     paint(); toast('已恢复默认背景');
   }
   function preview(){ if(typeof Yi!=='undefined' && typeof Yi.previewFocus==='function') Yi.previewFocus(); }
@@ -1339,6 +1854,149 @@ const FocusBg = (function(){
     if(b) b.addEventListener('click', paint);
   }
   return { get, pick, onFile, clear, preview, paint, init };
+})();
+
+/* ============ 自定义壁纸：图片铺满整个页面，模糊度可调 ============
+   壁纸与模糊度各存一个独立 key，不写进 lifeRPG.v1，也不随导出 / 云同步走。
+   有壁纸时 body 加 .has-wall，卡片自动转半透明（见 CSS），保证文字可读。
+   模糊不再交给 CSS：存图后先用 canvas 把模糊「烘焙」进图片，运行时零 filter，
+   滚动不会每帧重新光栅化（低端机省电、不掉帧）。canvas 不支持 filter 的环境
+   自动退回原来的 CSS 模糊，观感不变。 */
+const Wall = (function(){
+  const SLOT='wall', BKEY='lifeRPG.wallBlur.v1', MAX_EDGE=1200, LIMIT=4500000;
+  let cache={src:'',b:-1,url:''};     // 烘焙结果缓存：同一张图 + 同一个模糊度不重算
+  let blurTimer=0, canBakeCache=null;
+
+  function get(){ return ImgStore.get(SLOT); }
+  function blur(){
+    let b = NaN;
+    try{ b = Number(localStorage.getItem(BKEY)); }catch(e){}
+    if(isNaN(b)) b = 6;
+    return Math.min(30, Math.max(0, Math.round(b)));
+  }
+  function setWall(url, cssBlur){
+    const body=document.body;
+    /* 模糊已经烘进图片时把 filter 彻底摘掉：blur(0px) 也会留一层合成，白费 GPU */
+    body.classList.toggle('wall-baked', !!url && cssBlur<=0);
+    if(url) body.style.setProperty('--wall','url("'+url+'")');
+    else body.style.removeProperty('--wall');
+    body.style.setProperty('--wall-blur', cssBlur+'px');
+  }
+  /* canvas 的 filter 只有新版 WebView 有；不支持就退回 CSS 模糊，不硬撑 */
+  function canBake(){
+    if(canBakeCache!==null) return canBakeCache;
+    try{
+      const cv=document.createElement('canvas');
+      const cx=cv.getContext&&cv.getContext('2d');
+      if(!cx || !('filter' in cx)){ canBakeCache=false; return false; }
+      cx.filter='blur(2px)';
+      canBakeCache = (cx.filter==='blur(2px)');
+    }catch(e){ canBakeCache=false; }
+    return canBakeCache;
+  }
+  function bake(src, b, cb){
+    if(b<=0 || !canBake()){ cb(''); return; }
+    const im=new Image();
+    im.onerror=()=>cb('');
+    im.onload=()=>{
+      try{
+        const iw=im.width||im.naturalWidth||1, ih=im.height||im.naturalHeight||1;
+        const cv=document.createElement('canvas'), cx=cv.getContext('2d');
+        if(!cx){ cb(''); return; }
+        cv.width=iw; cv.height=ih;
+        cx.filter='none';
+        cx.fillStyle='#0f1319'; cx.fillRect(0,0,iw,ih);      // 模糊后边缘不会透出底色
+        const zoom=1.07;                                     // 轻微放大，盖住模糊的淡边
+        cx.filter='blur('+b+'px)';
+        cx.drawImage(im, -iw*(zoom-1)/2, -ih*(zoom-1)/2, iw*zoom, ih*zoom);
+        cb(cv.toDataURL('image/jpeg', .82));
+      }catch(e){ cb(''); }
+    };
+    im.src=src;
+  }
+  function apply(){
+    const u=get(), body=document.body;
+    body.classList.toggle('has-wall', !!u);
+    if(!u){ setWall('',0); cache={src:'',b:-1,url:''}; paint(); return; }
+    const b=blur();
+    if(cache.src===u && cache.b===b){ setWall(cache.url, 0); paint(); return; }
+    setWall(u, b);                       // 先按原图 + CSS 模糊顶上，不留白屏
+    if(b<=0){ cache={src:u,b:0,url:u}; paint(); return; }
+    bake(u, b, out=>{
+      if(!out) return;                   // 烘不出来就保持 CSS 模糊
+      if(u!==get() || b!==blur()) return; // 期间换了图或改了模糊度，丢弃这次结果
+      cache={src:u,b:b,url:out};
+      setWall(out, 0);
+    });
+    paint();
+  }
+  function paint(){
+    const u = get();
+    const thumb = document.getElementById('wallThumb'), tip = document.getElementById('wallTip');
+    if(thumb){
+      thumb.style.backgroundImage = u ? 'url("'+u+'")' : '';
+      thumb.textContent = u ? '' : '未设置 · 使用主题底色';
+    }
+    if(tip) tip.textContent = u
+      ? '当前：自定义壁纸（约 '+Math.round(u.length/1024)+' KB · 模糊已烘焙进图）'
+      : '未设置 · 使用主题底色';
+    const r = document.getElementById('wallBlur'), v = document.getElementById('wallBlurVal');
+    if(r) r.value = String(blur());
+    if(v) v.textContent = blur()+'px';
+  }
+  function pick(){ const f=document.getElementById('wallFile'); if(f) f.click(); }
+  function onFile(input){
+    const file = input && input.files && input.files[0];
+    if(!file) return;
+    if(file.type && file.type.indexOf('image/')!==0){ toast('请选择图片文件'); input.value=''; return; }
+    const reader = new FileReader();
+    reader.onerror = ()=>{ toast('读取失败，换一张试试'); input.value=''; };
+    reader.onload = ()=>{
+      const raw = String(reader.result||'');
+      input.value='';
+      if(!/^data:image\//.test(raw)){ toast('这张图格式不支持'); return; }
+      const ratio = (window.innerWidth||9) / (window.innerHeight||16);   // 按当前屏幕比例取景
+      Cropper.open(raw, ratio, commitCropped);
+    };
+    reader.readAsDataURL(file);
+  }
+  function commitCropped(d){
+    shrinkImg(d, MAX_EDGE, .84, out=>{
+      if(out.length <= LIMIT){ commit(out); return; }
+      shrinkImg(d, MAX_EDGE, .6, out2=>{
+        if(out2.length > LIMIT){ toast('图片太大，换一张小一点的'); return; }
+        commit(out2);
+      });
+    });
+  }
+  function commit(o){
+    ImgStore.set(SLOT, o, function(ok){
+      if(!ok){ toast('本机存储空间不足，换一张小一点的图'); return; }
+      cache={src:'',b:-1,url:''};
+      apply(); toast('壁纸已更新');
+    });
+  }
+  function clear(){
+    ImgStore.del(SLOT);
+    cache={src:'',b:-1,url:''};
+    apply(); toast('已清除壁纸');
+  }
+  function setBlur(v){
+    const n = Math.min(30, Math.max(0, Math.round(Number(v)||0)));
+    try{ localStorage.setItem(BKEY, String(n)); }catch(e){}
+    /* 拖滑块时先退回原图 + CSS 模糊，保证看到的就是当前值；停手 220ms 再烘焙 */
+    const u=get();
+    setWall(u, n);            // 没壁纸时只更新模糊变量
+    paint();
+    clearTimeout(blurTimer);
+    blurTimer=setTimeout(apply, 220);
+  }
+  function init(){
+    apply();
+    const b = document.getElementById('dyBtnSettings');
+    if(b) b.addEventListener('click', paint);
+  }
+  return { get, blur, apply, paint, pick, onFile, clear, setBlur, init };
 })();
 
 /* ============ 意 · 专注闭环 / 剩余时间 / 坚果云 ============
@@ -1357,7 +2015,6 @@ const Yi = (function(){
   function def(){
     return { focusStartAt:0, focusName:'', durationMin:15,
       quotes:DEFAULT_QUOTES.slice(),
-      dailyCapOn:false, dailyCapMin:120, usedToday:0, todayKey:'',
       jgy:{email:'',secret:'',lastUp:0,lastDown:0,backups:[]}, pendingDown:false };
   }
   let s=def();
@@ -1381,40 +2038,37 @@ const Yi = (function(){
       const raw=localStorage.getItem(KEY);
       if(raw){ const o=JSON.parse(raw), d=def(); for(const k in d){ if(!(k in o)) o[k]=d[k]; } if(!o.jgy) o.jgy=d.jgy; s=o; }
     }catch(e){}
-    const t=dayKey(Date.now());
-    if(s.todayKey!==t){ s.todayKey=t; s.usedToday=0; save(); }
+    /* 「单日消费上限」是没接管的假开关，已删除；旧数据里的残留字段顺手清掉 */
+    ['dailyCapOn','dailyCapMin','usedToday','todayKey'].forEach(k=>{ if(k in s) delete s[k]; });
   }
-  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){} }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){ notifySaveFail(); } }
 
   function total(){ return Math.max(1,num(s.durationMin)||15)*60000; }
   function elapsed(){ return s.focusStartAt?Date.now()-s.focusStartAt:0; }
   function focusing(){ return !!s.focusStartAt && elapsed()<total(); }
   function isLocal(){ return !!RewardBridge.status().local; }
   /* 专注页背景图：和日记设置里的 FocusBg 共用同一个 key */
-  function bgURL(){ try{ return localStorage.getItem('lifeRPG.focusBg.v1')||''; }catch(e){ return ''; } }
+  function bgURL(){ try{ return FocusBg.get()||''; }catch(e){ return ''; } }
 
   /* ---------------- 提示文案 ---------------- */
   function localWarn(st){
     if(isLocal()){
-      return `<div class="yi-note" style="margin-top:10px"><b>浏览器预览模式</b>：原生管控（无障碍 / root 强杀 / 坚果云 WebDAV）不会生效，界面与算法都是真的。`
+      return `<div class="yi-note" style="margin-top:10px"><b>浏览器预览模式</b>：原生管控（无障碍覆盖 / 坚果云 WebDAV）不会生效，界面与算法都是真的。`
         + (focusing()?`<div style="margin-top:8px"><button class="yi-btn" onclick="Yi.skipFocus()">跳到这一段结束（预览用）</button></div>`:'')
         + `</div>`;
     }
     const w=[], rw=RewardBridge.state();
     if(rw.guardOn && rw.enforce){
       if(!st.accessibility) w.push('无障碍服务未开启');
-      if(rw.rootKill && !st.root) w.push('还没拿到 root');
     }
     return w.length ? `<div class="yi-warn">${w.join('，')} · 剩余时间只会记录，管不住应用 · <a href="javascript:openRewardSettings()" style="color:inherit;font-weight:700">去开启</a></div>`
       : (rw.guardOn&&rw.enforce?`<div class="yi-ok">● 守护运行中</div>`:'');
   }
   function permHTML(st){
     const p=(name,hint,ok,act)=>`<div class="yi-row" style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="grow"><b style="font-size:13px">${name}</b><div class="yi-hint">${hint}</div></div>${ok?'<span class="yi-pill">已就绪</span>':`<button class="yi-btn ghost" onclick="${act}">去开启</button>`}</div>`;
-    return p('无障碍服务','判断当前打开的是哪个应用，不读取屏幕内容',!!st.accessibility,'RewardBridge.openA11y()')
-      + p('悬浮窗权限','拦截页更稳、跳转更顺',!!st.overlay,'RewardBridge.openOverlay()')
-      + p('root 权限',st.rootChecked?(st.root?'已获得，可强制退出应用':'未获得，只能遮挡'):'Magisk 授权一次即可',!!st.root,'RewardBridge.requestRoot()')
+    return p('无障碍服务','判断当前打开的是哪个应用，并在剩余时间用光时盖上拦截页；不读取屏幕内容',!!st.accessibility,'RewardBridge.openA11y()')
       + '<div class="row" style="gap:8px;margin-top:11px"><button class="yi-btn ghost" style="flex:1" onclick="RewardBridge.openAutoStart()">自启动</button><button class="yi-btn ghost" style="flex:1" onclick="RewardBridge.openBattery()">省电策略</button></div>'
-      + '<div class="yi-hint" style="margin-top:8px">小米必设三项：自启动允许、省电策略无限制、最近任务里加锁。不设服务会被系统杀掉。</div>';
+      + '<div class="yi-hint" style="margin-top:8px">只靠无障碍服务拦截，不需要 root、不需要悬浮窗。小米必设三项：自启动允许、省电策略无限制、最近任务里加锁。</div>';
   }
 
   /* ---------------- 技能页顶部：只留一张剩余时间卡，点击进入「意」 ---------------- */
@@ -1427,7 +2081,6 @@ const Yi = (function(){
     const w=[], rw=RewardBridge.state();
     if(rw.guardOn && rw.enforce){
       if(!st.accessibility) w.push('无障碍服务未开启');
-      if(rw.rootKill && !st.root) w.push('还没拿到 root');
     }
     return w.length
       ? `<div class="yi-mini warn">${w.join('，')} · 剩余时间只会记录，管不住应用<button onclick="event.stopPropagation();openRewardSettings()">去开启</button></div>`
@@ -1499,9 +2152,9 @@ const Yi = (function(){
 
       <div class="yi-sec">受管应用 <span>共 ${apps.length} 个</span></div>
       <div class="yi-card card">${apps.length?apps.map(a=>`<div class="yi-app"><div class="grow"><b>${esc(a.label||a.pkg)}</b><span>${esc(a.pkg)}</span></div>`
-        + `<button class="yi-del" onclick="Yi.delApp('${a.pkg}')">移除</button></div>`).join(''):'<div class="yi-hint" style="padding:10px 0">还没有受管应用。</div>'}
-        <div class="row" style="gap:8px;margin-top:11px"><input type="text" id="yiNewPkg" placeholder="应用包名，如 com.xxx" style="flex:1;min-width:0;background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:9px 11px;font-size:13px;font-family:inherit"><button class="yi-btn" onclick="Yi.addApp()">+ 添加</button></div>
-        <div class="yi-hint" style="margin-top:8px">所有受管应用共用一份剩余时间，打开即按秒扣。真机上添加会校验包名是否装过；浏览器预览不校验。</div>
+        + `<button class="yi-del" onclick="Yi.delApp('${a.pkg}')">移除</button></div>`).join(''):'<div class="yi-hint" style="padding:10px 0">还没有受管应用，点下面按钮从手机里挑。</div>'}
+        <button class="yi-btn" style="margin-top:11px;width:100%" onclick="openAppPicker()">＋ 从手机应用中选择</button>
+        <div class="yi-hint" style="margin-top:8px">直接读取手机上已安装的应用，勾选即加入、取消勾选即移除，不用再手打包名。所有受管应用共用一份剩余时间，打开即按秒扣。</div>
       </div>
 
       <div class="yi-sec">设置</div>
@@ -1511,16 +2164,14 @@ const Yi = (function(){
         <div class="yi-hint" style="margin-top:8px">真机上用墙上时间戳记录开始时刻，熄屏、清后台、重启都不会让倒计时归零。</div>
         <div class="field" style="margin-top:15px"><label>每完成一段，奖励多少分钟</label><input type="number" min="1" max="600" value="${rw.rewardMinutes||30}" onchange="rwSaveMinutesFromYi(this.value)"></div>
         <div class="yi-hint">奖励在专注结束时才入账，不是打卡那一刻。</div>
-        <div class="yi-row" style="margin-top:15px"><div class="grow"><b style="font-size:13px">单日消费上限</b><div class="yi-hint">攒得再多，一天也只让用这么多。默认关闭。</div></div><div class="yi-sw${s.dailyCapOn?' on':''}" onclick="Yi.toggleCap()"><i></i></div></div>
-        ${s.dailyCapOn?`<div class="field" style="margin-top:10px"><label>每天最多消费（分钟）</label><input type="number" min="10" max="600" value="${s.dailyCapMin}" onchange="Yi.setCap(this.value)"></div>`:''}
         <div class="yi-row" style="margin-top:15px;padding-top:12px;border-top:1px solid var(--line)"><div class="grow"><b style="font-size:13px">云同步</b><div class="yi-hint">坚果云、Cloudflare R2 都在「日记 → 设置与备份 → 数据管理」里，和导入导出放在一起。</div></div><button class="yi-btn ghost" onclick="openDataModal()">去设置 ›</button></div>
       </div>
 
       <div class="yi-sec">运行条件</div>
-      <div class="yi-card card">${st.local?'<div class="yi-hint">浏览器预览模式：额度存在本地 localStorage，无障碍、root、WebDAV 这些原生能力要装到手机上才有。</div>':permHTML(st)}</div>
+      <div class="yi-card card">${st.local?'<div class="yi-hint">浏览器预览模式：剩余时间存在本地 localStorage，无障碍覆盖、WebDAV 同步这些原生能力要装到手机上才有。</div>':permHTML(st)}</div>
 
       <div class="yi-sec">关于「意」</div>
-      <div class="yi-card card"><div class="yi-hint" style="font-size:12px">应用显示名改成「意」，无障碍服务保留为「意 · 专注守护」。包名 <span class="yi-code">com.liferpg.control</span> 不改——改了会被系统当成新应用，原有数据、无障碍授权和 root 授权全要重来一遍。</div></div>
+      <div class="yi-card card"><div class="yi-hint" style="font-size:12px">应用显示名改成「意」，无障碍服务保留为「意 · 专注守护」。管控只走无障碍覆盖，不需要 root 也不需要悬浮窗。包名 <span class="yi-code">com.liferpg.control</span> 不改——改了会被系统当成新应用，原有数据和无障碍授权全要重来一遍。</div></div>
       ${localWarn(st)}
       <div style="height:20px"></div>`;
   }
@@ -1575,6 +2226,7 @@ const Yi = (function(){
   function startFocus(id,name){
     if(focusing()){ toast('这一段还没走完，等它结束再开下一段'); openFocus(); return false; }
     s.focusStartAt=Date.now(); s.focusName=name||''; save();
+    startTick();
     openFocus(); refresh(); return true;
   }
   function showReward(gain){
@@ -1591,6 +2243,7 @@ const Yi = (function(){
     const gain=(rw && rw.addedMinutes) || (RewardBridge.state().rewardMinutes||30);
     s.focusStartAt=0; s.focusName='';
     save();
+    stopTick();
     closeOverlay(); refresh();
     showReward(gain);
   }
@@ -1605,9 +2258,14 @@ const Yi = (function(){
     toast('这一段没算数，奖励也没发。随时可以重新开始');
   }
   function closeReward(){ closeOverlay(); refresh(); }
+  /* 计时器只在有专注时开着：空闲时不再每秒唤醒一次，省电 */
+  let tickTimer=0;
+  function startTick(){ if(tickTimer) return; tickTimer=setInterval(tick,1000); }
+  function stopTick(){ if(tickTimer){ clearInterval(tickTimer); tickTimer=0; } }
   function tick(){
     if(s.focusStartAt && elapsed()>=total()){ finishFocus(); return; }
-    if(focusing()) updateLive();
+    if(focusing()){ updateLive(); return; }
+    stopTick();                       // 没有进行中的专注，收掉计时器
   }
 
   /* ---------------- 静心提示：自己编辑 ---------------- */
@@ -1631,14 +2289,8 @@ const Yi = (function(){
 
   /* ---------------- 设置 ---------------- */
   function setDuration(m){ if(focusing()){ toast('专注进行中不能改时长'); return; } s.durationMin=clamp(Math.round(num(m))||15,1,180); save(); refresh(); }
-  function addApp(){
-    const el=document.getElementById('yiNewPkg'), p=el&&el.value.trim();
-    if(!p){ toast('先填应用包名'); return; }
-    RewardBridge.addApp(p,''); refresh();
-  }
+  function addApp(){ openAppPicker(); }
   function delApp(p){ RewardBridge.removeApp(p); save(); refresh(); }
-  function toggleCap(){ s.dailyCapOn=!s.dailyCapOn; save(); refresh(); }
-  function setCap(v){ s.dailyCapMin=clamp(Math.round(num(v))||120,10,600); save(); refresh(); }
   /* ---------------- 坚果云：设置卡片住在「数据管理」弹层里 ---------------- */
   function jgyCardHTML(){
     const j=s.jgy;
@@ -1678,9 +2330,11 @@ const Yi = (function(){
   }
 
   load();
+  /* 上次退出时专注还没走完：把计时器接回去，到点（哪怕已经过了）立刻结算 */
+  if(s.focusStartAt){ startTick(); try{ tick(); }catch(e){} }
   return { renderCard, renderPage, tick, refresh, openFocus, previewFocus, startFocus, skipFocus, giveUp,
     closeOverlay, closeReward, openPanel, setDuration,
-    addApp, delApp, toggleCap, setCap,
+    addApp, delApp,
     setQuote, addQuote, delQuote, resetQuotes,
     jgyCardHTML, saveJgy, syncUp, syncDown, syncDownNo, syncDownYes,
     focusing, quotes };
@@ -1723,8 +2377,8 @@ function openRewardSettings(){
     </div>`;
 
   openModal(`
-    <h2>娱乐额度</h2>
-    <p class="sub" style="margin-bottom:6px">打卡换娱乐时间。额度归零后，受管应用会被强制退出并盖上拦截页。</p>
+    <h2>剩余时间</h2>
+    <p class="sub" style="margin-bottom:6px">专注结束换剩余时间。用光后，受管应用会被无障碍服务盖上拦截页。</p>
 
     <div class="rw-row">
       <div class="grow" style="min-width:0">
@@ -1747,15 +2401,6 @@ function openRewardSettings(){
 
     <div class="rw-row">
       <div class="grow" style="min-width:0">
-        <b style="font-size:14px">root 强制退出</b>
-        <div class="sub" style="font-size:11px">额度耗尽时用 su 杀掉进程，而不只是盖一层</div>
-      </div>
-      <input type="checkbox" ${st.rootKill?'checked':''} onchange="RewardBridge.setRootKill(this.checked);renderRewardCard()"
-        style="width:20px;height:20px;accent-color:var(--accent);flex:none">
-    </div>
-
-    <div class="rw-row">
-      <div class="grow" style="min-width:0">
         <b style="font-size:14px">开启守护</b>
         <div class="sub" style="font-size:11px">关掉后常驻服务停止计时</div>
       </div>
@@ -1764,7 +2409,7 @@ function openRewardSettings(){
     </div>
 
     <h3 style="margin-top:18px">受管应用</h3>
-    <div class="sub" style="font-size:11px;margin-bottom:2px">多个应用共用同一份额度，建议只加纯娱乐类。</div>
+    <div class="sub" style="font-size:11px;margin-bottom:2px">多个应用共用同一份剩余时间，建议只加纯娱乐类。</div>
     ${apps.length ? apps.map(a=>`
       <div class="rw-row">
         <div class="grow" style="min-width:0">
@@ -1774,14 +2419,12 @@ function openRewardSettings(){
         <button class="rw-btn" onclick="rwRemoveApp('${esc(a.pkg)}')">移除</button>
       </div>`).join('')
       : '<div class="sub" style="padding:12px 0">还没有受管应用。</div>'}
-    <button class="btn btn-ghost" style="margin-top:10px" onclick="rwOpenAddApp()">+ 添加应用</button>
+    <button class="btn btn-ghost" style="margin-top:10px" onclick="openAppPicker()">+ 从手机应用中选择</button>
 
     <h3 style="margin-top:20px">运行条件</h3>
     ${s.local
-      ? '<div class="sub" style="font-size:12px;line-height:1.7">浏览器预览模式：额度存在本地 localStorage，无障碍和 root 这些原生能力要装到手机上才有。</div>'
-      : perm('无障碍服务', '用来判断当前打开的是哪个应用，不读取屏幕内容', !!s.accessibility, 'RewardBridge.openA11y()')
-        + perm('悬浮窗权限', '没有它也能拦截，有它拦截页更稳、跳转更顺', !!s.overlay, 'RewardBridge.openOverlay()')
-        + perm('root 权限', s.rootChecked ? (s.root ? '已获得，可强制退出应用' : '未获得，只能在表面遮挡') : 'Magisk 授权一次即可', !!s.root, 'RewardBridge.requestRoot()')}
+      ? '<div class="sub" style="font-size:12px;line-height:1.7">浏览器预览模式：剩余时间存在本地 localStorage，无障碍服务这些原生能力要装到手机上才有。</div>'
+      : perm('无障碍服务', '判断当前打开的是哪个应用，并在剩余时间用光时盖上拦截页；不读取屏幕内容', !!s.accessibility, 'RewardBridge.openA11y()')}
 
     <h3 style="margin-top:20px">小米必设三项</h3>
     <div class="sub" style="font-size:12px;line-height:1.7;margin-bottom:8px">
@@ -1819,88 +2462,84 @@ function rwRemoveApp(pkg){
   renderRewardCard();
 }
 
-/* ---- 添加受管应用：从已安装列表挑，或手输包名 ---- */
-let rwAppList = null;
-let rwVisible = [];
+/* ---- 添加受管应用：直接读手机已安装应用列表，勾选即可 ---- */
+let apAll = null;   // null = 还没读过；[] = 读过但拿不到
 
-function rwOpenAddApp(){
-  if(rwAppList === null){
-    const list = RewardBridge.listApps();
-    rwAppList = list || [];
+function openAppPicker(){
+  const local = !!RewardBridge.status().local;
+  if(apAll === null){
+    const l = RewardBridge.listApps();
+    apAll = (l && l.length) ? l : [];
   }
+  const canPick = apAll.length > 0;
   openModal(`
-    <h2>添加受管应用</h2>
-    <p class="sub" style="margin-bottom:10px">从已安装应用里选，或者直接粘贴包名。加进来的应用共用同一份额度。</p>
-    <div class="field"><input type="text" id="rwSearch" placeholder="搜索应用名或包名" autocomplete="off" oninput="rwRenderAppList()"></div>
-    <div id="rwAppListBox" class="rw-list"></div>
-    <h3 style="margin-top:16px">手动输入包名</h3>
-    <div class="row" style="gap:8px">
-      <div class="field grow" style="margin-bottom:0"><input type="text" id="rwPkg" placeholder="com.example.app" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
-      <button class="rw-btn" onclick="rwAddByPkg()">添加</button>
-    </div>
-    <button class="btn btn-ghost" style="margin-top:16px" onclick="openRewardSettings()">返回</button>
-  `);
-  rwRenderAppList();
+    <h2>选择受管应用</h2>
+    <p class="sub" style="margin-bottom:10px">勾上就会被「意」管住：有剩余时间才让用，用光就盖拦截页。所有勾选的应用共用同一份剩余时间。</p>
+    ${canPick ? `
+      <div class="field" style="margin-bottom:8px"><input type="text" id="apSearch" placeholder="搜索应用名或包名" autocomplete="off" oninput="renderAppPicker()"></div>
+      <div id="apList" class="ap-list"></div>
+      <div class="ap-count" id="apCount"></div>`
+    : `<div class="ap-hint">${local
+        ? '浏览器预览模式下读不到手机上的应用列表。装到手机上打开同一页，这里会列出全部已安装应用，直接勾选即可。'
+        : '没读到已安装应用列表。请确认系统允许读取应用列表，然后重新打开本页。'}</div>`}
+    <button class="btn btn-primary" style="margin-top:14px" onclick="closeModal()">完成</button>`);
+  if(canPick) renderAppPicker();
 }
 
-function rwRenderAppList(){
-  const box = $('#rwAppListBox');
-  if(!box) return;
-  const qEl = $('#rwSearch');
+function renderAppPicker(){
+  const box = $('#apList'); if(!box) return;
+  const qEl = $('#apSearch');
   const q = (qEl && qEl.value || '').trim().toLowerCase();
-  const added = {};
-  (RewardBridge.state().apps || []).forEach(a => { added[a.pkg] = 1; });
+  const picked = {};
+  (RewardBridge.state().apps || []).forEach(a => { picked[a.pkg] = 1; });
+  let list = apAll || [];
+  if(q) list = list.filter(a =>
+    (a.label || '').toLowerCase().indexOf(q) >= 0 || (a.pkg || '').toLowerCase().indexOf(q) >= 0);
+  const cnt = $('#apCount');
+  if(cnt) cnt.textContent = '已勾选 ' + Object.keys(picked).length + ' 个' + (q ? ' · 匹配 ' + list.length + ' 个' : '');
+  if(!list.length){ box.innerHTML = '<div class="ap-hint">没有匹配的应用，换个关键词试试。</div>'; return; }
+  box.innerHTML = list.slice(0, 300).map(a => {
+    const on = !!picked[a.pkg];
+    return `<label class="ap-row${on ? ' on' : ''}" data-pkg="${esc(a.pkg)}">
+      <input type="checkbox" ${on ? 'checked' : ''} onchange="toggleManagedApp(this)">
+      <span class="ap-meta"><b>${esc(a.label || a.pkg)}</b><span>${esc(a.pkg)}</span></span>
+    </label>`;
+  }).join('');
+}
 
-  let list = rwAppList || [];
-  if(q) list = list.filter(a => (a.label||'').toLowerCase().indexOf(q) >= 0 || (a.pkg||'').toLowerCase().indexOf(q) >= 0);
-  rwVisible = list.slice(0, 120);
-
-  if(!rwAppList || !rwAppList.length){
-    box.innerHTML = '<div class="sub" style="padding:12px 0">读不到应用列表（浏览器里正常）。用下面的输入框手动加包名。</div>';
-    return;
+function toggleManagedApp(cb){
+  const row = cb.closest ? cb.closest('.ap-row') : null;
+  if(!row) return;
+  const pkg = row.getAttribute('data-pkg');
+  if(!pkg) return;
+  if(cb.checked){
+    const b = row.querySelector('.ap-meta b');
+    RewardBridge.addApp(pkg, b ? b.textContent : '');
+  }else{
+    RewardBridge.removeApp(pkg);
   }
-  if(!rwVisible.length){
-    box.innerHTML = '<div class="sub" style="padding:12px 0">没有匹配的应用。可以直接输入包名。</div>';
-    return;
-  }
-  box.innerHTML = rwVisible.map((a,i)=>`
-    <div class="rw-row">
-      <div class="grow" style="min-width:0">
-        <b style="font-size:14px">${esc(a.label)}</b>
-        <div class="sub" style="font-size:11px;word-break:break-all">${esc(a.pkg)}</div>
-      </div>
-      <button class="rw-btn" ${added[a.pkg]?'disabled':''} onclick="rwPick(${i})">${added[a.pkg]?'已添加':'添加'}</button>
-    </div>`).join('');
+  row.classList.toggle('on', cb.checked);
+  const cnt = $('#apCount');
+  if(cnt) cnt.textContent = '已勾选 ' + (RewardBridge.state().apps || []).length + ' 个';
+  try{
+    renderRewardCard();
+    if(currentPage === 'yi') renderYiPage();
+  }catch(e){}
 }
 
-function rwPick(i){
-  const a = rwVisible[i];
-  if(!a) return;
-  RewardBridge.addApp(a.pkg, a.label);
-  rwRenderAppList();
-  toast('已添加「'+a.label+'」');
-}
-
-function rwAddByPkg(){
-  const el = $('#rwPkg');
-  if(!el) return;
-  const pkg = (el.value||'').trim();
-  if(!pkg){ toast('请输入包名'); return; }
-  const st = RewardBridge.addApp(pkg, '');
-  const hit = (st.apps||[]).some(a=>a.pkg===pkg);
-  if(!hit){ return; }
-  el.value = '';
-  rwRenderAppList();
-  toast('已添加 '+pkg);
-}
-
-/* ---- 安卓返回键：弹窗 → 详情页 → 退出 ---- */
+/* ---- 安卓返回键：弹窗 → 日记弹层 → 详情页 → 退出 ---- */
 window.__androidBack = function(){
   try{
+    /* 裁剪器在最上层：先关它，别把下面的设置弹层一起收掉 */
+    if(typeof Cropper !== 'undefined' && Cropper.isOpen()){ Cropper.close(); return true; }
+    /* 富文本快捷条只是浮层提示，先收它，不要连带关掉编辑页 */
+    if(typeof Rt !== 'undefined' && Rt.isOpen()){ Rt.hide(); return true; }
     const yo = $('#yiOverlay');
     if(yo && !yo.classList.contains('hidden')){ Yi.closeOverlay(); return true; }
     const mr = $('#modalRoot');
     if(mr && !mr.classList.contains('hidden')){ closeModal(); return true; }
+    /* 日记：阅读 / 编辑 / 设置 / 回收站 都是页内弹层，先收弹层，绝不退出 App */
+    if(typeof window.__diaryBack === 'function' && window.__diaryBack()) return true;
     const subs = document.querySelectorAll('.subview');
     for(let i=0;i<subs.length;i++){
       if(!subs[i].classList.contains('hidden')){ goBack(); return true; }
@@ -2127,7 +2766,7 @@ function openInsightModal(skillId){
     <h2>${ic('sprout',18)} 新的感悟 · ${esc(sk?sk.name:'')}</h2>
     <p class="sub" style="margin-bottom:12px">这棵树上会多一颗发光果实：外面是它的名字，里面是你的内容。</p>
     <div class="field"><label class="req">感悟名字</label><input type="text" id="inTitle" placeholder="例如：慢即是快、先完成再完美"></div>
-    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto" style="min-height:120px" placeholder="写下你悟到了什么、为什么……" oninput="autoGrow(this)"></textarea></div>
+    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto rt-ta" style="min-height:120px" placeholder="写下你悟到了什么、为什么……" oninput="autoGrow(this)"></textarea><div class="rt-hint"><i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div></div>
     <button class="btn btn-primary" onclick="saveInsight(null,'${skillId}')">种到树上</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeModal()">取消</button>`);
   setTimeout(()=>{$('#inTitle')?.focus(); autoGrow($('#inBody'));},100);
@@ -2138,7 +2777,7 @@ function openInsightEdit(id){
   openModal(`
     <h2>${ic('sprout',18)} 编辑感悟 · ${esc(sk?sk.name:'')}</h2>
     <div class="field"><label class="req">感悟名字</label><input type="text" id="inTitle" value="${esc(it.title)}"></div>
-    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto" style="min-height:120px" oninput="autoGrow(this)">${esc(it.content)}</textarea></div>
+    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto rt-ta" style="min-height:120px" oninput="autoGrow(this)">${esc(it.content)}</textarea><div class="rt-hint"><i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div></div>
     <button class="btn btn-primary" onclick="saveInsight('${id}')">保存</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeModal()">取消</button>`);
   setTimeout(()=>autoGrow($('#inBody')),100);
@@ -2162,7 +2801,7 @@ function openInsight(id){
   openModal(`
     <h2>${ic('sprout',18)} ${esc(it.title)}</h2>
     <div class="sub" style="margin-bottom:10px">${esc(sk?sk.name:'')} · ${esc(it.date||'')}</div>
-    <div class="lv-read" style="cursor:default">${it.content?esc(it.content):'<span class="lv-read-empty">（这颗果实还没有内容）</span>'}</div>
+    <div class="lv-read" style="cursor:default">${it.content?rich(it.content):'<span class="lv-read-empty">（这颗果实还没有内容）</span>'}</div>
     <div class="row" style="gap:8px;margin-top:14px">
       <button class="btn btn-ghost" style="flex:1" onclick="openInsightEdit('${it.id}')">编辑</button>
       <button class="btn btn-danger" style="flex:1" onclick="deleteInsight('${it.id}')">删除</button>
@@ -2276,7 +2915,7 @@ function createSkill(){
   const name = $('#nsName').value.trim();
   if(!name){ toast('请输入技能名称'); return; }
   const now = Date.now();
-  const sk = { id:uid(), name, level:1, checkins:0, levels:blankLevels(), tone:pickTone(), createdAt:todayStr(), updatedAt:now };
+  const sk = { id:uid(), name, level:1, checkins:0, levels:blankLevels(), tip:'', tone:pickTone(), createdAt:todayStr(), updatedAt:now };
   state.skills.push(sk); save(); closeModal();
   toast('新技能「'+name+'」已加入技能树');
   renderSkillPage();
@@ -2330,16 +2969,25 @@ function renderLevelDetail(){
   const lvData = sk.levels[editing.lv-1];
   const textMode = levelEditState.text || 'view';
   const hintMode = levelEditState.hint || 'view';
+  const rtTip = `<div class="rt-hint"><i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div>`;
   const textBlock = textMode==='edit'
-    ? `<textarea id="fText" class="auto" style="min-height:160px" placeholder="写下本等级的内容：训练目标、识别信号、有效/无效做法示例……" oninput="saveLvField('text',this.value);autoGrow(this)">${esc(lvData.text)}</textarea>`
+    ? `<textarea id="fText" class="auto rt-ta" placeholder="写下本等级的内容：训练目标、识别信号、有效/无效做法示例……" oninput="saveLvField('text',this.value);autoGrow(this)">${esc(lvData.text)}</textarea>${rtTip}`
     : (lvData.text && lvData.text.trim()
-        ? `<div class="lv-read" onclick="toggleLvFieldEdit('text')">${esc(lvData.text)}</div><div class="lv-read-hint">点击文本进入编辑</div>`
+        ? `<div class="lv-read" onclick="toggleLvFieldEdit('text')">${rich(lvData.text)}</div><div class="lv-read-hint">点击文本进入编辑</div>`
         : `<div class="lv-read lv-read-empty" onclick="toggleLvFieldEdit('text')">（尚未填写，点击开始编辑）</div>`);
   const hintText  = hintMode==='edit'
-    ? `<textarea id="fHint" class="auto" placeholder="例如：练完 3 首拜厄可尝试升级。每个等级可设置不同提示" oninput="saveLvField('hint',this.value);autoGrow(this)">${esc(lvData.hint||'')}</textarea>`
+    ? `<textarea id="fHint" class="auto rt-ta" style="min-height:96px" placeholder="例如：练完 3 首拜厄可尝试升级。每个等级可设置不同提示" oninput="saveLvField('hint',this.value);autoGrow(this)">${esc(lvData.hint||'')}</textarea>${rtTip}`
     : (lvData.hint && lvData.hint.trim()
-        ? `<div class="lv-read" onclick="toggleLvFieldEdit('hint')">${esc(lvData.hint)}</div>`
+        ? `<div class="lv-read" onclick="toggleLvFieldEdit('hint')">${rich(lvData.hint)}</div>`
         : `<div class="lv-read lv-read-empty" onclick="toggleLvFieldEdit('hint')">（无提示，点击添加）</div>`);
+  /* 阶段考核：每个等级各自一条，只在详情页可见，不出现在技能列表 */
+  const tipMode = levelEditState.tip || 'view';
+  const tipVal = lvData.tip || '';
+  const tipBlock = tipMode==='edit'
+    ? `<textarea id="fTip" class="auto rt-ta" style="min-height:110px" placeholder="这一级要考核什么、什么算通过……" oninput="saveSkillTip(this.value);autoGrow(this)">${esc(tipVal)}</textarea>${rtTip}`
+    : (tipVal.trim()
+        ? `<div class="lv-read" onclick="toggleSkillTipEdit()">${rich(tipVal)}</div>`
+        : `<div class="lv-read lv-read-empty" onclick="toggleSkillTipEdit()">（还没有内容，点一下写一句）</div>`);
   const tabBar = detailTabBar(sk);
   if(skillDetailTab==='tree'){
     $('#view-level-detail').innerHTML = tabBar + treeView(sk);
@@ -2375,6 +3023,16 @@ function renderLevelDetail(){
     </div>
 
     <div class="card">
+      <h3>阶段考核</h3>
+      <div class="field">
+        <div class="field-head">
+          <button class="lv-edit-btn" style="margin-left:auto" onclick="toggleSkillTipEdit()">${tipMode==='edit'?'✓ 完成':'✎ 编辑'}</button>
+        </div>
+        ${tipBlock}
+      </div>
+    </div>
+
+    <div class="card">
       <h3>本等级提示</h3>
       <div class="field">
         <div class="field-head">
@@ -2398,6 +3056,22 @@ function renderLevelDetail(){
     <button class="btn btn-danger" onclick="deleteSkill('${sk.id}')">删除技能</button>`;
   if(textMode==='edit') autoGrow($('#fText'));
   if(hintMode==='edit') autoGrow($('#fHint'));
+  if(tipMode==='edit') autoGrow($('#fTip'));
+}
+function toggleSkillTipEdit(){
+  levelEditState.tip = (levelEditState.tip==='edit') ? 'view' : 'edit';
+  renderLevelDetail();
+  if(levelEditState.tip==='edit'){
+    const el = $('#fTip');
+    if(el){ el.focus(); const len=el.value.length; try{ el.setSelectionRange(len,len); }catch(_){} }
+  }
+}
+function saveSkillTip(v){
+  const sk = findSkill(editing.skillId); if(!sk) return;
+  const lv = sk.levels[editing.lv-1];
+  if(!lv) return;
+  lv.tip = String(v||'');          /* 阶段考核跟等级走：5 个阶段各存各的 */
+  touchSkill(sk); save();
 }
 function toggleNeedEdit(){ needEditOpen = !needEditOpen; renderLevelDetail(); }
 function toggleLvFieldEdit(key){
@@ -2416,8 +3090,11 @@ function toggleLvFieldEdit(key){
 function autoGrow(el){
   if(!el) return;
   el.style.height='auto';
-  const min=parseInt(getComputedStyle(el).minHeight)||0;
-  el.style.height=Math.max(el.scrollHeight,min)+'px';
+  const cs=getComputedStyle(el);
+  const min=parseInt(cs.minHeight)||0;
+  /* 全局是 border-box，scrollHeight 不含边框；不加这 2px 最后一行会被裁掉 */
+  const bd=(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0);
+  el.style.height=Math.max(el.scrollHeight+bd,min)+'px';
 }
 function saveLvField(key, val){
   const sk = findSkill(editing.skillId);
@@ -2733,23 +3410,26 @@ function renderCashView(){
   const isCurrent = (ym === now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'));
   const incs = state.wealth.incomes.filter(i=>monthKey(i.date)===ym);
   const exps = state.wealth.expenses.filter(e=>monthKey(e.date)===ym);
+  const counted = exps.filter(e=>!e.off);                 // 标记「不计入」的只留痕，不参与任何统计
+  const offCount = exps.length - counted.length;
   const payNow = payFor(ym), careerInc = payNow.income; // 工资取职业页发薪记录（缺失月份按最近记录/预期值推算）
   const fixed = (state.wealth.fixed||[]).filter(f=>monthKey(f.startDate||todayStr())<=ym);
-  const fixedEss = fixed.filter(f=>f.category==='必需').reduce((a,f)=>a+num(f.amount),0);
-  const fixedFun = fixed.filter(f=>f.category==='娱乐').reduce((a,f)=>a+num(f.amount),0);
-  const fixedStu = fixed.filter(f=>f.category==='学习').reduce((a,f)=>a+num(f.amount),0);
-  const totalIn = incs.reduce((a,i)=>a+i.amount,0) + careerInc;
-  const ess = exps.filter(e=>e.category==='必需').reduce((a,e)=>a+e.amount,0) + fixedEss;
-  const fun = exps.filter(e=>e.category==='娱乐').reduce((a,e)=>a+e.amount,0) + fixedFun;
-  const stu = exps.filter(e=>e.category==='学习').reduce((a,e)=>a+e.amount,0) + fixedStu;
-  const totalOut = ess+fun+stu;
-  const free = totalIn - ess;
-  // 生存天数：按该月日均必需开销折算（本月用已过天数，查看过去的整月用全月天数）
+  const totalIn = incs.reduce((a,i)=>a+(+i.amount||0),0) + careerInc;
+
+  /* 三类 + 未分类：流水按归一后的类别累加，固定开销按"本期是否到期、是否已被短信核销"计入 */
+  const cat = {'饮食':0,'购物':0,'娱乐出行':0,'未分类':0};
+  counted.forEach(e=>{ cat[normCat(e.category)] += num(e.amount); });
+  fixed.forEach(f=>{ const a = fixedAmountIn(f, ym); if(a) cat[normCat(f.category)] += a; });
+  const totalOut = cat['饮食'] + cat['购物'] + cat['娱乐出行'] + cat['未分类'];
+  const free = totalIn - totalOut;                        // 口径：收入 − 全部支出
+  // 结余能撑多久：按该月日均总开销折算（本月用已过天数，查看过去的整月用全月天数）
   const daysInMonth = new Date(yy, mm, 0).getDate();
   const elapsed = isCurrent ? now.getDate() : daysInMonth;
-  const dailyEss = ess/Math.max(1,elapsed);
-  const surviveDays = dailyEss>0 ? Math.floor(free/dailyEss) : (free>0?'∞':0);
+  const dailyOut = totalOut/Math.max(1,elapsed);
+  const surviveDays = dailyOut>0 ? Math.floor(free/dailyOut) : (free>0?'∞':0);
   const ymLabel = yy+'年'+mm+'月';
+  const legendItems = CAT3.map(c=>({label:c, value:cat[c], color:CAT_COLOR[c]}));
+  if(cat['未分类']>0) legendItems.push({label:'未分类', value:cat['未分类'], color:CAT_COLOR['未分类']});
 
   let html = `
     <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -2760,14 +3440,14 @@ function renderCashView(){
     <div class="card" style="border-color:rgba(5,150,105,.3)">
       <div class="row">
         <div class="grow">
-          <div class="sub">自由现金流（收入 − 必需开销）</div>
+          <div class="sub">${isCurrent?'本月':'该月'}结余（收入 − 全部支出）</div>
           <div class="big-num" style="color:${free>=0?'var(--green)':'var(--red)'}">${money(free)}</div>
         </div>
         <span style="color:${free>=0?'var(--green)':'var(--red)'}">${ic(free>=0?'shield':'alert',30)}</span>
       </div>
       <div class="sub" style="margin-top:8px">
-        ${free>=0 ? `${isCurrent?'当前':'该月'}现金流可支撑 <b style="color:var(--accent)">${surviveDays}${surviveDays==='∞'?'':' 天'}生存</b>`
-                  : `该月必需开销已超过收入，注意补给线！`}
+        ${free>=0 ? `按当前日均开销 ${money(dailyOut)} 算，结余可撑 <b style="color:var(--accent)">${surviveDays}${surviveDays==='∞'?'':' 天'}</b>`
+                  : `该月支出已超过收入，注意补给线！`}
       </div>
       <div class="divider"></div>
       <div class="row sub money">
@@ -2777,24 +3457,6 @@ function renderCashView(){
       </div>
     </div>
     <button class="btn btn-ghost" style="margin-bottom:12px" onclick="openExpenseModal()">+ 开销</button>
-    <div class="card"><h3>${ic('list',15)} 每月固定开销（自动计入）</h3>
-        ${fixed.length ? fixed.map(f=>`
-        <div class="row" style="padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer" title="点击修改这笔固定开销" onclick="openFixedModal('${f.id}')">
-          <span class="tag ${f.category==='必需'?'blue':(f.category==='娱乐'?'gold':'green')}">${f.category}</span>
-          <div class="grow" style="margin-left:6px;min-width:0"><b>${esc(f.name)}</b><div class="sub money">自 ${f.startDate} 起每月自动计入</div></div>
-          <b class="money" style="color:var(--red)">−${money(f.amount)}</b>
-          <button class="btn btn-sm btn-ghost" style="margin-left:8px" title="删除" onclick="event.stopPropagation();delFixed('${f.id}')">${ic('x',14)}</button>
-        </div>`).join('') : '<div class="sub" style="padding:6px 0">房租、订阅等固定开销加在这里，每月自动计入，无需重复输入</div>'}
-      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="openFixedModal()">+ 添加固定开销</button>
-    </div>
-    <div class="card"><h3>${ic('pie',15)} 开销构成</h3>
-      <canvas class="chart" id="cashDonut" style="height:170px"></canvas>
-      <div class="chart-legend">
-        <span><b style="background:#2563eb"></b>必需 ${money(ess)}</span>
-        <span><b style="background:#f59e0b"></b>娱乐 ${money(fun)}</span>
-        <span><b style="background:#7c3aed"></b>学习 ${money(stu)}</span>
-      </div>
-    </div>
     <div class="card"><h3><button class="btn btn-sm btn-ghost" style="float:right;margin-top:-4px" onclick="openCashAnnual()">年度总结</button>${ic('trending-up',15)} 近 6 个月结余趋势</h3>
       <canvas class="chart" id="cashLine"></canvas>
     </div>
@@ -2811,33 +3473,67 @@ function renderCashView(){
           </div>` : '')
         + ((incs.length||exps.length) ? [...incs.map(i=>({t:'in',...i})),...exps.map(e=>({t:'out',...e}))]
           .sort((a,b)=>a.date<b.date?1:-1)
-          .map(r=>`
-          <div class="row" style="padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer" title="点击修改这笔流水" onclick="editRecord('${r.t}','${r.id}')">
+          .map(r=>{
+            const isOut = r.t==='out';
+            const off = isOut && !!r.off;
+            const title = isOut ? catLabelOf(r.category) : esc(r.source);
+            const meta = [r.date.slice(5)];
+            if(isOut && r.merchant) meta.push(r.merchant);
+            else if(isOut && r.channel) meta.push(r.channel);
+            if(isOut && r.src==='sms') meta.push('短信');
+            if(isOut && r.settledKey) meta.push('已核销'+r.settledKey.replace('-','/')+'固定开销');
+            const pill = off ? '<span class="tag gray" style="margin-left:5px;font-size:10px">不计入</span>'
+                      : (isOut && normCat(r.category)==='未分类' ? '<span class="tag gold" style="margin-left:5px;font-size:10px">待确认</span>' : '');
+            return `
+          <div class="row" style="padding:8px 0;border-bottom:1px solid var(--line);cursor:pointer${off?';opacity:.55':''}" title="点击修改这笔流水" onclick="editRecord('${r.t}','${r.id}')">
             <span class="dot ${r.t==='in'?'dot-in':'dot-out'}"></span>
-            <div class="grow"><b>${esc(r.t==='in'?r.source:CAT_LABEL[r.category]||r.category)}</b>
-              <div class="sub money">${r.date.slice(5)}</div></div>
-            <b class="money" style="color:${r.t==='in'?'var(--green)':'var(--red)'}">${r.t==='in'?'+':'−'}${money(r.amount)}</b>
+            <div class="grow" style="min-width:0"><b>${title}${pill}</b>
+              <div class="sub money" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(meta.join(' · '))}</div></div>
+            <b class="money" style="color:${r.t==='in'?'var(--green)':(off?'var(--sub)':'var(--red)')}">${r.t==='in'?'+':'−'}${money(r.amount)}</b>
             <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();delRecord('${r.t}','${r.id}')">${ic('x',14)}</button>
-          </div>`).join('')
+          </div>`;}).join('')
         : '<div class="sub" style="padding:8px 0">该月暂无流水记录</div>'
-      )}</div></div>`;
+      )}</div>
+      ${offCount?`<div class="sub" style="margin-top:8px;font-size:11.5px">另有 ${offCount} 笔标记「不计入」，只留痕不参与统计</div>`:''}</div>
+    <div class="card"><h3>${ic('pie',15)} 开销构成</h3>
+      <canvas class="chart" id="cashDonut" style="height:170px"></canvas>
+      <div class="chart-legend">
+        ${legendItems.map(it=>`<span><b style="background:${it.color}"></b>${it.label} ${money(it.value)}</span>`).join('')}
+      </div>
+      ${cat['未分类']>0?`<div class="sub" style="margin-top:6px;font-size:11.5px">有 ${money(cat['未分类'])} 在「未分类」里，点流水那条补一下金额或类别即可</div>`:''}
+      <div class="divider"></div>
+      <div class="row" style="align-items:baseline">
+        <b style="font-size:13px">固定开销</b>
+        <span class="sub" style="margin-left:auto">${fixed.length?'共 '+fixed.length+' 笔 · 按周期计入':'按周期自动计入'}</span>
+      </div>
+      ${fixed.length ? fixed.map(f=>{
+        const due = fixedDueIn(f, ym), settled = fixedSettledIn(f, ym);
+        const nextK = due ? '' : fixedNextDue(f, ym);
+        const stateTxt = settled ? `本期已由短信账单核销`
+          : (due ? `${fixedCycleText(f)} · 本期计入 ${money(f.amount)}`
+                 : `${fixedCycleText(f)} · 下期 ${nextK?nextK.slice(0,4)+'/'+nextK.slice(5):'—'}`);
+        return `
+        <div class="row" style="padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer" title="点击修改这笔固定开销" onclick="openFixedModal('${f.id}')">
+          <span class="tag ${CAT_TAG[normCat(f.category)]||'blue'}">${normCat(f.category)}</span>
+          <div class="grow" style="margin-left:6px;min-width:0"><b>${esc(f.name)}</b><div class="sub">${stateTxt}</div></div>
+          <b class="money" style="color:${settled?'var(--sub)':(due?'var(--red)':'var(--sub)')}">${due?'−'+money(f.amount):'—'}</b>
+          <button class="btn btn-sm btn-ghost" style="margin-left:8px" title="删除" onclick="event.stopPropagation();delFixed('${f.id}')">${ic('x',14)}</button>
+        </div>`;}).join('') : '<div class="sub" style="padding:6px 0">房租、订阅这类周期性支出加在这里，按周期计入。</div>'}
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="openFixedModal()">+ 添加固定开销</button>
+    </div>`;
   el.innerHTML = html;
 
   requestAnimationFrame(()=>{
-    drawDonut($('#cashDonut'), [
-      {label:'必需',value:ess,color:'#2563eb'},
-      {label:'娱乐',value:fun,color:'#f59e0b'},
-      {label:'学习',value:stu,color:'#7c3aed'}
-    ], money(totalOut));
-    // 近6个月结余：截至所选月往前推 6 个月
+    drawDonut($('#cashDonut'), legendItems, money(totalOut));
+    // 近6个月结余：截至所选月往前推 6 个月（口径与上面一致，排除"不计入"并含固定开销周期）
     const labels=[], balance=[];
     for(let k=5;k>=0;k--){
       const d = new Date(yy, mm-1-k, 1);
       const key = ymKey(d.getFullYear(), d.getMonth()+1);
       labels.push((d.getMonth()+1)+'月');
-      const inM = state.wealth.incomes.filter(i=>monthKey(i.date)===key).reduce((a,i)=>a+i.amount,0) + payFor(key).income;
-      const fxM = (state.wealth.fixed||[]).filter(f=>monthKey(f.startDate||todayStr())<=key).reduce((a,f)=>a+num(f.amount),0);
-      const outM = state.wealth.expenses.filter(e=>monthKey(e.date)===key).reduce((a,e)=>a+e.amount,0) + fxM;
+      const inM = state.wealth.incomes.filter(i=>monthKey(i.date)===key).reduce((a,i)=>a+num(i.amount),0) + payFor(key).income;
+      const outM = state.wealth.expenses.filter(e=>monthKey(e.date)===key && !e.off).reduce((a,e)=>a+num(e.amount),0)
+                 + monthTotalFixed(key);
       balance.push(inM-outM);
     }
     drawLineChart($('#cashLine'), [{name:'结余',color:'#10b981',data:balance}], labels);
@@ -2858,7 +3554,205 @@ function cashDefaultDate(){
   if(!cashMonth || cashMonth===cur) return todayStr();
   return cashMonth+'-01';                     // 新增记录默认落在所选月
 }
-const CAT_LABEL = {'必需':'必需 · 房租/餐饮/交通','娱乐':'娱乐','学习':'学习'};
+/* ---- 三类分类体系 ----
+   流水的分类只有 饮食 / 购物 / 娱乐出行；未分类 是"金额没认出来"的临时落脚点。
+   旧数据的 必需/娱乐/学习 不改原值，只在统计与显示时归一（必需→购物、学习→购物、娱乐→娱乐出行），
+   这样升级不会动你已有的账，改一次那条记录才写回新值。 */
+const CAT3 = ['饮食','购物','娱乐出行'];
+const CAT_LABEL = {'饮食':'饮食','购物':'购物','娱乐出行':'娱乐出行','未分类':'未分类',
+                   '必需':'购物','娱乐':'娱乐出行','学习':'购物'};
+const CAT_COLOR = {'饮食':'#2563eb','购物':'#f59e0b','娱乐出行':'#7c3aed','未分类':'#94a3b8'};
+const CAT_TAG   = {'饮食':'blue','购物':'gold','娱乐出行':'green','未分类':'gray'};
+function normCat(c){
+  if(c==='未分类') return '未分类';
+  if(CAT3.indexOf(c)>=0) return c;
+  if(c==='娱乐') return '娱乐出行';
+  return '购物';                       // 必需 / 学习 / 其它历史值
+}
+function catLabelOf(c){ const n=normCat(c); return CAT_LABEL[n]||n; }
+
+/* ---- 金额三档规则：< lowT 饮食 / [lowT, highT) 娱乐出行 / ≥ highT 购物 ---- */
+function catThresholds(){
+  const c = state.wealth.autoCat || {};
+  let low = num(c.lowT) || 20, high = num(c.highT) || 1000;
+  low  = clamp(Math.round(low), 1, 5000);
+  high = clamp(Math.round(high), 2, 100000);
+  if(high <= low) high = low + 1;      // 区间不允许为空
+  return { low, high };
+}
+function autoCatOf(amount){
+  const a = num(amount);
+  if(!(a > 0)) return '未分类';        // 金额不明确就不猜
+  const t = catThresholds();
+  if(a < t.low)  return '饮食';
+  if(a >= t.high) return '购物';
+  return '娱乐出行';
+}
+function acPreviewText(){
+  const t = catThresholds();
+  return `低于 ${t.low} 元 → 饮食 · ${t.low}–${t.high-1} 元 → 娱乐出行 · ${t.high} 元及以上 → 购物`;
+}
+
+/* 注：曾经有一层「商户记忆」（改一次类别就记住某个商户），已按需求删除——
+   银行短信大多只有「网上支付支取」这类描述，拿不到商户名，记忆层几乎不会被命中。 */
+
+/* ---- 固定开销：周期 + 短信核销 ----
+   cycle = month / quarter / year，从 startDate 起每 step 个月到期一次。
+   settled[期起始月] 存在表示该期已由真实短信账单核销，不再重复计入。 */
+function fixedCycle(f){ return (f && f.cycle==='quarter') ? 'quarter' : ((f && f.cycle==='year') ? 'year' : 'month'); }
+function fixedStepMonths(f){ const c = fixedCycle(f); return c==='quarter' ? 3 : (c==='year' ? 12 : 1); }
+function fixedCycleText(f){ const c = fixedCycle(f); return c==='quarter' ? '每季度' : (c==='year' ? '每年' : '每月'); }
+function fixedDueIn(f, key){
+  const start = String((f && f.startDate) || todayStr()).slice(0,7);
+  if(!key || key < start) return false;
+  const step = fixedStepMonths(f);
+  if(step === 1) return true;                       // 每月
+  const sy = Number(start.slice(0,4)), sm = Number(start.slice(5,7));
+  const y  = Number(key.slice(0,4)),   m  = Number(key.slice(5,7));
+  const diff = (y-sy)*12 + (m-sm);
+  return diff >= 0 && diff % step === 0;
+}
+function periodStartOf(f, key){
+  const step = fixedStepMonths(f);
+  if(step === 1) return key;
+  const start = String((f && f.startDate) || todayStr()).slice(0,7);
+  const sy = Number(start.slice(0,4)), sm = Number(start.slice(5,7));
+  const y  = Number(key.slice(0,4)),   m  = Number(key.slice(5,7));
+  const diff = Math.floor(((y-sy)*12 + (m-sm)) / step) * step;
+  const idx = sy*12 + (sm-1) + diff;
+  return ymKey(Math.floor(idx/12), idx%12 + 1);
+}
+function fixedSettledIn(f, key){ return !!(f && f.settled && f.settled[periodStartOf(f, key)]); }
+function fixedAmountIn(f, key){
+  if(!fixedDueIn(f, key)) return 0;
+  if(fixedSettledIn(f, key)) return 0;   // 已由真实短信账单核销
+  return num(f.amount);
+}
+function fixedNextDue(f, fromKey){
+  const y = Number(fromKey.slice(0,4)), m = Number(fromKey.slice(5,7));
+  for(let i=1;i<=24;i++){
+    const d = new Date(y, m-1+i, 1);
+    const k = ymKey(d.getFullYear(), d.getMonth()+1);
+    if(fixedDueIn(f, k)) return k;
+  }
+  return '';
+}
+function monthTotalFixed(key){
+  return (state.wealth.fixed||[]).reduce((a,f)=>a+fixedAmountIn(f,key),0);
+}
+
+/* ---- 短信入账：原生把解析好的交易塞进队列，这里做分类 + 落库 ----
+   tx = { id?, amount, merchant, date, raw? }
+   返回 {ok, why?, cat?}，供调用方统计"记了几笔"。 */
+function ingestSms(tx){
+  const amount   = num(tx && tx.amount);
+  const date     = String((tx && tx.date) || todayStr()).slice(0,10);
+  const merchant = String((tx && tx.merchant) || '').trim();
+  const channel  = String((tx && tx.channel) || '').trim();
+  if(!(amount > 0)) return {ok:false, why:'没认出金额'};
+
+  const sid = tx && tx.id ? String(tx.id) : '';
+  if(sid && (state.wealth.expenses||[]).some(e=>e && e.smsId===sid)) return {ok:false, why:'重复短信'};
+  if(!sid && (state.wealth.expenses||[]).some(e=>e && e.src==='sms' && e.date===date
+        && Math.abs(num(e.amount)-amount)<0.005 && String(e.merchant||'')===merchant)) return {ok:false, why:'重复短信'};
+
+  /* 短信里出现某条固定开销的名称（如「房租」）就自动核销，避免一笔房租记两次 */
+  let settleF = null;
+  const fxList = state.wealth.fixed || [];
+  if(merchant && merchant.length >= 2){
+    settleF = fxList.filter(f=>{
+      const n = String(f.name||'').trim();
+      return n.length >= 2 && (merchant.indexOf(n) >= 0 || n.indexOf(merchant) >= 0);
+    })[0] || null;
+  }
+
+  const ac = state.wealth.autoCat || {};
+  let cat = (ac.on === false) ? '未分类' : autoCatOf(amount);
+  if(settleF) cat = normCat(settleF.category);
+
+  const rec = { id:uid(), category:cat, amount:amount, date:date,
+                src:'sms', merchant:merchant, auto:true, off:false };
+  if(channel) rec.channel = channel;
+  if(sid) rec.smsId = sid;
+
+  if(settleF){
+    settleF.settled = settleF.settled || {};
+    const pk = periodStartOf(settleF, date.slice(0,7));
+    if(!settleF.settled[pk]) settleF.settled[pk] = { at: Date.now(), amount: amount, txId: rec.id };
+    rec.fixedId = settleF.id;
+    rec.settledKey = pk;
+  }
+  state.wealth.expenses.push(rec);
+
+  save();
+  return {ok:true, cat:cat, off:!!rec.off, settled:!!settleF};
+}
+function drainPaymentsInto(){
+  if(typeof RewardBridge === 'undefined' || !RewardBridge.drainPayments) return 0;
+  let list = [];
+  try{ list = RewardBridge.drainPayments() || []; }catch(e){ list = []; }
+  if(!list.length) return 0;
+  let n = 0;
+  list.forEach(tx=>{ try{ if(ingestSms(tx).ok) n++; }catch(e){} });
+  if(n){
+    try{ toast('自动记账 +'+n+' 笔'); }catch(e){}
+    if(typeof currentPage !== 'undefined' && currentPage==='wealth') renderCashView();
+  }
+  return n;
+}
+
+/* ---- 设置与备份里的「自动记账」卡：金额阈值可配 ---- */
+function acPreview(){
+  const el = document.getElementById('acPreview');
+  if(el) el.textContent = acPreviewText();
+}
+function renderAutoCatBox(){
+  const box = document.getElementById('autoCatBox');
+  if(!box) return;
+  const c = state.wealth.autoCat || {};
+  const t = catThresholds();
+  let st = {};
+  try{ st = RewardBridge.status() || {}; }catch(e){}
+  const br = !!st.local;
+  box.innerHTML = `
+    <div class="ac-card">
+      <div class="ac-head">
+        <div class="grow"><b>金额三档自动分类</b><div class="ac-sub">银行短信进来后按金额分三类，随时可手改</div></div>
+        <label class="ac-sw"><input type="checkbox" ${c.on!==false?'checked':''} onchange="setAutoCat('on',this.checked)"><i></i></label>
+      </div>
+      <div class="ac-rule">
+        <span class="ac-l">低于</span>
+        <input type="number" id="acLow" value="${t.low}" min="1" max="5000" inputmode="numeric" oninput="acPreview()" onchange="setAutoCat('low',this.value)">
+        <span class="ac-l">元 → 饮食</span>
+      </div>
+      <div class="ac-rule">
+        <span class="ac-l">满</span>
+        <input type="number" id="acHigh" value="${t.high}" min="2" max="100000" inputmode="numeric" oninput="acPreview()" onchange="setAutoCat('high',this.value)">
+        <span class="ac-l">元 → 购物</span>
+      </div>
+      <div class="ac-hint" id="acPreview">${acPreviewText()}</div>
+      <div class="ac-actions">
+        <button onclick="resetAutoCat()">恢复默认 20 / 1000</button>
+        ${br?'<span class="ac-note">浏览器预览读不到短信</span>':(st.sms?'<span class="ac-note">短信权限已开</span>':'<button onclick="RewardBridge.requestSms()">开短信权限</button>')}
+      </div>
+    </div>
+    <div class="ac-hint" style="padding:2px 2px 0">银行短信多数只有「网上支付支取」这类描述，拿不到具体商户，所以分类只按金额三档走；某笔不准就在流水里点一下改。</div>`;
+}
+function setAutoCat(k, v){
+  state.wealth.autoCat = state.wealth.autoCat || {on:true,lowT:20,highT:1000};
+  const c = state.wealth.autoCat;
+  if(k === 'on') c.on = !!v;
+  else if(k === 'low')  c.lowT  = clamp(Math.round(num(v))||20, 1, 5000);
+  else if(k === 'high') c.highT = clamp(Math.round(num(v))||1000, 2, 100000);
+  if(num(c.highT) <= num(c.lowT)) c.highT = num(c.lowT) + 1;   // 区间不允许为空
+  save();
+  if(k !== 'on') renderAutoCatBox();
+  toast('分类规则已保存');
+}
+function resetAutoCat(){
+  state.wealth.autoCat = Object.assign({}, state.wealth.autoCat, {lowT:20, highT:1000, on:true});
+  save(); renderAutoCatBox(); toast('已恢复 20 / 1000');
+}
 
 /* ---- 现金流：年度总结 ---- */
 let cashAnnualYear = null;
@@ -2883,27 +3777,26 @@ function openCashAnnual(y){
   cashAnnualYear = year;
   let recMonths=0, estMonths=0;
   const labels=[], incomeData=[], outData=[], balData=[];
-  let totalIn=0, ess=0, fun=0, stu=0;
+  let totalIn=0;
+  const catY = {'饮食':0,'购物':0,'娱乐出行':0,'未分类':0};
   for(let m=1;m<=12;m++){
     const key = ymKey(year,m);
     const active = monthCounts(key);
     const payM = active ? payFor(key) : null;
     const wageM = payM ? payM.income : 0;
     const inM = wageM + state.wealth.incomes.filter(i=>monthKey(i.date)===key).reduce((a,i)=>a+num(i.amount),0);
-    const fxM = (state.wealth.fixed||[]).filter(f=>monthCounts(key, f.startDate||todayStr())).reduce((a,f)=>a+num(f.amount),0);
-    const expM = state.wealth.expenses.filter(e=>monthKey(e.date)===key);
-    const outM = expM.reduce((a,e)=>a+num(e.amount),0) + fxM;
-    ess += expM.filter(e=>e.category==='必需').reduce((a,e)=>a+num(e.amount),0)
-          + (state.wealth.fixed||[]).filter(f=>f.category==='必需'&&monthCounts(key,f.startDate||todayStr())).reduce((a,f)=>a+num(f.amount),0);
-    fun += expM.filter(e=>e.category==='娱乐').reduce((a,e)=>a+num(e.amount),0)
-          + (state.wealth.fixed||[]).filter(f=>f.category==='娱乐'&&monthCounts(key,f.startDate||todayStr())).reduce((a,f)=>a+num(f.amount),0);
-    stu += expM.filter(e=>e.category==='学习').reduce((a,e)=>a+num(e.amount),0)
-          + (state.wealth.fixed||[]).filter(f=>f.category==='学习'&&monthCounts(key,f.startDate||todayStr())).reduce((a,f)=>a+num(f.amount),0);
+    /* 与月度视图同口径：剔除「不计入」，固定开销按周期到期 + 是否已核销计入 */
+    const expM = state.wealth.expenses.filter(e=>monthKey(e.date)===key && !e.off);
+    const outM = expM.reduce((a,e)=>a+num(e.amount),0) + monthTotalFixed(key);
+    expM.forEach(e=>{ catY[normCat(e.category)] += num(e.amount); });
+    (state.wealth.fixed||[]).forEach(f=>{ const a = fixedAmountIn(f, key); if(a) catY[normCat(f.category)] += a; });
     totalIn += inM;
     labels.push(m+'月'); incomeData.push(inM); outData.push(outM); balData.push(inM-outM);
     if(wageM>0){ payM.src==='record' ? recMonths++ : estMonths++; }
   }
-  const totalOut = ess+fun+stu;
+  const totalOut = catY['饮食'] + catY['购物'] + catY['娱乐出行'] + catY['未分类'];
+  const legendY = CAT3.map(c=>({label:c, value:catY[c], color:CAT_COLOR[c]}));
+  if(catY['未分类']>0) legendY.push({label:'未分类', value:catY['未分类'], color:CAT_COLOR['未分类']});
   const wageN = recMonths+estMonths;
   const wageDesc = wageN ? ' · 工资计入 '+wageN+' 个月（'+[recMonths?recMonths+' 个月发薪记录':'', estMonths?estMonths+' 个月按最近记录/预期推算':''].filter(Boolean).join('，')+'）' : '';
   const bal = totalIn-totalOut;
@@ -2942,9 +3835,7 @@ function openCashAnnual(y){
       <h3>${ic('pie',15)} ${year} 年开销构成</h3>
       <canvas class="chart" id="annualDonut" style="height:170px"></canvas>
       <div class="chart-legend">
-        <span><b style="background:#2563eb"></b>必需 ${money(ess)}</span>
-        <span><b style="background:#f59e0b"></b>娱乐 ${money(fun)}</span>
-        <span><b style="background:#7c3aed"></b>学习 ${money(stu)}</span>
+        ${legendY.map(it=>`<span><b style="background:${it.color}"></b>${it.label} ${money(it.value)}</span>`).join('')}
       </div>
     </div>
     <div class="card">
@@ -2962,11 +3853,7 @@ function openCashAnnual(y){
     </div>
     <button class="btn btn-ghost" onclick="closeModal()">关闭</button>`);
   requestAnimationFrame(()=>{
-    drawDonut($('#annualDonut'), [
-      {label:'必需',value:ess,color:'#2563eb'},
-      {label:'娱乐',value:fun,color:'#f59e0b'},
-      {label:'学习',value:stu,color:'#7c3aed'}
-    ], money(totalOut));
+    drawDonut($('#annualDonut'), legendY, money(totalOut));
     drawLineChart($('#annualLine'), [
       {name:'收入',color:'#10b981',data:incomeData},
       {name:'支出',color:'#dc2626',data:outData}
@@ -2993,25 +3880,41 @@ function saveIncome(id){
 }
 function openExpenseModal(id){
   const r = (typeof id==='string' && id) ? state.wealth.expenses.find(x=>x.id===id) : null;
+  const cur = r ? normCat(r.category) : '饮食';
+  const fromSms = !!(r && r.src==='sms');
   openModal(`
     <h2>${r?'编辑开销':'记一笔开销'}</h2>
+    ${fromSms?`<p class="sub" style="margin:2px 0 10px">来自银行短信${r.merchant?' · '+esc(r.merchant):''}${r.auto?' · 自动分类，可以直接改成别的类别':''}</p>`:''}
     <div class="field"><label class="req">类别</label>
       <select id="exCat">
-        <option value="必需"${r&&r.category==='必需'?' selected':''}>必需（房租/餐饮/交通）</option>
-        <option value="娱乐"${r&&r.category==='娱乐'?' selected':''}>娱乐</option>
-        <option value="学习"${r&&r.category==='学习'?' selected':''}>学习</option>
+        ${CAT3.map(c=>`<option value="${c}"${cur===c?' selected':''}>${c}</option>`).join('')}
+        <option value="未分类"${cur==='未分类'?' selected':''}>未分类（待确认）</option>
       </select></div>
     <div class="field"><label class="req">金额（元）</label><input type="number" id="exAmt" inputmode="decimal" value="${r?r.amount:''}" placeholder="例如：50"></div>
     <div class="field"><label class="req">发生日期</label><input type="date" id="exDate" value="${r?r.date:cashDefaultDate()}"></div>
+    <label class="row" style="gap:9px;padding:2px 0 12px;cursor:pointer;align-items:flex-start">
+      <input type="checkbox" id="exOff" ${r&&r.off?'checked':''} style="width:18px;height:18px;margin-top:1px;accent-color:var(--accent);flex:none">
+      <span class="sub" style="font-size:12px;line-height:1.5">不计入总账，只留痕<br><span style="font-size:11px">用于房租这类已由固定开销计入、或不想算进统计的支出</span></span>
+    </label>
     <button class="btn btn-primary" onclick="saveExpense('${r?r.id:''}')">保存</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeModal()">取消</button>`);
 }
 function saveExpense(id){
   const category=$('#exCat').value, amount=num($('#exAmt').value), date=$('#exDate').value;
+  const offEl=$('#exOff'), off = offEl ? !!offEl.checked : false;
   if(!amount||!date){ toast('请完整填写'); return; }
-  if(id){ const e=state.wealth.expenses.find(x=>x.id===id); if(e){ e.category=category; e.amount=amount; e.date=date; } }
-  else state.wealth.expenses.push({id:uid(),category,amount,date});
-  save(); closeModal(); renderCashView(); toast(id?'开销已更新':'开销 −'+money(amount));
+  if(id){
+    const e=state.wealth.expenses.find(x=>x.id===id);
+    if(e){
+      e.category = (category==='未分类') ? '未分类' : category;
+      e.amount = amount; e.date = date; e.off = off;
+      if(e.auto) e.auto = false;                        // 手工改过就不再自动覆盖
+    }
+  } else {
+    state.wealth.expenses.push({id:uid(),category,amount,date,off});
+  }
+  save(); closeModal(); renderCashView();
+  toast(id?'开销已更新':'开销 −'+money(amount));
 }
 function editRecord(t,id){ if(t==='in') openIncomeModal(id); else openExpenseModal(id); }
 function delRecord(t,id){
@@ -3019,33 +3922,72 @@ function delRecord(t,id){
   else state.wealth.expenses = state.wealth.expenses.filter(r=>r.id!==id);
   save(); renderCashView();
 }
-/* ---- 每月固定开销 ---- */
+/* ---- 固定开销（周期 + 短信核销） ---- */
 function openFixedModal(id){
   const f = (typeof id==='string' && id) ? (state.wealth.fixed||[]).find(x=>x.id===id) : null;
+  const cyc = f ? fixedCycle(f) : 'month';
+  const cat0 = f ? normCat(f.category) : '购物';
+  const settledKeys = (f && f.settled) ? Object.keys(f.settled).sort().reverse() : [];
   openModal(`
     <h2>${f?'编辑固定开销':'添加固定开销'}</h2>
-    <p class="sub" style="margin:4px 0 12px">房租、订阅等每月固定支出，设置一次后每月自动计入，无需重复输入。</p>
+    <p class="sub" style="margin:4px 0 12px">房租、订阅这类周期性支出。按周期自动计入；收到对应短信时自动核销，不重复计。</p>
     <div class="field"><label class="req">名称</label><input type="text" id="fxName" value="${f?esc(f.name):''}" placeholder="例如：房租、视频会员"></div>
     <div class="field"><label class="req">类别</label>
       <select id="fxCat">
-        <option value="必需"${f&&f.category==='必需'?' selected':''}>必需（房租/餐饮/交通）</option>
-        <option value="娱乐"${f&&f.category==='娱乐'?' selected':''}>娱乐</option>
-        <option value="学习"${f&&f.category==='学习'?' selected':''}>学习</option>
+        ${CAT3.map(c=>`<option value="${c}"${cat0===c?' selected':''}>${c}</option>`).join('')}
       </select></div>
-    <div class="field"><label class="req">每月金额（元）</label><input type="number" id="fxAmt" inputmode="decimal" value="${f?f.amount:''}" placeholder="例如：1500"></div>
-    <div class="field"><label class="req">生效日期（该月起自动计入）</label><input type="date" id="fxDate" value="${f?f.startDate:todayStr()}"></div>
+    <div class="field"><label class="req">每期金额（元）</label><input type="number" id="fxAmt" inputmode="decimal" value="${f?f.amount:''}" placeholder="例如：3000"></div>
+    <div class="field"><label class="req">周期</label>
+      <select id="fxCycle" onchange="fxCycleHint()">
+        <option value="month"${cyc==='month'?' selected':''}>每月一次</option>
+        <option value="quarter"${cyc==='quarter'?' selected':''}>每季度一次（3 个月）</option>
+        <option value="year"${cyc==='year'?' selected':''}>每年一次</option>
+      </select></div>
+    <div class="field"><label class="req">首次付款日期（从这天起算周期）</label><input type="date" id="fxDate" value="${f?f.startDate:todayStr()}"></div>
+    <div class="sub" id="fxHint" style="font-size:11.5px;margin:-4px 0 12px;line-height:1.6"></div>
+    ${settledKeys.length?`<div class="field"><label>已由短信核销的期次</label>
+      ${settledKeys.map(k=>`<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)">
+        <div class="grow"><b style="font-size:13px">${k.slice(0,4)} 年 ${Number(k.slice(5))} 月</b>
+          <div class="sub money" style="font-size:11px">短信 ${money((f.settled[k]&&f.settled[k].amount)||0)} · 真实流水已计入</div></div>
+        <button class="btn btn-sm btn-ghost" onclick="unsyncFixed('${f.id}','${k}')">撤销</button>
+      </div>`).join('')}
+    </div>`:''}
     <button class="btn btn-primary" onclick="saveFixed('${f?f.id:''}')">保存</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeModal()">取消</button>`);
+  fxCycleHint();
+}
+function fxCycleHint(){
+  const el = $('#fxHint'); if(!el) return;
+  const cyc = ($('#fxCycle')||{}).value || 'month';
+  const amt = num(($('#fxAmt')||{}).value);
+  const txt = {
+    month: '每月都计入一次。',
+    quarter: '每 3 个月计入一次，中间两个月为 0。',
+    year: '每年计入一次。'
+  }[cyc] || '';
+  el.textContent = txt + (amt>0 ? ` 折合每月约 ${money(Math.round(amt / (cyc==='quarter'?3:(cyc==='year'?12:1))))}（仅参考，不参与统计）。` : '');
 }
 function saveFixed(id){
   const name=$('#fxName').value.trim(), category=$('#fxCat').value,
-        amount=num($('#fxAmt').value), startDate=$('#fxDate').value;
+        amount=num($('#fxAmt').value), startDate=$('#fxDate').value,
+        cycle=($('#fxCycle')||{}).value || 'month';
   if(!name||!amount||!startDate){ toast('请完整填写'); return; }
   state.wealth.fixed = state.wealth.fixed||[];
-  if(id){ const e=state.wealth.fixed.find(x=>x.id===id); if(e){ e.name=name; e.category=category; e.amount=amount; e.startDate=startDate; } }
-  else state.wealth.fixed.push({id:uid(),name,category,amount,startDate});
+  if(id){
+    const e = state.wealth.fixed.find(x=>x.id===id);
+    if(e){ e.name=name; e.category=category; e.amount=amount; e.startDate=startDate; e.cycle=cycle;
+           if(!e.settled) e.settled={}; }
+  } else {
+    state.wealth.fixed.push({id:uid(),name,category,amount,startDate,cycle,settled:{}});
+  }
   save(); closeModal(); renderCashView();
-  toast(id?'固定开销已更新':'固定开销已添加，每月自动计入');
+  toast(id?'固定开销已更新':'固定开销已添加，'+({month:'每月',quarter:'每季度',year:'每年'}[cycle]||'每月')+'计入');
+}
+function unsyncFixed(id, key){
+  const f = (state.wealth.fixed||[]).find(x=>x.id===id);
+  if(!f || !f.settled) return;
+  delete f.settled[key];
+  save(); closeModal(); renderCashView(); toast('已撤销核销，该期恢复计入');
 }
 function delFixed(id){
   state.wealth.fixed = (state.wealth.fixed||[]).filter(f=>f.id!==id);
@@ -3072,34 +4014,43 @@ function renderAssetsView(){
   const totalVal = list.reduce((a,x)=>a+assetValue(x),0);
   const totalPri = list.reduce((a,x)=>a+num(x.principal),0);
   const totalPro = list.reduce((a,x)=>a+assetProfit(x),0);
-  let html = '';
-  html += renderGoalCard(totalVal);
+  const totalPct = totalPri>0 ? totalPro/totalPri*100 : 0;
+  const cls = totalPro>=0 ? 'up' : 'down';
+
   if(!list.length){
-    html += `<div class="card empty">${ic('trending-up',28)}<br>还没有资产记录<br><span class="sub">录入基金 / 债券 / ETF / 股票的本金，再随时记录浮动盈亏<br>自动计算当前市值与年化收益率</span></div>`;
-  }else{
-    html += `<div class="card" style="border-color:var(--acc-35)">
-      <h3><button class="btn btn-sm btn-ghost" style="float:right;margin-top:-4px" onclick="openAssetAnnual()">年度总结</button>${ic('bar-chart',15)} 持仓总览</h3>
-      <div class="row">
-        <div class="grow"><div class="sub">总市值</div><div class="big-num">${money(totalVal)}</div></div>
-        <div style="text-align:right"><div class="sub">总浮动盈亏</div>
-          <div class="big-num" style="font-size:20px;color:${totalPro>=0?'var(--green)':'var(--red)'}">${totalPro>=0?'+':''}${money(totalPro)}</div></div>
-      </div>
-      ${totalPri>0?`<div class="sub" style="margin-top:6px">总本金 ${money(totalPri)} · 累计收益率 ${((totalPro/totalPri)*100).toFixed(1)}%</div>`:''}
-    </div>
-    <div class="stack">` + list.map(a=>{
-      const pro = assetProfit(a);
-      return `<div class="card clickable" onclick="openAssetDetail('${a.id}')">
-        <div class="row">
-          <span class="icon-box">${ic(ASSET_ICON[a.type]||'trending-up',20)}</span>
-          <div class="grow">
-            <div class="row"><b>${esc(a.name)}</b><span class="tag blue" style="margin-left:8px">${esc(a.type)}</span></div>
-            <div class="sub money" style="margin-top:3px">本金 ${money(a.principal)} · 当前 <b style="color:var(--text)">${money(assetValue(a))}</b></div>
-            <div class="sub money">浮动 <b style="color:${pro>=0?'var(--green)':'var(--red)'}">${pro>=0?'+':''}${money(pro)}</b> · 年化 <b style="color:${pro>=0?'var(--green)':'var(--red)'}">${fmtAnnual(a)}</b> · 持有 ${assetHoldDays(a)} 天</div>
-          </div>
-        </div></div>`;
-    }).join('') + `</div>`;
+    el.innerHTML = `<div class="card empty">${ic('trending-up',28)}<br>还没有资产记录<br><span class="sub">录入基金 / 债券 / ETF / 股票的本金，再随时记一笔浮动盈亏<br>市值、收益率、年化都自动算</span></div>`
+      + renderGoalCard(0);
+    return;
   }
-  el.innerHTML = html;
+
+  el.innerHTML = `
+    <div class="card" style="border-color:var(--acc-35)">
+      <div class="row">
+        <span class="sub">总市值</span>
+        <button class="btn btn-sm btn-ghost" style="margin-left:auto;margin-top:-6px;margin-bottom:-2px" onclick="openAssetAnnual()">年度总结 ›</button>
+      </div>
+      <div class="as-hero">
+        <span class="big-num">${money(totalVal)}</span>
+        ${totalPri>0?`<span class="as-badge ${cls}">${totalPro>=0?'+':''}${totalPct.toFixed(1)}%</span>`:''}
+      </div>
+      <div class="as-meta">本金 ${money(totalPri)} · 浮动 <b style="color:${totalPro>=0?'var(--green)':'var(--red)'}">${totalPro>=0?'+':''}${money(totalPro)}</b></div>
+    </div>
+
+    <div class="stack">${list.map(a=>{
+      const pro = assetProfit(a), val = assetValue(a);
+      const pri = num(a.principal);
+      const pct = pri>0 ? pro/pri*100 : 0;
+      return `<div class="card clickable as-card" onclick="openAssetDetail('${a.id}')">
+        <span class="icon-box">${ic(ASSET_ICON[a.type]||'trending-up',19)}</span>
+        <div class="grow" style="min-width:0">
+          <div class="as-name">${esc(a.name)}<span class="tag blue">${esc(a.type)}</span></div>
+          <div class="as-meta">${pri>0?`本金 ${money(pri)} · `:''}<b style="color:${pro>=0?'var(--green)':'var(--red)'}">${pro>=0?'+':''}${pri>0?pct.toFixed(1)+'%':money(pro)}</b></div>
+        </div>
+        <div class="as-val">${money(val)}</div>
+      </div>`;
+    }).join('')}</div>
+
+    ${renderGoalCard(totalVal)}`;
 }
 /* ---- 资产目标：给定目标/期限/年化 + 现有资产，反解每月需存金额（年金终值） ---- */
 function goalMonthly(g, curVal){
@@ -3118,29 +4069,25 @@ function goalMonthly(g, curVal){
 function renderGoalCard(curVal){
   const g = state.wealth.goal;
   if(!g){
-    return `<div class="card" style="border-style:dashed">
-      <div class="row"><span class="icon-box">${ic('target',20)}</span>
-        <div class="grow"><b>设定资产目标</b><div class="sub" style="margin-top:3px">例：10 年存到 100 万、年化 2%，自动算出你每月大概要存多少</div></div>
-      </div>
-      <button class="btn btn-primary" style="margin-top:12px" onclick="openGoalModal()">＋ 设置目标</button>
+    return `<div class="card as-goal-empty">
+      <span class="icon-box">${ic('target',18)}</span>
+      <div class="grow"><b style="font-size:13px">还没设资产目标</b><div class="as-meta">设一个，自动算出每月要存多少</div></div>
+      <button class="btn btn-sm btn-ghost" onclick="openGoalModal()">设置</button>
     </div>`;
   }
   const r = goalMonthly(g, curVal);
   const pct = r.target>0 ? clamp(Math.round(r.pvFut/r.target*100),0,100) : 0;
-  const endDate = (()=>{ const d=new Date(); d.setMonth(d.getMonth()+r.n); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); })();
-  const ans = r.done
-    ? `<span class="g-num" style="color:var(--green)">已达成 🎉</span><span class="g-unit">现有资产按此年化到期即超目标</span>`
-    : `<span class="g-num">${money(Math.ceil(r.pm))}</span><span class="g-unit">/ 月，坚持 ${r.years} 年</span>`;
-  return `<div class="card" style="border-color:var(--acc-35)">
-    <h3>${ic('target',15)} 资产目标 <button class="goal-edit" title="编辑目标" onclick="openGoalModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button></h3>
-    <div class="sub">目标 ${money(r.target)} · 期限 ${r.years} 年（${endDate}）· 年化 ${r.rate}%</div>
-    <div class="goal-hero" style="margin-top:10px">${ans}</div>
-    <div class="goal-bar"><i style="width:${pct}%"></i></div>
-    <div class="goal-meta">
-      <div>现有资产 <b>${money(r.pv)}</b></div>
-      <div>到期可长成 <b>${money(r.pvFut)}</b></div>
-      <div>还差 <b style="color:${r.remain>0?'var(--accent)':'var(--green)'}">${money(Math.max(0,r.remain))}</b></div>
+  const head = r.done
+    ? `<span class="g-num" style="color:var(--green);font-size:17px">已达成 🎉</span>`
+    : `<span class="g-num">${money(Math.ceil(r.pm))}</span><span class="g-unit">/ 月 × ${r.years} 年</span>`;
+  return `<div class="card">
+    <div class="row">
+      <b style="font-size:13px">资产目标 ${money(r.target)}</b>
+      <button class="goal-edit" style="margin-left:auto" title="编辑目标" onclick="openGoalModal()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
     </div>
+    <div class="as-goal-line">${head}<span class="as-meta" style="margin-left:auto">还差 ${money(Math.max(0,r.remain))}</span></div>
+    <div class="goal-bar" style="margin-top:8px"><i style="width:${pct}%"></i></div>
+    <div class="as-meta" style="margin-top:6px">年化 ${r.rate}% · 已走到 ${pct}%${r.done?'':' · 到期约 '+money(r.pvFut)}</div>
   </div>`;
 }
 function openGoalModal(){
@@ -3437,7 +4384,7 @@ function renderDiseaseList(){
           <div class="grow">
             <div class="row"><b>${esc(d.name)}</b>
               <span class="tag ${d.status==='康复'?'green':'blue'}" style="margin-left:8px">${d.status}</span></div>
-            <div class="sk-notes">${esc(d.notes||'—')}</div>
+            <div class="sk-notes">${d.notes?rich(d.notes):'—'}</div>
           </div>
         </div></div>`).join('') + `</div>`;
   }
@@ -3455,7 +4402,7 @@ function openDiseaseModal(id){
     <div class="field"><label class="req">疾病名称</label><input type="text" id="dName" value="${d?esc(d.name):''}" placeholder="例如：近视"></div>
     <div class="field"><label class="req">确诊日期</label><input type="date" id="dDate" value="${d?d.diagnoseDate:todayStr()}"></div>
     <div class="field"><label class="req">总花费（元）</label><input type="number" id="dCost" inputmode="decimal" value="${d?d.cost:''}" placeholder="例如：2800"></div>
-    <div class="field"><label>注意事项（支持换行）</label><textarea id="dNotes" placeholder="例如：每20分钟看远处">${d?esc(d.notes):''}</textarea></div>
+    <div class="field"><label>注意事项（支持换行）</label><textarea id="dNotes" class="rt-ta" style="min-height:96px" placeholder="例如：每20分钟看远处">${d?esc(d.notes):''}</textarea><div class="rt-hint"><i>**文字**</i> 加粗 · 行首 <i>•</i> 变项目符号</div></div>
     <div class="field"><label>当前状态</label>
       <select id="dStatus">
         <option value="治疗中" ${d&&d.status==='治疗中'?'selected':''}>治疗中</option>
@@ -3509,7 +4456,7 @@ function renderDiseaseDetail(id){
       </div>
       <div class="divider"></div>
       <div class="row"><span class="sub">总花费</span><b class="money" style="color:var(--red);margin-left:auto">${money(d.cost)}</b></div>
-      ${d.notes?`<div class="sub" style="margin-top:8px;background:var(--card2);border-radius:10px;padding:10px;white-space:pre-wrap;line-height:1.7">${esc(d.notes)}</div>`:''}
+      ${d.notes?`<div class="sub" style="margin-top:8px;background:var(--card2);border-radius:10px;padding:10px;white-space:pre-wrap;line-height:1.75">${rich(d.notes)}</div>`:''}
       <div class="row" style="margin-top:10px;gap:8px">
         <button class="btn btn-sm btn-ghost" style="flex:1" onclick="openDiseaseModal('${d.id}')">编辑</button>
         <button class="btn btn-sm ${d.status==='康复'?'btn-ghost':'btn-primary'}" style="flex:1" onclick="toggleCure('${d.id}')">${d.status==='康复'?'重新治疗':'标记康复'}</button>
@@ -3989,7 +4936,14 @@ function applySnapshot(obj){
   if(life && confirm('导入将覆盖当前 技能/财富/健康/职业 数据，确定继续？')){
     state.skills = Array.isArray(life.skills) ? normalizeSkillTones(life.skills) : [];
     state.insights = (life.insights||[]).filter(x=>x&&x.id&&x.skillId);
-    state.wealth = Object.assign({items:[],incomes:[],expenses:[],assets:[],fixed:[]}, life.wealth);
+    state.wealth = Object.assign({items:[],incomes:[],expenses:[],assets:[],fixed:[],
+      autoCat:{on:true,lowT:20,highT:1000}}, life.wealth);
+    state.wealth.autoCat = Object.assign({on:true,lowT:20,highT:1000}, state.wealth.autoCat||{});
+    if(state.wealth.merchantMem) delete state.wealth.merchantMem;
+    (state.wealth.fixed||[]).forEach(f=>{
+      if(['month','quarter','year'].indexOf(f.cycle)<0) f.cycle='month';
+      if(!f.settled || typeof f.settled!=='object') f.settled={};
+    });
     state.health = Object.assign({birthday:null,diseases:[]}, life.health);
     state.career.current = Object.assign({name:'',income:0,hours:8,satisfaction:3,pays:[]}, life.career && life.career.current);
     state.career.current.pays = (state.career.current.pays||[]).filter(p=>p && p.month);
@@ -4222,7 +5176,7 @@ function setFab(fn){
     if(diff < 86400*8) return Math.floor(diff/86400) + " 天前";
     return fmtTime(iso);
   }
-  function countChars(s){ return String(s || "").replace(/\s/g, "").length; }
+  function countChars(s){ return plain(String(s || "")).replace(/\s/g, "").length; }
 
   /* ---------------- data ops ---------------- */
   function live(){
@@ -4403,11 +5357,11 @@ function setFab(fn){
     return card;
   }
   function firstLine(t){
-    var s = String(t || "").split("\n").filter(function(x){ return x.trim(); });
+    var s = plain(String(t || "")).split("\n").filter(function(x){ return x.trim(); });
     return s.length ? s[0].trim().slice(0, 24) : "";
   }
   function bodyWithoutFirstLine(t){
-    var lines = String(t || "").split("\n");
+    var lines = plain(String(t || "")).split("\n");
     var i = 0;
     while(i < lines.length && !lines[i].trim()) i++;
     return lines.slice(i + 1).join("\n").trim();
@@ -4507,7 +5461,7 @@ function setFab(fn){
     meta.push("写于 " + fmtTime(e.createdAt));
     if(e.updatedAt && e.updatedAt.slice(0, 10) !== e.date) meta.push("改于 " + fmtTime(e.updatedAt));
     g("dyReadMeta").textContent = meta.join(" · ");
-    g("dyReadBody").textContent = e.body || "（无正文）";
+    g("dyReadBody").innerHTML = e.body ? rich(e.body) : "（无正文）";
     g("dyReadPos").textContent = (readIndex + 1) + " / " + list.length;
     g("dyReadPrev").disabled = readIndex >= list.length - 1;
     g("dyReadNext").disabled = readIndex <= 0;
@@ -4557,6 +5511,7 @@ g("dyBtnTheme").textContent = t === "blue" ? "蓝" : (t === "paper" ? "黄" : (t
       info.textContent = "当前占用本地存储约 " + (used / 1024).toFixed(1) + " KB。浏览器对单个站点的配额通常是几 MB，够写很多年。";
     }catch(e){ info.textContent = ""; }
     renderFootnote();
+    try{ if(typeof renderAutoCatBox === 'function') renderAutoCatBox(); }catch(e){}
   }
   function renderTrash(){
     var host = g("dyTrashList");
@@ -4770,6 +5725,17 @@ g("dyBtnTheme").textContent = t === "blue" ? "蓝" : (t === "paper" ? "黄" : (t
   }
   boot();
 
+  /* 安卓返回键：日记页的弹层优先由这里收掉，收完就停在日记页，不会退出 App */
+  window.__diaryBack = function(){
+    try{
+      if(g("dyTrashOverlay") && !g("dyTrashOverlay").hidden){ setOverlay("dyTrashOverlay", false); renderSettings(); return true; }
+      if(g("dyEditorOverlay") && !g("dyEditorOverlay").hidden){ closeEditor(); return true; }
+      if(g("dyReadOverlay") && !g("dyReadOverlay").hidden){ closeRead(); return true; }
+      if(g("dySettingsOverlay") && !g("dySettingsOverlay").hidden){ setOverlay("dySettingsOverlay", false); return true; }
+    }catch(e){}
+    return false;
+  };
+
   window.dyAPI = {
     snapshot: snapshot,
     importEntries: importEntries,
@@ -4784,7 +5750,16 @@ g("dyBtnTheme").textContent = t === "blue" ? "蓝" : (t === "paper" ? "黄" : (t
 
 /* ============ 启动 ============ */
 renderCurrentPage();
-FocusBg.init();   // 初始化「设置与备份」里的专注背景图缩略图
+/* 图片取自 IndexedDB，异步加载完再画缩略图 / 铺壁纸；没 IndexedDB 时立刻回调 */
+ImgStore.init(function(){
+  try{ FocusBg.init(); }catch(e){}   // 初始化「设置与备份」里的专注背景图缩略图
+  try{ Wall.init(); }catch(e){}      // 自定义壁纸：应用已保存的图片与模糊度
+});
+/* 原生短信通道攒下的交易，开机和每次回到前台各取一次（事件驱动，不轮询） */
+try{ drainPaymentsInto(); }catch(e){}
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible'){ try{ drainPaymentsInto(); }catch(e){} }
+});
 window.addEventListener('resize', ()=>{ if(currentPage==='wealth') renderWealthPage(); });
 /* ============ 自检（仅 ?selftest=1 时运行，结果写入标题） ============ */
 if(location.search.indexOf('selftest')>=0){
@@ -4856,8 +5831,8 @@ if(location.search.indexOf('selftest')>=0){
       closeModal();
     })();
     switchWealthTab('cash');
-    ok('现金流渲染(含图表)', $('#wealth-cash').innerHTML.indexOf('自由现金流')>=0 && !!$('#cashDonut') && !!$('#cashLine'));
-    ok('生存天数提示', $('#wealth-cash').innerHTML.indexOf('生存')>=0);
+    ok('现金流渲染(含图表)', $('#wealth-cash').innerHTML.indexOf('结余')>=0 && !!$('#cashDonut') && !!$('#cashLine'));
+    ok('结余可撑天数提示', $('#wealth-cash').innerHTML.indexOf('可撑')>=0);
     // -- 现金流条目点击编辑（就地更新，不新增重复） --
     (function(){ const inc=state.wealth.incomes[state.wealth.incomes.length-1]; const before=state.wealth.incomes.length;
       editRecord('in',inc.id);
@@ -4867,7 +5842,7 @@ if(location.search.indexOf('selftest')>=0){
     })();
     (function(){ const exp=state.wealth.expenses[state.wealth.expenses.length-1]; const before=state.wealth.expenses.length;
       editRecord('out',exp.id);
-      ok('开销编辑弹窗预填类别', $('#modalSheet').innerHTML.indexOf('编辑开销')>=0 && $('#exCat').value===exp.category && $('#exAmt').value===String(exp.amount));
+      ok('开销编辑弹窗预填类别', $('#modalSheet').innerHTML.indexOf('编辑开销')>=0 && $('#exCat').value===normCat(exp.category) && $('#exAmt').value===String(exp.amount));
       $('#exAmt').value='777'; saveExpense(exp.id);
       ok('开销就地更新不新增', state.wealth.expenses.length===before && state.wealth.expenses.find(x=>x.id===exp.id).amount===777);
     })();
@@ -4877,6 +5852,57 @@ if(location.search.indexOf('selftest')>=0){
       $('#fxAmt').value='1600'; saveFixed(f.id);
       ok('固定开销就地更新不新增', state.wealth.fixed.length===before && state.wealth.fixed.find(x=>x.id===f.id).amount===1600);
       closeModal();
+    })();
+    // -- 短信自动分账：金额三档 / 阈值可配 / 记忆层 / 固定开销核销 / 不计入 --
+    (function(){
+      const oldAC = JSON.parse(JSON.stringify(state.wealth.autoCat||{}));
+      state.wealth.autoCat = {on:true, lowT:20, highT:1000};
+      ok('金额三档：<20 归饮食', autoCatOf(12)==='饮食');
+      ok('金额三档：20–999 归娱乐出行', autoCatOf(300)==='娱乐出行');
+      ok('金额三档：≥1000 归购物', autoCatOf(3000)==='购物');
+      ok('金额缺失不猜（未分类）', autoCatOf(0)==='未分类');
+      state.wealth.autoCat = {on:true, lowT:50, highT:2000};
+      ok('阈值可配：改 50 后 30 元归饮食', autoCatOf(30)==='饮食');
+      ok('阈值可配：改 2000 后 1500 归娱乐出行', autoCatOf(1500)==='娱乐出行');
+      state.wealth.autoCat = {on:true, lowT:20, highT:1000};
+
+      const n0 = state.wealth.expenses.length;
+      const r1 = ingestSms({id:'t-sms-1', amount:35, merchant:'星巴克咖啡(北京)有限公司', date:todayStr()});
+      const rec1 = state.wealth.expenses[state.wealth.expenses.length-1];
+      ok('短信入账并自动归类', r1.ok && state.wealth.expenses.length===n0+1 && rec1.category==='娱乐出行');
+      ok('重复短信不会记两次', !ingestSms({id:'t-sms-1', amount:35, merchant:'星巴克', date:todayStr()}).ok);
+
+      editRecord('out', rec1.id); $('#exCat').value='饮食'; saveExpense(rec1.id);
+      ok('手改类别会保存到这条记录', state.wealth.expenses.filter(e=>e.id===rec1.id)[0].category==='饮食');
+      ok('商户记忆已彻底移除', !('merchantMem' in state.wealth));
+      const r2 = ingestSms({id:'t-sms-2', amount:38, merchant:'星巴克咖啡(北京)有限公司', date:todayStr()});
+      const rec2 = state.wealth.expenses[state.wealth.expenses.length-1];
+      ok('同商户新一笔仍按金额规则走', r2.ok && rec2.category==='娱乐出行');
+
+      // -- 本轮：假开关清理 / 图片仓 / 烘焙模糊 / 计时器 / 富文本快捷条 --
+      ok('「单日消费上限」假开关已彻底移除', (function(){
+        const yi=JSON.parse(localStorage.getItem('lifeRPG.yi.v1')||'{}');
+        return !('dailyCapOn' in yi) && !('dailyCapMin' in yi) && !('usedToday' in yi) && !('todayKey' in yi);
+      })());
+      ok('图片仓接管壁纸与专注背景', typeof ImgStore.get('wall')==='string' && typeof ImgStore.get('focusBg')==='string'
+        && /^(IndexedDB|localStorage)$/.test(ImgStore.backend()));
+      ok('本地没有遗留的图片大 key', !localStorage.getItem('lifeRPG.wall.v1') && !localStorage.getItem('lifeRPG.focusBg.v1'));
+      ok('壁纸模糊度仍在 0–30 内', (function(){ const b=Wall.blur(); return b>=0 && b<=30 && typeof Wall.apply==='function'; })());
+      ok('空闲时 tick 不报错（计时器会自己收掉）', (function(){ Yi.tick(); return true; })());
+      ok('富文本快捷条默认收起', typeof Rt.isOpen==='function' && Rt.isOpen()===false);
+
+      const rent = {id:'rt-leaf', name:'房租', category:'购物', amount:3000, startDate:'2026-01-01', cycle:'quarter', settled:{}};
+      state.wealth.fixed = (state.wealth.fixed||[]).filter(f=>f.name!=='房租').concat([rent]);
+      ok('季度固定开销只在到期月计入', fixedAmountIn(rent,'2026-01')===3000 && fixedAmountIn(rent,'2026-02')===0);
+      const r3 = ingestSms({id:'t-sms-3', amount:3000, merchant:'房租', date:'2026-01-05'});
+      ok('房租短信自动核销该期', r3.ok && r3.settled && fixedSettledIn(rent,'2026-01'));
+      ok('核销后本期不再重复计入', fixedAmountIn(rent,'2026-01')===0);
+
+      const r4 = ingestSms({id:'t-sms-4', amount:66, merchant:'测试不算商户', date:todayStr()});
+      const rec4 = state.wealth.expenses[state.wealth.expenses.length-1];
+      editRecord('out', rec4.id); $('#exOff').checked = true; saveExpense(rec4.id);
+      ok('可标记为「不计入总账」', !!state.wealth.expenses.filter(e=>e.id===rec4.id)[0].off);
+      state.wealth.autoCat = oldAC;
     })();
     // -- 现金流：月份切换（默认本月 / 禁翻未来 / 上一月贯穿 / 复位） --
     (function(){ const n=new Date();
@@ -4922,7 +5948,7 @@ if(location.search.indexOf('selftest')>=0){
     })();
     state.wealth.assets.push({id:uid(),type:'基金',name:'沪深300',principal:10000,startDate:'2026-01-01',changes:[{id:uid(),date:'2026-06-01',amount:500},{id:uid(),date:'2026-10-01',amount:-200}]});
     switchWealthTab('assets');
-    ok('资产页渲染', $('#wealth-assets').innerHTML.indexOf('沪深300')>=0 && $('#wealth-assets').innerHTML.indexOf('年化')>=0);
+    ok('资产页渲染', $('#wealth-assets').innerHTML.indexOf('沪深300')>=0 && $('#wealth-assets').innerHTML.indexOf('总市值')>=0);
     ok('资产浮动自动累加', Math.abs(assetProfit(state.wealth.assets[0])-300)<0.001);
     state.wealth.fixed.push({id:uid(),name:'房租',category:'必需',amount:1500,startDate:'2026-01-01'});
     switchWealthTab('cash');
@@ -5014,7 +6040,7 @@ if(location.search.indexOf('selftest')>=0){
     ok('写内容后勋章点亮去锁', skillIsLocked(state.skills.find(x=>x.name==='游泳'))===false && skillIsLocked(state.skills.find(x=>x.name==='写作'))===true);
     (function(){ const s=state.skills.find(x=>x.name==='游泳'); s.levels.forEach(l=>l.text='x'); renderSkillPage(); })();
     ok('满5级出现刻印勾标', (function(){ const s=state.skills.find(x=>x.name==='游泳'); return skillArchived(s)===5 && $('#skillList').innerHTML.indexOf('sk-stamp')>=0; })());
-    (function(){ const s=state.skills.find(x=>x.name==='游泳'); s.level=1; openLevelDetail(s.id,1); s.levels[0].text='一行内容\n'.repeat(40); ok('本等级内容默认阅读态', !$('#view-level-detail').innerHTML.match(/id="fText"/)); toggleLvFieldEdit('text'); const t=$('#fText'); ok('本等级内容按文本自适应撑高', t.classList.contains('auto') && parseFloat(t.style.height)>200 && getComputedStyle(t).resize==='none'); toggleLvFieldEdit('text'); ok('完成按钮切回阅读态', !$('#view-level-detail').innerHTML.match(/id="fText"/)); goBack(); })();
+    (function(){ const s=state.skills.find(x=>x.name==='游泳'); s.level=1; openLevelDetail(s.id,1); s.levels[0].text='一行内容\n'.repeat(40); ok('本等级内容默认阅读态', !$('#view-level-detail').innerHTML.match(/id="fText"/)); toggleLvFieldEdit('text'); const t=$('#fText'); ok('本等级内容按文本自适应撑高', t.classList.contains('auto') && /px$/.test(t.style.height) && getComputedStyle(t).resize==='none'); toggleLvFieldEdit('text'); ok('完成按钮切回阅读态', !$('#view-level-detail').innerHTML.match(/id="fText"/)); goBack(); })();
     ok('大师升级触发庆祝层', (function(){ const s=state.skills.find(x=>x.name==='钢琴'); editing={skillId:s.id,lv:4}; s.level=4; onLvSlider('5'); return !$('#celebrate').classList.contains('hidden'); })());
     closeCelebrate();
     ok('庆祝层可关闭', $('#celebrate').classList.contains('hidden'));
@@ -5065,6 +6091,10 @@ if(location.search.indexOf('selftest')>=0){
     openLevelDetail(xk.id,1);
     checkin(xk.id);
     ok('未满阈值不升级', xk.level===1 && xk.checkins===1);
+    /* 现在打卡会先开一段专注，专注没走完不允许再打——这一步是真实规则 */
+    checkin(xk.id);
+    ok('专注没走完时不能重复打卡', xk.level===1 && xk.checkins===1);
+    Yi.giveUp();                       // 放弃这一段，模拟"专注结束"
     checkin(xk.id);
     ok('打满自动升级并清零经验', xk.level===2 && xk.checkins===0);
     setLvNeed('5');
@@ -5142,8 +6172,7 @@ if(location.search.indexOf('selftest')>=0){
   }
 }
 
-/* 意 · 每秒刷新专注倒计时；到点自动结算并发奖励 */
-setInterval(yiTick, 1000);
+/* 意 · 专注倒计时不再常驻：计时器由 Yi.startFocus 开启、结算时关闭 */
 </script>
 </body>
 </html>

@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">人生RPG</string>
-    <string name="title_activity_main">人生RPG</string>
+    <string name="app_name">意</string>
+    <string name="title_activity_main">意</string>
     <string name="package_name">com.liferpg.control</string>
     <string name="custom_url_scheme">com.liferpg.control</string>
-    <string name="a11y_label">人生RPG · 娱乐额度守护</string>
-    <string name="a11y_desc">识别当前置顶的应用，在娱乐额度用完后盖住受管应用。本服务不读取屏幕上的任何内容。</string>
+    <string name="a11y_label">意 · 专注守护</string>
+    <string name="a11y_desc">识别当前打开的应用，在剩余时间用完后盖住受管应用。本服务不读取屏幕上的任何内容，也不需要 root。</string>
 </resources>
