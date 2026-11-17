@@ -2810,8 +2810,17 @@ const Yi = (function(){
   /* ---------------- 坚果云：设置卡片住在「数据管理」弹层里 ----------------
      真机上走 Capacitor 原生 HTTP（不受 CORS 限制），浏览器预览退回 fetch。
      整份备份就是一个文件，和「导出全部数据 / R2」完全同一个 appSnapshot()，
-     所以短信自动记下的那几笔账一定在里面。 */
-  const JGY_URL = 'https://dav.jianguoyun.com/dav/lifegame-backup.json';
+     所以短信自动记下的那几笔账一定在里面。
+
+     路径必须是「子文件夹里的文件」：坚果云根集合 /dav/ 只能列举、不允许建文件，
+     直接 PUT /dav/xxx.json 一定 404 ObjectNotFound（官方文档给的根地址就是坑）。
+     所以固定落到 /dav/lifeRPG/ 下，上传前先 MKCOL 建目录（405 = 已存在，照常继续）。 */
+  const JGY_BASE   = 'https://dav.jianguoyun.com/dav/';
+  const JGY_FOLDER = 'lifeRPG';
+  const JGY_DIR    = JGY_BASE + JGY_FOLDER + '/';
+  const JGY_URL    = JGY_DIR + 'lifegame-backup.json';
+  const JGY_LEGACY = JGY_BASE + 'lifegame-backup.json';   // 早期版本写错的根目录路径，下载时兜底读一次
+  let jgyDirReady = false;                                 // 目录建过就记住，稳态少一次请求
   function b64utf8(str){
     const bytes = new TextEncoder().encode(str);
     let bin=''; for(let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
@@ -2833,6 +2842,20 @@ const Yi = (function(){
       .then(r=>r.text().then(t=>({ status:r.status, text:t })));
   }
   let downSnap=null;          // 云端读到、还没确认覆盖的那一份
+  /* 建目录：MKCOL /dav/lifeRPG/。201=新建成功，405=已存在，301/302=已存在跳转，都算就绪。
+     安卓原生走 HttpURLConnection，自定义方法在 Android 上可用；万一被拦或网络失败，
+     这里只记「没确认成功」，上传照样往下走，真 404 时再给出「手动建文件夹」的明确提示。 */
+  function jgyEnsureDir(auth){
+    if(jgyDirReady) return Promise.resolve(true);
+    return httpText('MKCOL', JGY_DIR, { Authorization:auth }, null)
+      .then(r=>{
+        const st=r.status;
+        jgyDirReady = (st>=200 && st<300) || st===301 || st===302 || st===405 || st===409;
+        return jgyDirReady;
+      })
+      .catch(()=>false);
+  }
+  function jgyConflictTip(){ return '坚果云根目录不能直接放文件，请先在坚果云里新建文件夹 '+JGY_FOLDER+'（我的坚果云 → 新建文件夹），再点上传'; }
   function jgyCardHTML(){
     const j=Object.assign({email:'',secret:'',lastUp:0,lastDown:0,backups:[]}, s.jgy||{});
     if(!Array.isArray(j.backups)) j.backups=[];
@@ -2848,23 +2871,30 @@ const Yi = (function(){
       </div>
       ${s.pendingDown?`<div class="yi-confirm">云端数据已读到本机，确认覆盖？会覆盖技能、财富（含短信自动记的账）、健康、职业、日记与「意」的设置。<div class="row" style="gap:8px;margin-top:9px"><button class="yi-btn" onclick="Yi.syncDownYes()">确认覆盖</button><button class="yi-btn ghost" onclick="Yi.syncDownNo()">取消</button></div></div>`:''}
       <div class="yi-sync"><b>上次上传：</b>${j.lastUp?stamp(j.lastUp):'还没有'}　<b>上次恢复：</b>${j.lastDown?stamp(j.lastDown):'还没有'}<br>
-        云端一个文件：<span class="yi-code">lifegame-backup.json</span>，内容和「导出全部数据」一样（技能 / 财富流水 / 日记 / 意设置）。<br>
+        云端一个文件：<span class="yi-code">我的坚果云 / ${JGY_FOLDER} / lifegame-backup.json</span>，内容和「导出全部数据」一样（技能 / 财富流水 / 日记 / 意设置）。<br>
+        坚果云<b>根目录不能直接放文件</b>，所以固定放在 <span class="yi-code">${JGY_FOLDER}</span> 文件夹里；没有这个文件夹时上传会尝试自动新建，建不出来就先在坚果云里手动建一个同名文件夹。<br>
         上传会直接替换云端那一份，不在云端留历史版本 —— 想留痕先「导出全部数据」存本机。
         ${j.backups.length?`<div class="yi-backup">本机上传记录：<br>${j.backups.slice(0,4).map(b=>'· '+esc(b)+'<br>').join('')}</div>`:''}
       </div>
     </div>`;
   }
   function jgyTouch(){ if(typeof jgyRefreshCard==='function') jgyRefreshCard(); }
-  function saveJgy(f,v){ s.jgy[f]=String(v||'').trim(); save(); }
+  function saveJgy(f,v){ s.jgy[f]=String(v||'').trim(); if(f==='email'||f==='secret') jgyDirReady=false; save(); }
+  function jgyPut(auth, body){
+    return httpText('PUT', JGY_URL, { Authorization:auth, 'Content-Type':'application/json; charset=utf-8' }, body);
+  }
   function syncUp(){
     if(!s.jgy.email||!s.jgy.secret){ toast('先填坚果云账号和应用密码'); return; }
     if(!Array.isArray(s.jgy.backups)) s.jgy.backups=[];
     const body=JSON.stringify(appSnapshot(), null, 2);
     const kb=Math.max(1, Math.round(body.length/1024));
+    const auth=jgyAuthHeader();
     toast('上传中…');
-    httpText('PUT', JGY_URL, { Authorization:jgyAuthHeader(), 'Content-Type':'application/json; charset=utf-8' }, body)
+    jgyEnsureDir(auth)
+      .then(()=>jgyPut(auth, body))
       .then(r=>{
         if(r.status>=200 && r.status<300){
+          jgyDirReady=true;
           s.jgy.lastUp=Date.now();
           s.jgy.backups.unshift(stamp(Date.now())+' · 上传 '+kb+' KB');
           if(s.jgy.backups.length>8) s.jgy.backups.length=8;
@@ -2873,25 +2903,38 @@ const Yi = (function(){
           return;
         }
         if(r.status===401) toast('上传失败 401 · 账号或应用密码不对');
-        else if(r.status===403) toast('上传失败 403 · 坚果云拒绝写入');
+        else if(r.status===403) toast('上传失败 403 · 应用密码没有写入权限（检查应用密码的授权文件夹）');
+        else if(r.status===404 || r.status===409){ jgyDirReady=false; toast('上传失败 404 · '+jgyConflictTip()); }
+        else if(r.status===423) toast('上传失败 423 · 云端文件被占用，稍后再试');
+        else if(r.status===429) toast('上传失败 429 · 请求太频繁，等一会儿再试');
         else if(r.status===507) toast('上传失败 507 · 坚果云空间已满');
         else if(!r.status) toast('上传失败 · 连不上坚果云，检查网络');
         else toast('上传失败 HTTP '+r.status);
       })
-      .catch(e=>toast('上传失败：'+((e&&e.message)||'网络不通')));
+      .catch(e=>{ jgyDirReady=false; toast('上传失败：'+((e&&e.message)||'网络不通')+'（浏览器预览会被跨域拦住，真机才有原生通道）'); });
+  }
+  function jgyRead(auth, url){
+    return httpText('GET', url, { Authorization:auth }, null);
   }
   function syncDown(){
     if(!s.jgy.email||!s.jgy.secret){ toast('先填坚果云账号和应用密码'); return; }
+    const auth=jgyAuthHeader();
     toast('读取中…');
-    httpText('GET', JGY_URL, { Authorization:jgyAuthHeader() }, null)
+    jgyRead(auth, JGY_URL)
+      .then(r=>{
+        /* 新路径没有就回头读一次早期版本写错的根目录路径，读到了顺手说明一下 */
+        if(r.status===404) return jgyRead(auth, JGY_LEGACY).then(r2=>{ if(r2.status>=200&&r2.status<300) r2.legacy=true; return r2; });
+        return r;
+      })
       .then(r=>{
         if(r.status===404){ toast('云端还没有备份，先点一次上传'); return; }
         if(r.status===401){ toast('读取失败 401 · 账号或应用密码不对'); return; }
+        if(r.status===403){ toast('读取失败 403 · 应用密码没有读取权限'); return; }
         if(r.status<200 || r.status>=300){ toast('读取失败 HTTP '+r.status); return; }
         let obj=null; try{ obj=JSON.parse(r.text); }catch(e){ obj=null; }
         if(!obj || (obj.app!=='lifeRPG' && !obj.life && !Array.isArray(obj.skills))){ toast('云端文件不是本应用的备份'); return; }
         downSnap=obj; s.pendingDown=true; save(); refresh(); jgyTouch();
-        toast('已读到云端备份，确认后覆盖本机');
+        toast(r.legacy ? '已读到旧位置的备份，确认后覆盖本机（下次上传会存到 '+JGY_FOLDER+' 文件夹）' : '已读到云端备份，确认后覆盖本机');
       })
       .catch(e=>toast('读取失败：'+((e&&e.message)||'网络不通')+'（浏览器预览会被跨域拦住，真机才有原生通道）'));
   }
@@ -6982,6 +7025,8 @@ if(location.search.indexOf('selftest')>=0){
     })());
     ok('坚果云改成单文件真备份（不再假上传）', (function(){ const h=Yi.jgyCardHTML();
       return h.indexOf('lifegame-backup.json')>=0 && h.indexOf('wallet.json')<0 && h.indexOf('覆盖前备份')<0; })());
+    ok('坚果云落点是子文件夹（根目录 404 的坑）', (function(){ const h=Yi.jgyCardHTML();
+      return h.indexOf('lifeRPG / lifegame-backup.json')>=0 && h.indexOf('根目录不能直接放文件')>=0; })());
     switchPage('yi');
     ok('「意」页删掉入口与冗余说明', (function(){ const h=$('#yiPage').innerHTML;
       return h.indexOf('进入「意」')<0 && h.indexOf('这个模式的意思')<0 && h.indexOf('云同步')<0
