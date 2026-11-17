@@ -395,6 +395,19 @@ canvas.chart{width:100%;height:190px;display:block}
 /* ---------- 浮动新建按钮 ---------- */
 #fab{position:fixed;right:18px;bottom:calc(78px + env(safe-area-inset-bottom));width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 20px var(--acc-40);z-index:25;cursor:pointer;transition:transform .15s}
 #fab:active{transform:scale(.9)}
+/* ---------- 右下角「＋」动作菜单（现金流：收入 / 开销 / 固定开销） ---------- */
+#fabMenu{position:fixed;inset:0;z-index:26;display:none}
+#fabMenu.open{display:block}
+#fabMenu .fm-scrim{position:absolute;inset:0;background:rgba(15,23,42,.32)}
+#fabMenu .fm-panel{position:absolute;right:18px;bottom:calc(78px + 56px + 14px + env(safe-area-inset-bottom));width:196px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 14px 34px rgba(15,23,42,.22);overflow:hidden;animation:fmIn .16s ease-out}
+@keyframes fmIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+.fm-item{display:flex;align-items:center;gap:10px;width:100%;padding:13px 14px;background:none;border:0;border-bottom:1px solid var(--line);font-family:inherit;font-size:var(--fs-15);color:var(--text);text-align:left;cursor:pointer}
+.fm-item:last-child{border-bottom:0}
+.fm-item:active{background:var(--card2)}
+.fm-item .ic{color:var(--sub);flex:none}
+@media (min-width:1024px){
+  #fabMenu .fm-panel{right:28px;bottom:calc(28px + 56px + 14px)}
+}
 /* ============ 日记页（整合自 diary.html，独立风格，#page-diary 作用域内） ============ */
 #page-diary{--dy-font-serif:"Iowan Old Style",Georgia,"Times New Roman","Songti SC","STSong","Noto Serif CJK SC",serif;--dy-font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,sans-serif;--dy-bg:var(--bg);--dy-card:var(--card);--dy-card2:var(--card2);--dy-ink:var(--text);--dy-muted:var(--sub);--dy-line:var(--line);--dy-accent:var(--accent);--dy-accent-ink:var(--accent-ink);--dy-danger:var(--red);--dy-scrim:rgba(15,23,42,.45);--dy-chip:var(--card2)}
 #page-diary{background:var(--dy-bg);color:var(--dy-ink);font-family:var(--dy-font-sans);font-size:var(--fs-17);line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh;border-radius:0}
@@ -685,6 +698,8 @@ body[data-theme="ios"] #page-diary{--dy-solid:#f2f2f7}
 .fz-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 .fz-clock{font-size:var(--fs-20);font-weight:300;color:#fff;letter-spacing:1.2px;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 1px 12px rgba(0,0,0,.3)}
 .fz-tag{font-size:var(--fs-11);color:rgba(255,255,255,.62);letter-spacing:3px;text-indent:3px;line-height:1}
+/* 按比例是正计时，读数更长（已挣 +12 分），字距收一点别顶出圆环 */
+.fz-tag.rt{letter-spacing:.5px;text-indent:0;white-space:nowrap}
 .fz-bottom{position:relative;z-index:3;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:22px;padding:0 20px}
 .fz-bottom .yi-pbar{width:100%;max-width:280px;height:3px;background:rgba(255,255,255,.24)}
 .fz-row{display:flex;align-items:center;justify-content:space-between;width:100%}
@@ -782,13 +797,15 @@ body.has-wall #app{background:transparent}
   .detail-col,.subview{max-width:860px}
   .stack{grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}
 }
-/* 现金流：桌面两栏（主列数据 / 侧列构成与固定开销） */
+/* 右下角 ＋ 固定在视口右下，滚到底时别盖住最后一行的删除按钮 */
+#wealth-cash,#wealth-items,#wealth-assets{padding-bottom:58px}
+/* 现金流：模块自上而下 = 月份 → 开销构成 / 结余 → 趋势 → 流水记录（固定开销并入其中） */
 .cash-wrap{display:block}
+.cash-top{display:block}
 @media (min-width:1024px){
-  .cash-wrap{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start}
-  .cash-main,.cash-side{min-width:0}
-  .cash-main>.card:last-child,.cash-side>.card:last-child{margin-bottom:0}
-  .cash-side .card{position:sticky;top:78px}
+  .cash-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:14px;align-items:start;margin-bottom:12px}
+  .cash-top>.card{margin-bottom:0;height:100%}
+  .cash-main>.card:last-child{margin-bottom:0}
 }
 /* ---------- 可访问性基线 ---------- */
 :focus{outline:none}
@@ -953,7 +970,26 @@ textarea.auto{resize:none;overflow-y:hidden}
           </div>
           <div class="dy-sheet-body">
 
-            <!-- ① 外观 -->
+            <!-- ① 数据与备份（置顶：整份数据的导入导出都在「数据管理」里） -->
+            <div class="dy-group">
+              <div class="dy-group-t">数据与备份</div>
+              <div class="dy-group-b">
+                <div class="dy-panel-row">
+                  <div class="lab"><b>数据管理</b><small>全部数据的导入 / 导出 · Cloudflare R2 · 坚果云</small></div>
+                  <button onclick="openDataFromDiary()">打开</button>
+                </div>
+                <div class="dy-panel-row" style="border-bottom:0">
+                  <div class="lab"><b>回收站</b><small id="dyTrashInfo">删除的日记会先进这里</small></div>
+                  <button id="dyBtnTrash">打开</button>
+                </div>
+              </div>
+              <p class="dy-note" style="margin-top:11px">
+                所有数据只存在这台设备（localStorage），不会上传到任何服务器。换设备或清理站点数据会丢记录，建议每周在<b>数据管理</b>里导出一次。
+              </p>
+              <p class="dy-note" id="dyStorageInfo" style="margin-top:5px"></p>
+            </div>
+
+            <!-- ② 外观 -->
             <div class="dy-group">
               <div class="dy-group-t">外观</div>
               <div class="dy-group-b">
@@ -983,7 +1019,7 @@ textarea.auto{resize:none;overflow-y:hidden}
             </div>
             <input type="file" id="wallFile" accept="image/*" style="display:none" onchange="Wall.onFile(this)">
 
-            <!-- ② 专注页 -->
+            <!-- ③ 专注页 -->
             <div class="dy-group">
               <div class="dy-group-t">专注页</div>
               <div class="dy-group-b">
@@ -1003,37 +1039,6 @@ textarea.auto{resize:none;overflow-y:hidden}
             </div>
             <input type="file" id="fbFile" accept="image/*" style="display:none" onchange="FocusBg.onFile(this)">
 
-            <!-- ③ 数据与备份 -->
-            <div class="dy-group">
-              <div class="dy-group-t">数据与备份</div>
-              <div class="dy-group-b">
-                <div class="dy-panel-row">
-                  <div class="lab"><b>导出备份</b><small id="dyBackupInfo">复制一段 JSON，粘贴到备忘录保存为 .json</small></div>
-                  <button id="dyBtnExport">导出</button>
-                </div>
-                <div class="dy-panel-row">
-                  <div class="lab"><b>导入备份</b><small>合并文件里的日记，已存在的按较新版本更新</small></div>
-                  <button id="dyBtnImport">选择文件</button>
-                </div>
-                <div class="dy-panel-row">
-                  <div class="lab"><b>粘贴导入</b><small>直接粘贴之前复制的 JSON 文本</small></div>
-                  <button id="dyBtnPaste">粘贴</button>
-                </div>
-                <div class="dy-panel-row">
-                  <div class="lab"><b>数据管理</b><small>全部数据导入导出 · Cloudflare R2 · 坚果云</small></div>
-                  <button onclick="openDataFromDiary()">打开</button>
-                </div>
-                <div class="dy-panel-row" style="border-bottom:0">
-                  <div class="lab"><b>回收站</b><small id="dyTrashInfo">删除的日记会先进这里</small></div>
-                  <button id="dyBtnTrash">打开</button>
-                </div>
-              </div>
-              <p class="dy-note" style="margin-top:11px">
-                日记只存在这台设备的浏览器里（localStorage），不会上传到任何服务器。换设备或清理站点数据会丢记录，建议<b>每周导出一次备份</b>。
-              </p>
-              <p class="dy-note" id="dyStorageInfo" style="margin-top:5px"></p>
-            </div>
-
             <!-- ④ 自动记账 -->
             <div class="dy-group">
               <div class="dy-group-t">自动记账 · 银行短信</div>
@@ -1045,7 +1050,7 @@ textarea.auto{resize:none;overflow-y:hidden}
               <div class="dy-group-t">本机存储</div>
               <div class="dy-group-b">
                 <div class="dy-panel-row" style="border-bottom:0">
-                  <div class="lab"><b>清空全部数据</b><small>会先把所有日记导出为备份文件，再清空</small></div>
+                  <div class="lab"><b>清空全部数据</b><small>会先把整份数据导出为备份文本，再清空日记</small></div>
                   <button class="dy-btn-danger" id="dyBtnWipe">清空</button>
                 </div>
               </div>
@@ -1066,7 +1071,6 @@ textarea.auto{resize:none;overflow-y:hidden}
       </div>
 
       <div id="dyToast"></div>
-      <input type="file" id="dyImportFile" accept="application/json,.json" hidden>
     </section>
 
     <!-- ============ 意 · 专注 / 奖励 / 同步 ============ -->
@@ -1101,6 +1105,16 @@ textarea.auto{resize:none;overflow-y:hidden}
 </div>
 
 <button id="fab" class="hidden" title="新建"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+
+<!-- 现金流页的「＋」菜单：记收入 / 记开销 / 加固定开销都在这里 -->
+<div id="fabMenu" aria-hidden="true">
+  <div class="fm-scrim" onclick="closeFabMenu()"></div>
+  <div class="fm-panel" role="menu" aria-label="新建">
+    <button class="fm-item" role="menuitem" onclick="fabPick('income')"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>记一笔收入</button>
+    <button class="fm-item" role="menuitem" onclick="fabPick('expense')"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>记一笔开销</button>
+    <button class="fm-item" role="menuitem" onclick="fabPick('fixed')"><svg class="ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>添加固定开销</button>
+  </div>
+</div>
 
 <script>
 /* ============ 核心工具 & 全局状态 ============ */
@@ -1227,6 +1241,21 @@ const DEFAULT_STATE = {
 };
 let state = loadState();
 
+/* 财富数据归一：本机读取、文件导入、云端恢复都走这一份，避免三处各写一遍还写得不一样。
+   关键点：expenses / incomes / fixed / assets / items 一律保证是数组，
+   否则短信入账 push 那一下会直接抛错；goal 缺失时补 null，目标卡才不会读崩。 */
+function normalizeWealth(w){
+  const out = Object.assign({items:[],incomes:[],expenses:[],assets:[],fixed:[],goal:null}, w||{});
+  out.autoCat = Object.assign({on:true,lowT:20,highT:1000}, out.autoCat||{});
+  if('merchantMem' in out) delete out.merchantMem;      // 商户记忆已移除
+  ['items','incomes','expenses','assets','fixed'].forEach(k=>{ if(!Array.isArray(out[k])) out[k]=[]; });
+  out.expenses = out.expenses.filter(e=>e && e.id);
+  out.fixed.forEach(f=>{
+    if(['month','quarter','year'].indexOf(f.cycle)<0) f.cycle='month';
+    if(!f.settled || typeof f.settled!=='object') f.settled={};
+  });
+  return out;
+}
 function loadState(){
   const clone = obj => JSON.parse(JSON.stringify(obj));
   try{
@@ -1244,15 +1273,7 @@ function loadState(){
     const _fm = Number(merged.checkinStats.focusMs);
     merged.checkinStats.focusMs = isFinite(_fm) && _fm>0 ? Math.round(_fm) : 0;
     if(['recent','created','level'].indexOf(merged.pref.skillSort)<0) merged.pref.skillSort='recent';
-    merged.wealth = Object.assign({items:[],incomes:[],expenses:[],assets:[],fixed:[],goal:null}, merged.wealth);
-    /* 短信自动分账：阈值，旧数据补默认值 */
-    merged.wealth.autoCat = Object.assign({on:true,lowT:20,highT:1000}, merged.wealth.autoCat||{});
-    if(merged.wealth.merchantMem) delete merged.wealth.merchantMem;   // 商户记忆已移除
-    merged.wealth.expenses = (merged.wealth.expenses||[]).filter(e=>e && e.id);
-    (merged.wealth.fixed||[]).forEach(f=>{
-      if(['month','quarter','year'].indexOf(f.cycle)<0) f.cycle='month';
-      if(!f.settled || typeof f.settled!=='object') f.settled={};
-    });
+    merged.wealth = normalizeWealth(merged.wealth);
     merged.insights = (merged.insights||[]).filter(x=>x&&x.id&&x.skillId);
     // 职业：补齐发薪记录数组（旧数据无 pays，首次使用时预期收入/工时作为兜底）
     merged.career = Object.assign({current:{}, target:{}}, merged.career);
@@ -1497,6 +1518,7 @@ function switchHealthTab(t){
 function switchPage(p, keepSub){
   /* 「职业」已并进健康页，保留旧入口作为跳转 */
   if(p==='career'){ p='health'; healthTab='career'; }
+  closeFabMenu();                 // 换页时收掉右下角的动作菜单，别飘在别的页面上
   currentPage = p;
   $$('.page').forEach(el => el.classList.remove('active'));
   $('#page-'+p).classList.add('active');
@@ -2402,8 +2424,11 @@ const Yi = (function(){
   ];
 
   function def(){
-    /* rewardMode：fixed=每段固定奖励分钟数；ratio=按「专注 10 分钟换 N 分钟」结算 */
-    return { focusStartAt:0, focusName:'', durationMin:15, rewardMode:'fixed', ratio:10,
+    /* rewardMode：fixed=每段固定奖励分钟数；ratio=按「专注 10 分钟换 N 分钟」结算
+       focusMin / focusMode / focusRatio：这一段开始那一刻的快照。
+       中途去设置里改时长或换算法，都不该把已经在走的这一段算错。 */
+    return { focusStartAt:0, focusName:'', focusMin:0, focusMode:'', focusRatio:0,
+      durationMin:15, rewardMode:'fixed', ratio:10,
       quotes:DEFAULT_QUOTES.slice(),
       jgy:{email:'',secret:'',lastUp:0,lastDown:0,backups:[]}, pendingDown:false };
   }
@@ -2423,6 +2448,8 @@ const Yi = (function(){
   function shortDay(t){ const d=new Date(t); return pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
   function stamp(t){ const d=new Date(t); return shortDay(t)+' '+pad(d.getHours())+':'+pad(d.getMinutes()); }
   function fmtClock(ms){ const x=Math.floor(Math.max(0,ms||0)/1000); return pad(Math.floor(x/60))+':'+pad(x%60); }
+  /* 倒计时用「向上取整」：刚开一段时显示 15:00 而不是 14:59，最后一秒才落到 00:00 */
+  function fmtDown(ms){ const x=Math.ceil(Math.max(0,ms||0)/1000); return pad(Math.floor(x/60))+':'+pad(x%60); }
   function load(){
     try{
       const raw=localStorage.getItem(KEY);
@@ -2433,9 +2460,15 @@ const Yi = (function(){
   }
   function save(){ try{ localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){ notifySaveFail(); } }
 
-  function total(){ return Math.max(1,num(s.durationMin)||15)*60000; }
-  function elapsed(){ return s.focusStartAt?Date.now()-s.focusStartAt:0; }
-  function focusing(){ return !!s.focusStartAt && elapsed()<total(); }
+  const MIN_MS = 60000;
+  /* 一段专注的时长：进行中读这一段的快照，空闲时读设置里的时长（改设置不会影响已开的那一段） */
+  function total(){
+    const m = (s.focusStartAt && num(s.focusMin) > 0) ? num(s.focusMin) : (num(s.durationMin) || 15);
+    return clamp(Math.round(m) || 15, 1, 180) * MIN_MS;
+  }
+  /* 一律用墙上时间戳算已坐住的时长；系统时间被往回拨时不让它变成负数 */
+  function elapsed(){ return s.focusStartAt ? Math.max(0, Date.now() - s.focusStartAt) : 0; }
+  function focusing(){ return !!s.focusStartAt && elapsed() < total(); }
   function isLocal(){ return !!RewardBridge.status().local; }
   /* 专注页背景图：和日记设置里的 FocusBg 共用同一个 key */
   function bgURL(){ try{ return FocusBg.get()||''; }catch(e){ return ''; } }
@@ -2445,7 +2478,15 @@ const Yi = (function(){
   const RATIO_BASE = 10;             // 比例基准：以「专注 10 分钟」为一格，N 就是这一格换到的分钟数
   function ratioOn(){ return s.rewardMode==='ratio'; }
   function ratioVal(){ const n=Math.round(num(s.ratio)); return isFinite(n)?clamp(n,1,30):RATIO_BASE; }
-  function ratioGain(focusedMs){ return Math.max(1, Math.round(Math.max(0,focusedMs||0)/60000/RATIO_BASE*ratioVal())); }
+  /* 这一段用哪种算法 / 换多少：进行中以开始时的快照为准，设置中途被改也不会算错这一段 */
+  function segMode(){ return (s.focusStartAt && s.focusMode) ? s.focusMode : (ratioOn() ? 'ratio' : 'fixed'); }
+  function segRatio(){
+    const n = (s.focusStartAt && num(s.focusRatio) > 0) ? num(s.focusRatio) : ratioVal();
+    return clamp(Math.round(n) || RATIO_BASE, 1, 30);
+  }
+  function ratioGain(focusedMs){ return Math.max(1, Math.round(Math.max(0,focusedMs||0)/MIN_MS/RATIO_BASE*segRatio())); }
+  /* 进行中实时显示「已经挣到多少」：不满一格就如实显示 0，不提前把保底那 1 分钟摆出来 */
+  function liveGain(ms){ return Math.max(0, Math.floor(Math.max(0,ms||0)/MIN_MS/RATIO_BASE*segRatio())); }
   function ratioPreviewMin(){ return ratioGain(total()); }
   function rewardHint(rw){
     return ratioOn()
@@ -2479,7 +2520,10 @@ const Yi = (function(){
   }
   function renderCard(){
     const box=document.getElementById('rewardCard'); if(!box) return;
-    const run=focusing(), rem=run?Math.max(0,total()-elapsed()):total();
+    const run=focusing();
+    const up = run && segMode()==='ratio';          // 按比例：正计时，看得见自己坐住了多久
+    const el = run ? elapsed() : 0;
+    const shown = up ? el : Math.max(0, total()-el);
     const rw=RewardBridge.state(), st=RewardBridge.status();
     const balMs=rw.balanceMs||0;
     const totalMin=Math.floor(balMs/60000);
@@ -2494,7 +2538,7 @@ const Yi = (function(){
         </div>
         <div class="yi-num">${big}</div>
         <div class="yi-foot">${rewardHint(rw)}</div>
-        ${run?`<div class="yi-focusline">● 这一段专注中，还剩 <b id="yiCardTime">${fmtClock(rem)}</b><button onclick="event.stopPropagation();Yi.openFocus()">回到专注</button></div>`:''}
+        ${run?`<div class="yi-focusline">● ${up?'专注中 · 已':'这一段专注中，还剩'} <b id="yiCardTime">${up?fmtClock(shown):fmtDown(shown)}</b>${up?`<span id="yiCardGain"> · 约 +${liveGain(el)} 分钟</span>`:''}<button onclick="event.stopPropagation();Yi.openFocus()">回到专注</button></div>`:''}
       </div>
       ${cardWarn(st)}`;
   }
@@ -2502,8 +2546,11 @@ const Yi = (function(){
   /* ---------------- 「意」页 ---------------- */
   function renderPage(){
     const box=document.getElementById('yiPage'); if(!box) return;
-    const run=focusing(), rem=run?Math.max(0,total()-elapsed()):total();
-    const pct=run?Math.round(elapsed()/total()*100):0;
+    const run=focusing();
+    const up = run && segMode()==='ratio';                       // 按比例正计时
+    const el = run ? elapsed() : 0;
+    const shown = up ? el : Math.max(0, total()-el);
+    const pct=run?Math.round(el/total()*100):0;
     const rw=RewardBridge.state();
     const apps=rw.apps||[];
     const balMs=rw.balanceMs||0;
@@ -2523,10 +2570,12 @@ const Yi = (function(){
 
       <div class="yi-card card yi-dark">
         <div class="yi-row"><span class="yi-lbl">${run?'这一段专注进行中':'下一段专注'}</span>
-          <span class="yi-pill" style="background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.14);color:#d8cdbb">${ratioOn()?durMin+' → '+ratioPreviewMin():durMin} 分钟</span></div>
-        <div class="yi-time" id="yiPageTime">${fmtClock(rem)}</div>
+          <span class="yi-pill" style="background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.14);color:#d8cdbb">${segMode()==='ratio'?durMin+' → '+ratioPreviewMin():durMin} 分钟</span></div>
+        <div class="yi-time" id="yiPageTime">${up?fmtClock(shown):fmtDown(shown)}</div>
         <div class="yi-bar"><i id="yiPageBar" style="width:${pct}%"></i></div>
-        <div class="yi-hint">${run?'这一段没走完，还不能开下一段':'打卡不是领奖，是给自己一段安静的时间'}</div>
+        <div class="yi-hint">${run
+          ? (up ? '按实际坐满的时长结算 · 现在约 +'+liveGain(el)+' 分钟' : '这一段没走完，还不能开下一段')
+          : '打卡不是领奖，是给自己一段安静的时间'}</div>
         <button class="btn" style="margin-top:12px;background:#d98a63;color:#2b2823" onclick="${run?'Yi.openFocus()':'yiStartHint()'}">${run?'回到专注':'开始一段 · 点技能打卡'}</button>
       </div>
 
@@ -2560,23 +2609,31 @@ const Yi = (function(){
              <div class="yi-hint" style="margin-top:8px">按实际坐满的时长结算：这一段 ${durMin} 分钟 → 剩余 ${ratioPreviewMin()} 分钟。中断或提前退出不计。</div>`
           : `<div class="field" style="margin-top:12px"><label>每完成一段，奖励多少分钟</label><input type="number" min="1" max="600" value="${rw.rewardMinutes||30}" onchange="rwSaveMinutesFromYi(this.value)"></div>
              <div class="yi-hint">奖励在专注结束时才入账，不是打卡那一刻。</div>`}
-        <div class="yi-hint" style="margin-top:9px">真机上用墙上时间戳记录开始时刻，熄屏、清后台、重启都不会让倒计时归零。</div>
+        <div class="yi-hint" style="margin-top:9px">真机上用墙上时间戳记录开始时刻，熄屏、清后台、重启都不会让${ratioOn()?'正计时':'倒计时'}归零。</div>
       </div>
       ${permWarn(RewardBridge.status())}
       <div style="height:20px"></div>`;
   }
 
   /* ---------------- 实时刷新 ---------------- */
-  const RING_C = 276.46;             // 环形倒计时周长（r=44）
+  const RING_C = 276.46;             // 环形进度周长（r=44）
   function updateLive(){
     const run=focusing(), el=run?elapsed():0, rem=run?Math.max(0,total()-el):total();
+    /* 按比例这一段是正计时：数字往上走，看得见自己坐住了多久；固定奖励仍是倒计时 */
+    const up = run && segMode()==='ratio';
+    const shown = up ? el : rem;
+    const text = up ? fmtClock(shown) : fmtDown(shown);
     const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
-    set('yiCardTime',fmtClock(rem)); set('yiPageTime',fmtClock(rem));
+    set('yiCardTime',text); set('yiPageTime',text);
+    if(up){
+      set('yiCardGain',' · 约 +'+liveGain(el)+' 分钟');
+      set('yiTag','已挣 +'+liveGain(el)+' 分');
+    }
     const pct=run?Math.round(el/total()*100):0;
     const b2=document.getElementById('yiPageBar'), b3=document.getElementById('yiBar2');
     if(b2) b2.style.width=pct+'%'; if(b3) b3.style.width=pct+'%';
     /* 专注页那枚小环：数字 + 环上的进度一起走 */
-    set('yiClk',fmtClock(rem));
+    set('yiClk',text);
     const ring=document.getElementById('yiRing');
     if(ring) ring.style.strokeDashoffset=String(RING_C*(1-Math.min(1,pct/100)));
   }
@@ -2594,21 +2651,29 @@ const Yi = (function(){
   function closeOverlay(){ const ov=document.getElementById('yiOverlay'); if(ov){ ov.classList.add('hidden'); ov.classList.remove('yi-bgmode'); ov.innerHTML=''; } }
 
   /* ---------------- 闭环 ---------------- */
-  /* 专注页只留：占满全屏的背景图、居中一枚小小的环形倒计时、左下返回 / 右下中断两枚图标。
-     没有上传图片时用柔和渐变兜底；preview=true 是设置页里的全屏预览，不影响真实专注。 */
+  /* 专注页只留：占满全屏的背景图、居中一枚小小的环形计时、左下返回 / 右下中断两枚图标。
+     固定奖励走倒计时，按比例走正计时（数字从 00:00 往上走，环跟着填）。
+     preview=true 是设置页里的全屏预览，不影响真实专注。 */
   const ICON_BACK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
   const ICON_STOP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="8" height="8" rx="1.5"/></svg>';
   function focusHTML(preview){
     const pct = preview ? 35 : 0;
+    const up = !preview && segMode()==='ratio';
+    const pvRatio = preview && ratioOn();
     const back = preview ? 'Yi.closeOverlay()' : 'Yi.closeOverlay();Yi.refresh()';
     const stop = preview ? '' : `<button class="fz-ico" aria-label="中断这一段" title="中断" onclick="Yi.askGiveUp()">${ICON_STOP}</button>`;
+    /* 预览也按当前奖励方式摆：比例模式就摆一个正计时的样子，别拿倒计时糊弄 */
+    const clock = preview ? (pvRatio ? fmtClock(total()*0.65) : fmtDown(total()*0.65))
+                          : (up ? fmtClock(0) : fmtDown(total()));
+    const tag = preview ? (pvRatio ? '已挣 +'+liveGain(total()*0.65)+' 分' : '预览')
+                        : (up ? '已挣 +0 分' : '专注中');
     return `<div class="yi-full yi-cover" id="yiCover">
       <div class="fz-ring" aria-live="off">
         <svg viewBox="0 0 100 100" aria-hidden="true">
           <circle class="fz-track" cx="50" cy="50" r="44"></circle>
           <circle class="fz-prog" id="yiRing" cx="50" cy="50" r="44" style="stroke-dashoffset:${(RING_C*(1-pct/100)).toFixed(2)}"></circle>
         </svg>
-        <div class="fz-mid"><div class="fz-clock" id="yiClk">${fmtClock(preview?total()*0.65:total())}</div><div class="fz-tag">${preview?'预览':'专注中'}</div></div>
+        <div class="fz-mid"><div class="fz-clock" id="yiClk">${clock}</div><div class="fz-tag${up||pvRatio?' rt':''}" id="yiTag">${tag}</div></div>
       </div>
       <div class="fz-bottom">
         <div class="yi-pbar"><i id="yiBar2" style="width:${pct}%"></i></div>
@@ -2634,8 +2699,16 @@ const Yi = (function(){
   }
   function previewFocus(){ showFocus(true); }
   function startFocus(id,name){
-    if(focusing()){ toast('这一段还没走完，等它结束再开下一段'); openFocus(); return false; }
-    s.focusStartAt=Date.now(); s.focusName=name||''; save();
+    if(s.focusStartAt){
+      if(focusing()){ toast('这一段还没走完，等它结束再开下一段'); openFocus(); return false; }
+      finishFocus(true);      // 已经走满、只是 tick 还没轮到：先安静地结算，别把它悄悄吞掉
+    }
+    s.focusStartAt=Date.now(); s.focusName=name||'';
+    /* 把这一段要用到的三个参数就地快照，之后改设置也不会影响正在走的这一段 */
+    s.focusMin=clamp(Math.round(num(s.durationMin))||15,1,180);
+    s.focusMode=ratioOn()?'ratio':'fixed';
+    s.focusRatio=ratioVal();
+    save();
     startTick();
     openFocus(); refresh(); return true;
   }
@@ -2647,11 +2720,13 @@ const Yi = (function(){
       <div class="line">是你坐满这一段挣来的。<br>去用吧，下次还坐得进来。</div>
       <div class="btns"><button onclick="Yi.closeReward()">收下</button></div></div>`;
   }
-  function finishFocus(){
+  /* quiet=true：紧接着要开新的一段（或 App 回到前台自动补结算），只入账不弹「这一程稳住了」 */
+  function finishFocus(quiet){
     if(!s.focusStartAt) return;
     const focused = Math.min(elapsed(), total());   // 实际坐住的时间，封顶到设定时长
+    const mode = s.focusMode || (ratioOn()?'ratio':'fixed');   // 按这一段开始时的算法结算
     let gain;
-    if(ratioOn()){
+    if(mode==='ratio'){
       /* 按比例：专注多久就换 ratio 倍，走 addMinutes 直接入账 */
       gain = ratioGain(focused);
       RewardBridge.addMinutes(gain);
@@ -2659,12 +2734,13 @@ const Yi = (function(){
       const rw=RewardBridge.checkIn();
       gain=(rw && rw.addedMinutes) || (RewardBridge.state().rewardMinutes||30);
     }
-    s.focusStartAt=0; s.focusName='';
+    s.focusStartAt=0; s.focusName=''; s.focusMin=0; s.focusMode=''; s.focusRatio=0;
     save();
     try{ if(typeof ckFocusAdd==='function') ckFocusAdd(focused); }catch(e){}
     stopTick();
     closeOverlay(); refresh();
-    showReward(gain);
+    if(quiet) toast('上一段已走满 · 剩余时间 +'+gain+' 分钟');
+    else showReward(gain);
   }
   function skipFocus(){
     if(!isLocal()){ toast('这个按钮只在浏览器预览里有效'); return; }
@@ -2678,7 +2754,9 @@ const Yi = (function(){
     giveUp();
   }
   function giveUp(){
-    s.focusStartAt=0; s.focusName=''; save();
+    s.focusStartAt=0; s.focusName=''; s.focusMin=0; s.focusMode=''; s.focusRatio=0;
+    save();
+    stopTick();
     closeOverlay(); refresh();
     toast('这一段没算数，奖励也没发。随时可以重新开始');
   }
@@ -2713,38 +2791,66 @@ const Yi = (function(){
   function resetQuotes(){ s.quotes=DEFAULT_QUOTES.slice(); save(); refresh(); toast('已恢复默认五句'); }
 
   /* ---------------- 设置 ---------------- */
-  function setDuration(m){ if(focusing()){ toast('专注进行中不能改时长'); return; } s.durationMin=clamp(Math.round(num(m))||15,1,180); save(); refresh(); }
+  /* 有专注在走（含刚走满还没结算的那一下）都不许改：这一段按开始时的快照算，改了只会让人以为没生效 */
+  function setDuration(m){ if(s.focusStartAt){ toast('专注进行中不能改时长'); return; } s.durationMin=clamp(Math.round(num(m))||15,1,180); save(); refresh(); }
   function setRewardMode(m){
-    if(focusing()){ toast('专注进行中不能切换奖励方式'); return; }
+    if(s.focusStartAt){ toast('专注进行中不能切换奖励方式'); return; }
     s.rewardMode = (m==='ratio') ? 'ratio' : 'fixed';
     save(); refresh();
-    toast(s.rewardMode==='ratio' ? '已切到按比例：专注 10 分钟换 '+ratioVal()+' 分钟' : '已切回固定奖励');
+    toast(s.rewardMode==='ratio' ? '已切到按比例：专注 10 分钟换 '+ratioVal()+' 分钟，计时改成正计时' : '已切回固定奖励：计时回到倒计时');
   }
   function setRatio(v){
+    if(s.focusStartAt){ toast('专注进行中不能改比例'); return; }
     s.ratio = clamp(Math.round(num(v))||RATIO_BASE,1,30);
     save(); refresh();
     toast('专注 10 分钟 → 剩余 '+ratioVal()+' 分钟');
   }
   function addApp(){ openAppPicker(); }
   function delApp(p){ RewardBridge.removeApp(p); save(); refresh(); }
-  /* ---------------- 坚果云：设置卡片住在「数据管理」弹层里 ---------------- */
+  /* ---------------- 坚果云：设置卡片住在「数据管理」弹层里 ----------------
+     真机上走 Capacitor 原生 HTTP（不受 CORS 限制），浏览器预览退回 fetch。
+     整份备份就是一个文件，和「导出全部数据 / R2」完全同一个 appSnapshot()，
+     所以短信自动记下的那几笔账一定在里面。 */
+  const JGY_URL = 'https://dav.jianguoyun.com/dav/lifegame-backup.json';
+  function b64utf8(str){
+    const bytes = new TextEncoder().encode(str);
+    let bin=''; for(let i=0;i<bytes.length;i++) bin+=String.fromCharCode(bytes[i]);
+    return btoa(bin);
+  }
+  function jgyAuthHeader(){ return 'Basic ' + b64utf8((s.jgy.email||'')+':'+(s.jgy.secret||'')); }
+  /* 统一 HTTP 出口：优先原生插件（安卓 WebView 没有跨域问题），退回 fetch。
+     返回 {status, text}，调用方按状态码给具体提示。 */
+  function httpText(method, url, headers, body){
+    try{
+      const cap = window.Capacitor;
+      const http = cap && cap.Plugins && cap.Plugins.CapacitorHttp;
+      if(http && typeof http.request === 'function'){
+        return Promise.resolve(http.request({ url:url, method:method, headers:headers, data:body||undefined, responseType:'text' }))
+          .then(r=>({ status:(r&&r.status)||0, text:(r&&typeof r.data==='string')?r.data:JSON.stringify(r&&r.data) }));
+      }
+    }catch(e){}
+    return fetch(url, { method:method, headers:headers, body:body||undefined })
+      .then(r=>r.text().then(t=>({ status:r.status, text:t })));
+  }
+  let downSnap=null;          // 云端读到、还没确认覆盖的那一份
   function jgyCardHTML(){
-    const j=s.jgy;
+    const j=Object.assign({email:'',secret:'',lastUp:0,lastDown:0,backups:[]}, s.jgy||{});
+    if(!Array.isArray(j.backups)) j.backups=[];
     return `<div class="card" style="margin-bottom:10px">
       <h3 style="margin-bottom:6px">☁ 云同步 · 坚果云 WebDAV</h3>
-      <div class="sub" style="margin-bottom:6px">全手动：不自动上传、不自动下载。凭证只存本机，不写进云端文件。</div>
+      <div class="sub" style="margin-bottom:6px">全手动：点一次传一次，不自动同步。凭证只存本机，不写进云端文件。</div>
       <div class="field"><label>坚果云账号（邮箱）</label><input type="text" value="${esc(j.email)}" placeholder="you@example.com" onchange="Yi.saveJgy('email',this.value)"></div>
       <div class="field"><label>应用密码</label><input type="password" value="${esc(j.secret)}" placeholder="16 位应用密码" onchange="Yi.saveJgy('secret',this.value)"></div>
-      <div class="sub" style="margin-bottom:10px">坚果云网页版 → 账户信息 → 安全选项 → 添加应用密码，<b>不是登录密码</b>。真机上由原生层用 WebDAV 直连，不受浏览器跨域限制。</div>
+      <div class="sub" style="margin-bottom:10px">坚果云网页版 → 账户信息 → 安全选项 → 添加应用密码，<b>不是登录密码</b>。真机上由原生 HTTP 直连，不受浏览器跨域限制。</div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-primary" style="flex:1" onclick="Yi.syncUp()">上传</button>
         <button class="btn btn-ghost" style="flex:1" onclick="Yi.syncDown()">下载 / 恢复</button>
       </div>
-      ${s.pendingDown?`<div class="yi-confirm">确认用云端数据覆盖本机？会覆盖技能主数据和心力钱包。<div class="row" style="gap:8px;margin-top:9px"><button class="yi-btn" onclick="Yi.syncDownYes()">确认覆盖</button><button class="yi-btn ghost" onclick="Yi.syncDownNo()">取消</button></div></div>`:''}
+      ${s.pendingDown?`<div class="yi-confirm">云端数据已读到本机，确认覆盖？会覆盖技能、财富（含短信自动记的账）、健康、职业、日记与「意」的设置。<div class="row" style="gap:8px;margin-top:9px"><button class="yi-btn" onclick="Yi.syncDownYes()">确认覆盖</button><button class="yi-btn ghost" onclick="Yi.syncDownNo()">取消</button></div></div>`:''}
       <div class="yi-sync"><b>上次上传：</b>${j.lastUp?stamp(j.lastUp):'还没有'}　<b>上次恢复：</b>${j.lastDown?stamp(j.lastDown):'还没有'}<br>
-        云端两份文件：<span class="yi-code">lifeRPG.v1.json</span>（技能等主数据）和 <span class="yi-code">wallet.json</span>（心力、专注记录、受管应用）。分开存，避免钱包秒级读写和主数据互相覆盖。<br>
-        每次覆盖前会在云端留一份带时间戳的历史备份。
-        ${j.backups.length?`<div class="yi-backup">历史备份：<br>${j.backups.slice(0,4).map(b=>'· '+esc(b)+'<br>').join('')}</div>`:''}
+        云端一个文件：<span class="yi-code">lifegame-backup.json</span>，内容和「导出全部数据」一样（技能 / 财富流水 / 日记 / 意设置）。<br>
+        上传会直接替换云端那一份，不在云端留历史版本 —— 想留痕先「导出全部数据」存本机。
+        ${j.backups.length?`<div class="yi-backup">本机上传记录：<br>${j.backups.slice(0,4).map(b=>'· '+esc(b)+'<br>').join('')}</div>`:''}
       </div>
     </div>`;
   }
@@ -2752,17 +2858,67 @@ const Yi = (function(){
   function saveJgy(f,v){ s.jgy[f]=String(v||'').trim(); save(); }
   function syncUp(){
     if(!s.jgy.email||!s.jgy.secret){ toast('先填坚果云账号和应用密码'); return; }
-    s.jgy.lastUp=Date.now();
-    s.jgy.backups.unshift(stamp(Date.now())+' · 覆盖前备份 2 个文件');
-    if(s.jgy.backups.length>8) s.jgy.backups.length=8;
-    save(); refresh(); jgyTouch();
-    toast(isLocal()?'浏览器预览不会真联网：真机上由原生层走 WebDAV 上传两份文件':'已提交上传请求');
+    if(!Array.isArray(s.jgy.backups)) s.jgy.backups=[];
+    const body=JSON.stringify(appSnapshot(), null, 2);
+    const kb=Math.max(1, Math.round(body.length/1024));
+    toast('上传中…');
+    httpText('PUT', JGY_URL, { Authorization:jgyAuthHeader(), 'Content-Type':'application/json; charset=utf-8' }, body)
+      .then(r=>{
+        if(r.status>=200 && r.status<300){
+          s.jgy.lastUp=Date.now();
+          s.jgy.backups.unshift(stamp(Date.now())+' · 上传 '+kb+' KB');
+          if(s.jgy.backups.length>8) s.jgy.backups.length=8;
+          save(); refresh(); jgyTouch();
+          toast('已上传 · '+kb+' KB');
+          return;
+        }
+        if(r.status===401) toast('上传失败 401 · 账号或应用密码不对');
+        else if(r.status===403) toast('上传失败 403 · 坚果云拒绝写入');
+        else if(r.status===507) toast('上传失败 507 · 坚果云空间已满');
+        else if(!r.status) toast('上传失败 · 连不上坚果云，检查网络');
+        else toast('上传失败 HTTP '+r.status);
+      })
+      .catch(e=>toast('上传失败：'+((e&&e.message)||'网络不通')));
   }
-  function syncDown(){ s.pendingDown=true; save(); refresh(); jgyTouch(); }
-  function syncDownNo(){ s.pendingDown=false; save(); refresh(); jgyTouch(); }
+  function syncDown(){
+    if(!s.jgy.email||!s.jgy.secret){ toast('先填坚果云账号和应用密码'); return; }
+    toast('读取中…');
+    httpText('GET', JGY_URL, { Authorization:jgyAuthHeader() }, null)
+      .then(r=>{
+        if(r.status===404){ toast('云端还没有备份，先点一次上传'); return; }
+        if(r.status===401){ toast('读取失败 401 · 账号或应用密码不对'); return; }
+        if(r.status<200 || r.status>=300){ toast('读取失败 HTTP '+r.status); return; }
+        let obj=null; try{ obj=JSON.parse(r.text); }catch(e){ obj=null; }
+        if(!obj || (obj.app!=='lifeRPG' && !obj.life && !Array.isArray(obj.skills))){ toast('云端文件不是本应用的备份'); return; }
+        downSnap=obj; s.pendingDown=true; save(); refresh(); jgyTouch();
+        toast('已读到云端备份，确认后覆盖本机');
+      })
+      .catch(e=>toast('读取失败：'+((e&&e.message)||'网络不通')+'（浏览器预览会被跨域拦住，真机才有原生通道）'));
+  }
+  function syncDownNo(){ downSnap=null; s.pendingDown=false; save(); refresh(); jgyTouch(); }
   function syncDownYes(){
-    s.pendingDown=false; s.jgy.lastDown=Date.now(); save(); refresh(); jgyTouch();
-    toast(isLocal()?'浏览器预览不会真改动数据：真机上会先确认再覆盖':'已从云端恢复');
+    const obj=downSnap; downSnap=null; s.pendingDown=false;
+    if(!obj){ save(); refresh(); jgyTouch(); toast('没有待恢复的数据，请重新点下载'); return; }
+    s.jgy.lastDown=Date.now(); save(); jgyTouch();
+    applySnapshot(obj, true);      // 和「导入数据」同一条还原路径；这里已经确认过一次，不再弹第二次
+    refresh();
+  }
+
+  /* ---------------- 随备份走的「意」设置（不含凭证，也不含进行中的那一段） ---------------- */
+  function exportSettings(){
+    return { durationMin:clamp(Math.round(num(s.durationMin))||15,1,180),
+             rewardMode:ratioOn()?'ratio':'fixed', ratio:ratioVal(), quotes:quotes() };
+  }
+  function importSettings(o){
+    if(!o || typeof o!=='object') return false;
+    if(num(o.durationMin)>0) s.durationMin=clamp(Math.round(num(o.durationMin)),1,180);
+    if(o.rewardMode==='ratio' || o.rewardMode==='fixed') s.rewardMode=o.rewardMode;
+    if(num(o.ratio)>0) s.ratio=clamp(Math.round(num(o.ratio)),1,30);
+    if(Array.isArray(o.quotes)){
+      const q=o.quotes.filter(x=>typeof x==='string' && x.trim());
+      if(q.length) s.quotes=q;
+    }
+    save(); refresh(); return true;
   }
 
   load();
@@ -2773,6 +2929,7 @@ const Yi = (function(){
     addApp, delApp,
     setQuote, addQuote, delQuote, resetQuotes,
     jgyCardHTML, saveJgy, syncUp, syncDown, syncDownNo, syncDownYes,
+    exportSettings, importSettings,
     focusing, quotes, ratioOn, ratioVal, ratioGain, ratioPreviewMin, rewardHint, focusHTML };
 })();
 
@@ -2975,6 +3132,7 @@ window.__androidBack = function(){
     if(typeof Rt !== 'undefined' && Rt.isOpen()){ Rt.hide(); return true; }
     const yo = $('#yiOverlay');
     if(yo && !yo.classList.contains('hidden')){ Yi.closeOverlay(); return true; }
+    if(fabMenuOpen()){ closeFabMenu(); return true; }   // 现金流「＋」菜单先收，别把弹层一起关掉
     const mr = $('#modalRoot');
     if(mr && !mr.classList.contains('hidden')){ closeModal(); return true; }
     /* 日记：阅读 / 编辑 / 设置 / 回收站 都是页内弹层，先收弹层，绝不退出 App */
@@ -2988,9 +3146,12 @@ window.__androidBack = function(){
   return false;
 };
 
-/* 从后台回到 App 时刷新余额（原生侧可能在后台扣过） */
+/* 从后台回到 App 时刷新余额（原生侧可能在后台扣过）；顺手结算走满的那一段 */
 document.addEventListener('visibilitychange', function(){
-  if(!document.hidden){ try{ renderRewardCard(); }catch(e){} }
+  if(!document.hidden){
+    try{ Yi.tick(); }catch(e){}          // 后台被挂起的计时，回前台立刻补结算
+    try{ renderRewardCard(); }catch(e){}
+  }
 });
 
 /* ---- 打卡总账：连续天数 / 累计次数 / 累计专注（与技能内的当前等级经验分开记） ---- */
@@ -3577,6 +3738,7 @@ let wealthTab = 'cash';   // 默认先看现金流；成本（物品日均）排
 let cashMonth = null; // 现金流查看月份 'YYYY-MM'；null=本月。不持久化，每次进现金流页复位
 function switchWealthTab(t){
   wealthTab = t;
+  closeFabMenu();               // 换页签先收菜单
   if(t==='cash') cashMonth = null; // 回到本月
   $('#seg-items').classList.toggle('active', t==='items');
   $('#seg-cash').classList.toggle('active', t==='cash');
@@ -3594,7 +3756,7 @@ function renderWealthPage(){
   const hasAssets = (state.wealth.assets||[]).length > 0;
   if(wealthTab==='items') setFab(hasItems ? ()=>openItemModal() : null);
   else if(wealthTab==='assets') setFab(hasAssets ? ()=>openAssetModal() : null);
-  else setFab(openIncomeModal);
+  else setFab(toggleFabMenu);      // 现金流：＋ 展开「记收入 / 记开销 / 加固定开销」
 }
 function itemExtras(it){ return (it.extras||[]).reduce((a,e)=>a+num(e.amount),0); }
 function itemDailyCost(it){ return (it.price + itemExtras(it)) / Math.max(1, it.lifeDays); }
@@ -3861,6 +4023,14 @@ function renderCashView(){
       <b style="font-size:var(--fs-15)">${ymLabel}${isCurrent?'':' · 查看中'}</b>
       <button class="btn btn-sm btn-ghost" ${isCurrent?'disabled':''} style="${isCurrent?'opacity:.35;pointer-events:none':''}" onclick="shiftCashMonth(1)" title="下一月">下月 ›</button>
     </div>
+    <div class="cash-top">
+    <div class="card"><h3>${ic('pie',15)} 开销构成</h3>
+      <canvas class="chart" id="cashDonut" style="height:170px"></canvas>
+      <div class="chart-legend">
+        ${legendItems.map(it=>`<span><b style="background:${it.color}"></b>${it.label} ${money(it.value)}</span>`).join('')}
+      </div>
+      ${cat['未分类']>0?`<div class="sub" style="margin-top:6px;font-size:var(--fs-12)">有 ${money(cat['未分类'])} 在「未分类」里，点流水那条补一下金额或类别即可</div>`:''}
+    </div>
     <div class="card" style="border-color:rgb(var(--ok-rgb)/.3)">
       <div class="row">
         <div class="grow">
@@ -3880,7 +4050,7 @@ function renderCashView(){
         <span style="margin-left:auto">结余 <b style="color:${totalIn-totalOut>=0?'var(--green)':'var(--red)'}">${money(totalIn-totalOut)}</b></span>
       </div>
     </div>
-    <button class="btn btn-ghost" style="margin-bottom:12px" onclick="openExpenseModal()">+ 开销</button>
+    </div>
     <div class="card"><h3>${ic('trending-up',15)} <span class="grow">近 6 个月结余趋势</span><button class="btn btn-sm btn-ghost" onclick="openCashAnnual()">年度总结</button></h3>
       <canvas class="chart" id="cashLine"></canvas>
     </div>
@@ -3918,34 +4088,29 @@ function renderCashView(){
           </div>`;}).join('')
         : '<div class="sub" style="padding:8px 0">该月暂无流水记录</div>'
       )}</div>
-      ${offCount?`<div class="sub" style="margin-top:8px;font-size:var(--fs-12)">另有 ${offCount} 笔标记「不计入」，只留痕不参与统计</div>`:''}</div>
-    </div><div class="cash-side">
-    <div class="card"><h3>${ic('pie',15)} 开销构成</h3>
-      <canvas class="chart" id="cashDonut" style="height:170px"></canvas>
-      <div class="chart-legend">
-        ${legendItems.map(it=>`<span><b style="background:${it.color}"></b>${it.label} ${money(it.value)}</span>`).join('')}
-      </div>
-      ${cat['未分类']>0?`<div class="sub" style="margin-top:6px;font-size:var(--fs-12)">有 ${money(cat['未分类'])} 在「未分类」里，点流水那条补一下金额或类别即可</div>`:''}
+      ${offCount?`<div class="sub" style="margin-top:8px;font-size:var(--fs-12)">另有 ${offCount} 笔标记「不计入」，只留痕不参与统计</div>`:''}
       <div class="divider"></div>
-      <div class="row" style="align-items:baseline">
-        <b style="font-size:var(--fs-13)">固定开销</b>
-        <span class="sub" style="margin-left:auto">${fixed.length?'共 '+fixed.length+' 笔 · 按周期计入':'按周期自动计入'}</span>
+      <div id="cashFixed">
+        <div class="row" style="align-items:baseline">
+          <b style="font-size:var(--fs-13)">固定开销</b>
+          <span class="sub" style="margin-left:auto">${fixed.length?'共 '+fixed.length+' 笔 · 按周期计入':'按周期计入'}</span>
+        </div>
+        ${fixed.length ? fixed.map(f=>{
+          const due = fixedDueIn(f, ym), settled = fixedSettledIn(f, ym);
+          const nextK = due ? '' : fixedNextDue(f, ym);
+          const stateTxt = settled ? `本期已由短信账单核销`
+            : (due ? `${fixedCycleText(f)} · 本期计入 ${money(f.amount)}`
+                   : `${fixedCycleText(f)} · 下期 ${nextK?nextK.slice(0,4)+'/'+nextK.slice(5):'—'}`);
+          return `
+          <div class="row" style="padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer" title="点击修改这笔固定开销" onclick="openFixedModal('${f.id}')">
+            <span class="tag ${CAT_TAG[normCat(f.category)]||'blue'}">${normCat(f.category)}</span>
+            <div class="grow" style="margin-left:6px;min-width:0"><b>${esc(f.name)}</b><div class="sub">${stateTxt}</div></div>
+            <b class="money" style="color:${settled?'var(--sub)':(due?'var(--red)':'var(--sub)')}">${due?'−'+money(f.amount):'—'}</b>
+            <button class="btn btn-sm btn-ghost" style="margin-left:8px" title="删除" onclick="event.stopPropagation();delFixed('${f.id}')">${ic('x',14)}</button>
+          </div>`;}).join('') : '<div class="sub" style="padding:6px 0">房租、订阅这类周期性支出，点右下角「＋」添加，按周期自动计入。</div>'}
       </div>
-      ${fixed.length ? fixed.map(f=>{
-        const due = fixedDueIn(f, ym), settled = fixedSettledIn(f, ym);
-        const nextK = due ? '' : fixedNextDue(f, ym);
-        const stateTxt = settled ? `本期已由短信账单核销`
-          : (due ? `${fixedCycleText(f)} · 本期计入 ${money(f.amount)}`
-                 : `${fixedCycleText(f)} · 下期 ${nextK?nextK.slice(0,4)+'/'+nextK.slice(5):'—'}`);
-        return `
-        <div class="row" style="padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer" title="点击修改这笔固定开销" onclick="openFixedModal('${f.id}')">
-          <span class="tag ${CAT_TAG[normCat(f.category)]||'blue'}">${normCat(f.category)}</span>
-          <div class="grow" style="margin-left:6px;min-width:0"><b>${esc(f.name)}</b><div class="sub">${stateTxt}</div></div>
-          <b class="money" style="color:${settled?'var(--sub)':(due?'var(--red)':'var(--sub)')}">${due?'−'+money(f.amount):'—'}</b>
-          <button class="btn btn-sm btn-ghost" style="margin-left:8px" title="删除" onclick="event.stopPropagation();delFixed('${f.id}')">${ic('x',14)}</button>
-        </div>`;}).join('') : '<div class="sub" style="padding:6px 0">房租、订阅这类周期性支出加在这里，按周期计入。</div>'}
-      <button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="openFixedModal()">+ 添加固定开销</button>
-    </div></div></div>`;
+    </div>
+  </div></div>`;
   el.innerHTML = html;
 
   requestAnimationFrame(()=>{
@@ -5268,12 +5433,16 @@ function jumpToSkill(id){
   openSkillDetail(id);
 }
 /* ---------- 数据导出 / 导入 ---------- */
+/* 一份备份 = 生活主数据（技能/财富/健康/职业，含短信自动记的每笔账）+ 日记 + 「意」的设置。
+   「导出全部数据」「R2 云同步」「坚果云」三处都走这里，口径不会分叉。 */
 function appSnapshot(){
-  return {
+  const snap = {
     app: 'lifeRPG', version: 1, exportedAt: new Date().toISOString(),
     life: state,
     diary: (window.dyAPI && dyAPI.snapshot) ? dyAPI.snapshot() : null
   };
+  try{ if(typeof Yi!=='undefined' && Yi.exportSettings) snap.yi = Yi.exportSettings(); }catch(e){}
+  return snap;
 }
 /* 复制到剪贴板：优先 execCommand（WebView 兼容），失败再用 navigator.clipboard */
 function _copyToClipboard(text){
@@ -5357,26 +5526,33 @@ function exportAll(){
   const obj = appSnapshot();
   showExportModal(JSON.stringify(obj, null, 2), 'lifegame-backup-'+todayStr()+'.json');
 }
-function applySnapshot(obj){
+/* force=true 表示调用方（坚果云「确认覆盖」）已经问过一次，不再弹第二次确认 */
+function applySnapshot(obj, force){
   let life = (obj && obj.app==='lifeRPG' && obj.life) ? obj.life : null;
   if(!life && obj && Array.isArray(obj.skills)) life = obj; // 兼容纯生活数据快照
-  if(life && confirm('导入将覆盖当前 技能/财富/健康/职业 数据，确定继续？')){
+  if(life && (force || confirm('导入将覆盖当前 技能/财富/健康/职业/打卡统计 数据，确定继续？'))){
     state.skills = Array.isArray(life.skills) ? normalizeSkillTones(life.skills) : [];
     state.insights = (life.insights||[]).filter(x=>x&&x.id&&x.skillId);
-    state.wealth = Object.assign({items:[],incomes:[],expenses:[],assets:[],fixed:[],
-      autoCat:{on:true,lowT:20,highT:1000}}, life.wealth);
-    state.wealth.autoCat = Object.assign({on:true,lowT:20,highT:1000}, state.wealth.autoCat||{});
-    if(state.wealth.merchantMem) delete state.wealth.merchantMem;
-    (state.wealth.fixed||[]).forEach(f=>{
-      if(['month','quarter','year'].indexOf(f.cycle)<0) f.cycle='month';
-      if(!f.settled || typeof f.settled!=='object') f.settled={};
-    });
+    /* 财富走和本机读取同一份归一：短信记的账（src:'sms' / smsId / off / fixedId）原样带回来 */
+    state.wealth = normalizeWealth(life.wealth);
+    /* 打卡总账也要还原，否则换设备后连续打卡、累计次数、累计专注全归零 */
+    state.checkinStats = Object.assign({total:0,days:[],focusMs:0}, life.checkinStats||{});
+    state.checkinStats.days = (Array.isArray(state.checkinStats.days)?state.checkinStats.days:[])
+      .filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
+    state.checkinStats.total   = Math.max(0, Math.round(num(state.checkinStats.total))||0);
+    state.checkinStats.focusMs = Math.max(0, Math.round(num(state.checkinStats.focusMs))||0);
+    if(life.pref && typeof life.pref==='object'){
+      state.pref = Object.assign({skillSort:'recent',skillTab:'list'}, life.pref);
+      if(['recent','created','level'].indexOf(state.pref.skillSort)<0) state.pref.skillSort='recent';
+    }
     state.health = Object.assign({birthday:null,diseases:[]}, life.health);
     state.career.current = Object.assign({name:'',income:0,hours:8,satisfaction:3,pays:[]}, life.career && life.career.current);
     state.career.current.pays = (state.career.current.pays||[]).filter(p=>p && p.month);
     state.career.target = Object.assign({name:'',income:0,skills:[]}, life.career && life.career.target);
     save(); renderCurrentPage();
   }
+  /* 「意」的设置（时长 / 奖励方式 / 比例 / 静心提示）：老备份没有这一段，跳过即可 */
+  try{ if(obj && obj.yi && typeof Yi!=='undefined' && Yi.importSettings) Yi.importSettings(obj.yi); }catch(e){}
   if(obj && obj.diary && obj.diary.entries && window.dyAPI && dyAPI.importEntries){
     const r = dyAPI.importEntries(obj.diary.entries);
     if(life) toast('导入完成 · 日记：新增 '+r.added+' 篇 / 更新 '+r.updated+' 篇');
@@ -5398,7 +5574,7 @@ function importAll(file){
 function openDataModal(){
   openModal(`
     <h2>数据管理</h2>
-    <p class="sub" style="margin:4px 0 12px">全部数据只保存在本机浏览器（localStorage），不会上传到任何服务器。建议定期导出备份，换设备时用导入还原。</p>
+    <p class="sub" style="margin:4px 0 12px">数据默认只存在本机；导出 / R2 / 坚果云三条路都是把<b>同一份完整备份</b>（含短信自动记的每一笔账）搬出去。建议定期备份，换设备时用导入还原。</p>
     <div class="card" style="margin-bottom:10px">
       <h3 style="margin-bottom:6px">${ic('download',15)} 导出全部数据</h3>
       <div class="sub" style="margin-bottom:10px">导出包含技能、财富、健康、职业与日记的完整 JSON。电脑浏览器可直接下载 .json 文件；打包 App 内会自动回退为复制文本。</div>
@@ -5547,7 +5723,24 @@ async function cloudDownload(){
 function setFab(fn){
   const f = $('#fab');
   if(fn){ f.onclick = fn; f.classList.remove('hidden'); }
-  else{ f.classList.add('hidden'); f.onclick = null; }
+  else{ f.classList.add('hidden'); f.onclick = null; closeFabMenu(); }
+}
+/* 现金流页：＋ 打开动作菜单（记收入 / 记开销 / 加固定开销） */
+function openFabMenu(){
+  const m = $('#fabMenu'); if(!m) return;
+  m.classList.add('open'); m.setAttribute('aria-hidden','false');
+}
+function closeFabMenu(){
+  const m = $('#fabMenu'); if(!m) return;
+  m.classList.remove('open'); m.setAttribute('aria-hidden','true');
+}
+function fabMenuOpen(){ const m = $('#fabMenu'); return !!m && m.classList.contains('open'); }
+function toggleFabMenu(){ fabMenuOpen() ? closeFabMenu() : openFabMenu(); }
+function fabPick(kind){
+  closeFabMenu();
+  if(kind === 'expense') openExpenseModal();
+  else if(kind === 'fixed') openFixedModal();
+  else openIncomeModal();
 }
 
 /* ============ 日记页（整合自 diary.html，自包含模块） ============ */
@@ -5756,12 +5949,10 @@ function setFab(fn){
 
   function renderFootnote(){
     var f = g("dyFootnote");
-    var msgs = [];
-    if(conf.lastBackupAt) msgs.push("上次备份：" + fmtTime(conf.lastBackupAt));
-    else msgs.push("还没有导出过备份");
-    var days = Math.floor((Date.now() - (conf.lastBackupAt ? new Date(conf.lastBackupAt).getTime() : 0)) / 86400000);
-    if(!conf.lastBackupAt || days >= 7) msgs.push("· 建议现在导出一次备份");
-    f.textContent = msgs.join(" ");
+    if(!f) return;
+    /* 导出备份已并入「数据管理」，这里不再提示/催促备份；只有本机留着历史备份时间时才显示一行 */
+    if(conf.lastBackupAt){ f.textContent = "上次备份：" + fmtTime(conf.lastBackupAt); f.hidden = false; }
+    else { f.textContent = ""; f.hidden = true; }
   }
 
   /* ---------------- 日历视图 ---------------- */
@@ -6077,9 +6268,6 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
     });
   }
   function renderSettings(){
-    g("dyBackupInfo").textContent = conf.lastBackupAt
-      ? "上次导出：" + fmtTime(conf.lastBackupAt) + "（" + conf.lastBackupCount + " 篇）"
-      : "下载一个 JSON 文件，保存所有日记";
     var trashed = data.entries.filter(function(e){ return e.deletedAt; }).length;
     g("dyTrashInfo").textContent = trashed ? trashed + " 篇在回收站里" : "删除的日记会先进这里";
     var info = g("dyStorageInfo");
@@ -6130,15 +6318,6 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
       entries: data.entries
     };
   }
-  function exportBackup(){
-    if(!data.entries.length){ toast("还没有内容可以备份"); return; }
-    try{
-      conf.lastBackupAt = new Date().toISOString();
-      conf.lastBackupCount = live().length;
-      saveConf(); renderSettings();
-      showExportModal(JSON.stringify(snapshot(), null, 2), "diary-backup-" + todayStr() + ".json");
-    }catch(e){ toast("导出失败：" + e.message); }
-  }
   function importEntries(incoming){
     var added = 0, updated = 0, skipped = 0;
     (Array.isArray(incoming) ? incoming : []).forEach(function(r){
@@ -6162,33 +6341,19 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
     saveData(); renderList(); renderSettings();
     return { added: added, updated: updated, skipped: skipped };
   }
-  function importFromText(txt){
-    var obj = JSON.parse(String(txt));
-    var incoming = Array.isArray(obj) ? obj : (obj && Array.isArray(obj.entries) ? obj.entries : null);
-    if(!incoming){ toast("格式不对，请粘贴/选择本应用导出的 JSON"); return false; }
-    var r = importEntries(incoming);
-    toast("导入完成：新增 " + r.added + " 篇，更新 " + r.updated + " 篇" + (r.skipped ? "，跳过 " + r.skipped + " 篇" : ""));
-    return true;
-  }
-  function importBackup(file){
-    var reader = new FileReader();
-    reader.onload = function(){ try{ importFromText(String(reader.result)); }catch(err){ toast("读取失败：" + err.message); } };
-    reader.onerror = function(){ toast("文件读取失败"); };
-    reader.readAsText(file, "utf-8");
-  }
-  function pasteImport(){
-    showPasteImportModal("粘贴导入日记", function(txt){
-      try{ importFromText(txt); closeModal(); }catch(err){ toast("导入失败：" + err.message); }
-    });
-  }
+  /* 日记单独的「导入文件 / 粘贴导入」已并入「设置 → 数据与备份 → 数据管理」，
+     这里只保留解析与合并逻辑给整体导入复用（applySnapshot → dyAPI.importEntries）。 */
   function wipeAll(){
     if(!data.entries.length){ toast("本来就是空的"); return; }
-    if(!window.confirm("确定清空这台设备上的全部日记？会先把日记导出为可复制的备份文本。")) return;
-    exportBackup();
+    if(!window.confirm("确定清空这台设备上的全部日记？会先把整份数据导出为可复制的备份文本。")) return;
+    /* 导出弹层由 #modalRoot 承载，压在日记设置弹层下面，先提升层级 */
+    var mr = document.getElementById("modalRoot");
+    if(mr) mr.classList.add("over-diary");
+    try{ exportAll(); }catch(e){ toast("导出失败：" + e.message); return; }
     setTimeout(function(){
       data.entries = [];
       saveData(); renderList(); renderSettings();
-      toast("已清空（备份文件应该已下载，请确认）");
+      toast("日记已清空（备份就在刚才的弹层里，记得复制保存）");
     }, 900);
   }
 
@@ -6212,13 +6377,6 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
     };
     g("dyTrashClose").onclick = function(){ setOverlay("dyTrashOverlay", false); renderSettings(); };
     g("dyBtnTrash").onclick = function(){ renderTrash(); setOverlay("dyTrashOverlay", true); };
-    g("dyBtnExport").onclick = exportBackup;
-    g("dyBtnImport").onclick = function(){ g("dyImportFile").click(); };
-    if(g("dyBtnPaste")) g("dyBtnPaste").onclick = pasteImport;
-    g("dyImportFile").onchange = function(){
-      if(this.files && this.files[0]) importBackup(this.files[0]);
-      this.value = "";
-    };
     g("dyBtnWipe").onclick = wipeAll;
     Array.prototype.forEach.call(document.querySelectorAll("#dyThemeSeg button"), function(b){
       b.onclick = function(){ conf.theme = b.getAttribute("data-t"); saveConf(); applyTheme(); renderSettings(); };
@@ -6666,6 +6824,43 @@ if(location.search.indexOf('selftest')>=0){
     switchPage('diary');
     ok('日记设置在顶栏右上角', !$('#dyBtnSettings').classList.contains('hidden') && $$('#page-diary #dyBtnSettings').length===0);
     ok('设置弹层按 5 组归类', $$('#dySettingsOverlay .dy-group').length===5);
+    ok('「数据与备份」置顶为第一组', (function(){
+      const g=$$('#dySettingsOverlay .dy-group')[0];
+      return g && g.textContent.indexOf('数据与备份')>=0 && g.textContent.indexOf('数据管理')>=0;
+    })());
+    ok('日记不再单列导出/导入/粘贴导入', !$('#dyBtnExport') && !$('#dyBtnImport') && !$('#dyBtnPaste')
+      && $('#dySettingsOverlay').innerHTML.indexOf('粘贴导入')<0 && $('#dySettingsOverlay').innerHTML.indexOf('导入备份')<0);
+    ok('仅保留整体数据导入导出入口', !!$('#dySettingsOverlay').innerHTML.match(/openDataFromDiary/));
+    ok('日记底部不再催备份', (function(){ const f=$('#dyFootnote'); return !f || f.hidden || f.textContent===''; })());
+
+    // -- 本轮：现金流重排（构成在顶 / 流水在底 / 固定开销并入流水 / ＋ 菜单） --
+    switchPage('wealth'); switchWealthTab('cash');
+    ok('现金流：开销构成排最上、流水记录排最下', (function(){
+      const cash=$('#wealth-cash');
+      const cards=[...cash.querySelectorAll('.cash-main > .card, .cash-main > .cash-top > .card')];
+      return cards.length>=3 && cards[0].textContent.indexOf('开销构成')>=0
+        && cards[cards.length-1].textContent.indexOf('流水记录')>=0;
+    })());
+    ok('固定开销并入流水记录卡', (function(){
+      const cash=$('#wealth-cash');
+      const cards=[...cash.querySelectorAll('.cash-main > .card, .cash-main > .cash-top > .card')];
+      const first=cards[0].textContent, last=cards[cards.length-1].textContent;
+      return last.indexOf('固定开销')>=0 && first.indexOf('固定开销')<0;
+    })());
+    ok('现金流页内不再有 + 开销 / + 添加固定开销', (function(){
+      const h=$('#wealth-cash').innerHTML;
+      return h.indexOf('+ 开销')<0 && h.indexOf('+ 添加固定开销')<0;
+    })());
+    ok('右下角 ＋ 菜单并列收入/开销/固定开销', (function(){
+      const m=$('#fabMenu'); if(!m) return false;
+      const t=m.textContent;
+      return t.indexOf('记一笔收入')>=0 && t.indexOf('记一笔开销')>=0 && t.indexOf('添加固定开销')>=0
+        && !!$('#fab') && !$('#fab').classList.contains('hidden');
+    })());
+    ok('＋ 菜单可开可收', (function(){
+      openFabMenu(); const on=fabMenuOpen(); closeFabMenu();
+      return on && !fabMenuOpen();
+    })());
 
     // -- 本轮：等级卡去编辑按钮 / 专注页环形倒计时 + 双图标 / 按比例奖励 / 「意」页瘦身 --
     (function(){ const s=state.skills[0]; openLevelDetail(s.id,1);
@@ -6706,6 +6901,87 @@ if(location.search.indexOf('selftest')>=0){
       window.confirm=oc;
       return running && still && gone;
     })());
+    // -- 本轮：按比例改正计时 / 段内快照 / 备份还原（含短信账目） --
+    ok('按比例：专注页从 00:00 正计时往上走', (function(){
+      Yi.setRewardMode('ratio'); Yi.setRatio(10); Yi.setDuration(15);
+      Yi.startFocus('t','');
+      const start=$('#yiClk')?$('#yiClk').textContent:'';
+      const tag=$('#yiTag')?$('#yiTag').textContent:'';
+      const realNow=Date.now, t0=realNow();
+      Date.now=function(){ return t0+3*60000; };
+      Yi.tick();
+      const at3=$('#yiClk')?$('#yiClk').textContent:'';
+      Date.now=realNow;
+      Yi.setRewardMode('fixed');              // 进行中不许切：这一段仍按比例
+      const blocked=Yi.ratioOn()===true;
+      Yi.giveUp();
+      return start==='00:00' && tag.indexOf('已挣')>=0 && at3==='03:00' && blocked;
+    })());
+    ok('固定奖励仍是倒计时', (function(){
+      Yi.setRewardMode('fixed'); Yi.startFocus('t','');
+      const t=$('#yiClk')?$('#yiClk').textContent:'';
+      Yi.giveUp();
+      return /^1[45]:/.test(t);
+    })());
+    ok('结算按开始时的快照：走满还没结算也不许改比例', (function(){
+      const b0=RewardBridge.state().balanceMs;
+      Yi.setRewardMode('ratio'); Yi.setRatio(10); Yi.setDuration(15);
+      Yi.startFocus('t','');
+      const realNow=Date.now, t0=realNow();
+      Date.now=function(){ return t0+16*60000; };   // 已经超过设定时长
+      const was=Yi.ratioVal();
+      Yi.setRatio(1);
+      const guarded=Yi.ratioVal()===was;
+      Yi.tick();                                     // 到点结算：15 分钟 × 1 = 15
+      Date.now=realNow;
+      const gained=Math.round((RewardBridge.state().balanceMs-b0)/60000);
+      Yi.closeReward();
+      RewardBridge.addMinutes(-gained);
+      Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
+      return guarded && gained===15;
+    })());
+    ok('走满但还没 tick 就再开一段：先结算上一段', (function(){
+      const b0=RewardBridge.state().balanceMs;
+      Yi.setRewardMode('ratio'); Yi.setRatio(5); Yi.setDuration(15);
+      Yi.startFocus('t','');
+      const realNow=Date.now, t0=realNow();
+      Date.now=function(){ return t0+16*60000; };
+      const started=Yi.startFocus('t','');     // 上一段已走满：安静结算（15 分钟 × 0.5 = 8）后开新段
+      Date.now=realNow;
+      const gained=Math.round((RewardBridge.state().balanceMs-b0)/60000);
+      Yi.giveUp(); Yi.closeReward();
+      RewardBridge.addMinutes(-gained);
+      Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
+      return started===true && gained===8;
+    })());
+    ok('备份里带着短信自动记的账', (function(){
+      ingestSms({id:'bk-sms-1', amount:88, merchant:'备份测试商户', date:todayStr()});
+      const txt=JSON.stringify(appSnapshot());
+      return txt.indexOf('bk-sms-1')>=0 && txt.indexOf('"src":"sms"')>=0;
+    })());
+    ok('还原后台账与打卡统计都还在', (function(){
+      const ckBefore=ckStats().total;
+      const snap=JSON.stringify(appSnapshot());
+      state.wealth.expenses=[]; state.checkinStats={total:0,days:[],focusMs:0};
+      const oc=window.confirm; window.confirm=function(){ return true; };
+      applySnapshot(JSON.parse(snap));
+      window.confirm=oc;
+      const back=state.wealth.expenses.filter(e=>e && e.smsId==='bk-sms-1')[0];
+      return !!back && back.amount===88 && back.src==='sms' && ckStats().total===ckBefore;
+    })());
+    ok('「意」的设置随备份回来', (function(){
+      Yi.setRewardMode('ratio'); Yi.setRatio(7); Yi.setDuration(25);
+      const snap=JSON.stringify(appSnapshot());
+      Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
+      const oc=window.confirm; window.confirm=function(){ return true; };
+      applySnapshot(JSON.parse(snap));
+      window.confirm=oc;
+      const back=Yi.ratioOn() && Yi.ratioVal()===7;
+      Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
+      return back;
+    })());
+    ok('坚果云改成单文件真备份（不再假上传）', (function(){ const h=Yi.jgyCardHTML();
+      return h.indexOf('lifegame-backup.json')>=0 && h.indexOf('wallet.json')<0 && h.indexOf('覆盖前备份')<0; })());
     switchPage('yi');
     ok('「意」页删掉入口与冗余说明', (function(){ const h=$('#yiPage').innerHTML;
       return h.indexOf('进入「意」')<0 && h.indexOf('这个模式的意思')<0 && h.indexOf('云同步')<0
