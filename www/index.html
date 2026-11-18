@@ -195,8 +195,6 @@ h3 svg{color:var(--sub);flex:none}
 .field textarea{min-height:64px;resize:vertical;line-height:1.5}
 .field textarea.auto{resize:none;overflow:hidden}
 /* 长文本编辑区：行高/字距/内边距对齐阅读态，避免中文大段堆在一起 */
-.field textarea.rt-ta{min-height:150px;line-height:1.9;letter-spacing:.2px;padding:14px 16px}
-.field textarea.rt-ta::placeholder{line-height:1.8;color:var(--sub);opacity:.75}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--acc-12)}
 .field .req::after{content:" *";color:var(--red)}
 /* ---------- 本等级内容：阅读态 ⇌ 编辑态 ---------- */
@@ -210,26 +208,46 @@ h3 svg{color:var(--sub);flex:none}
 .lv-read p{margin:0 0 9px}
 .lv-read p:last-child{margin-bottom:0}
 .lv-read-empty{color:var(--sub);font-size:var(--fs-13);line-height:1.6}
-/* ---------- 简单富文本：**粗体** + 行首「•」项目符号 ---------- */
-.rt-li{display:inline-block;max-width:100%;padding-left:1.2em;text-indent:-1.2em;vertical-align:top}
-.lv-read b,.dy-readbody b{font-weight:700}
+/* ---------- 富文本：阅读态 ---------- */
+/* 项目符号改成真正的圆点（原来用「•」字形，13px 下只有 3px，几乎看不见） */
+.rt-li{display:inline-block;position:relative;padding-left:1.15em;max-width:100%;vertical-align:top}
+.rt-li::before{content:'';position:absolute;left:.18em;top:.74em;width:.44em;height:.44em;border-radius:50%;
+  background:currentColor;opacity:.8}
+.lv-read b,.dy-readbody b,.rt-tbl b{font-weight:700}
 /* ==文字== 蓝色字：固定蓝色，不跟着主题的强调色跑 */
 .rt-blue{color:#3b82f6;font-weight:600}
 body[data-theme="dark"] .rt-blue{color:#7db3ff}
-body[data-theme="paper"] .rt-blue{color:var(--accent)}
-.rt-hint{font-size:var(--fs-11);color:var(--sub);opacity:.85;margin-top:7px;line-height:1.55;letter-spacing:.2px}
-.rt-hint i{font-style:normal;background:var(--acc-08);color:var(--accent);padding:1px 5px;border-radius:5px;font-size:var(--fs-11);font-weight:700}
-/* ---------- 富文本快捷条：长按选中文字后浮出来，省得记语法 ---------- */
-#rtBar{position:fixed;left:0;top:0;z-index:900;display:none;gap:6px;padding:6px;border-radius:13px;
-  background:rgba(26,32,40,.97);border:1px solid rgba(255,255,255,.14);
-  box-shadow:0 12px 30px rgba(0,0,0,.32);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
-  touch-action:manipulation;user-select:none;-webkit-user-select:none}
-#rtBar.on{display:flex}
-#rtBar button{min-width:48px;height:36px;padding:0 11px;border:0;border-radius:10px;background:#313b47;color:#eef3f8;
-  font-size:var(--fs-13);font-weight:700;font-family:inherit;white-space:nowrap;cursor:pointer;transition:background .12s}
-#rtBar button:active{background:#415061}
-#rtBar .rtb-b{font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:var(--fs-17)}
-#rtBar .rtb-blue{color:#8ec1ff}
+/* 纸质主题刻意不跟强调色走：点了「蓝色」就该是蓝的，变成赭石色会以为没生效 */
+/* 表格：窄屏横向滚动，不撑破卡片 */
+.rt-tbl-wrap{margin:5px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.rt-tbl{border-collapse:collapse;width:100%;font-size:var(--fs-13);line-height:1.6;background:var(--card)}
+.rt-tbl th,.rt-tbl td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top;min-width:64px;word-break:break-word}
+.rt-tbl th{background:var(--acc-08);font-weight:700}
+/* ---------- 富文本：所见即所得编辑器 ---------- */
+.rte{border:1px solid var(--line);border-radius:11px;background:var(--card2);overflow:hidden;width:100%}
+.rte:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--acc-12)}
+.rte-bar{display:flex;align-items:center;gap:3px;padding:5px 6px;border-bottom:1px solid var(--line);
+  background:var(--card);overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.rte-bar::-webkit-scrollbar{display:none}
+.rte-bar button{min-width:34px;height:31px;padding:0 6px;border:1px solid transparent;border-radius:8px;
+  background:transparent;color:var(--text);font-family:inherit;font-size:var(--fs-13);font-weight:700;
+  cursor:pointer;flex:none;line-height:1;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.rte-bar button:active{background:var(--acc-12)}
+.rte-bar button.on{background:var(--acc-08);color:var(--accent);border-color:var(--acc-20)}
+.rte-bar button[disabled]{opacity:.35}
+.rte-bar .r-b{font-family:Georgia,"Times New Roman",serif;font-weight:800;font-size:var(--fs-17)}
+.rte-bar .r-blue{color:#3b82f6}
+body[data-theme="dark"] .rte-bar .r-blue{color:#7db3ff}
+.rte-sp{width:4px;flex:none}
+.rte-bar button[data-r="li"],.rte-bar button[data-r="table"],.rte-bar button[data-r="row"],.rte-bar button[data-r="col"]{font-size:var(--fs-12);letter-spacing:0;min-width:46px}
+.rte-body{min-height:104px;padding:12px 14px;font-size:var(--fs-15);line-height:1.85;letter-spacing:.2px;
+  color:var(--text);outline:none;word-break:break-word;overflow-wrap:break-word}
+.rte-body:empty::before,.rte-body.is-empty::before{content:attr(data-ph);color:var(--sub);opacity:.7;pointer-events:none}
+.rte-body .rte-li{position:relative;padding-left:1.15em}
+.rte-body .rte-li::before{content:'';position:absolute;left:.18em;top:.74em;width:.44em;height:.44em;
+  border-radius:50%;background:currentColor;opacity:.8}
+.rte-body .rt-tbl{font-size:var(--fs-13)}
+.rte-tip{font-size:var(--fs-11);color:var(--sub);margin-top:6px;line-height:1.55}
 /* ---------- 进度：技能等级改用勋章进度环（见 .sk-medal-ring） ---------- */
 .lv-badge{font-size:var(--fs-12);font-weight:700;color:var(--accent);background:var(--acc-08);border:1px solid var(--acc-20);padding:3px 10px;border-radius:10px;white-space:nowrap}
 .sk-badge{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:var(--fs-15);flex:none;margin-right:10px;letter-spacing:.5px}
@@ -500,7 +518,23 @@ body[data-theme="ios"] #page-diary{--dy-solid:#f2f2f7}
 #page-diary .dy-sheet-head .title{font-family:var(--dy-font-serif);font-size:var(--fs-17);margin-right:auto}
 #page-diary .dy-sheet-body{flex:1;overflow-y:auto;padding:18px}
 #page-diary .dy-sheet-foot{border-top:1px solid var(--dy-line);padding:10px 18px;display:flex;align-items:center;gap:10px;font-size:var(--fs-12);color:var(--dy-muted)}
-#dyEditorBody{flex:1;width:100%;border:0;background:transparent;font-family:var(--dy-font-serif);font-size:var(--fs-17);line-height:1.85;resize:none;padding:0 0 30px}
+/* 日记正文：无边框、铺满整页，工具条固定在滚动区上方 */
+.rte-diary{flex:1;min-height:0;display:flex;flex-direction:column}
+.rte-diary .rte{flex:1;min-height:0;display:flex;flex-direction:column;border:0;border-radius:0;background:transparent;overflow:visible}
+.rte-diary .rte:focus-within{box-shadow:none}
+.rte-diary .rte-bar{border-bottom:1px solid var(--dy-line);background:transparent;padding:0 0 8px;margin-bottom:8px;gap:6px;flex:none}
+/* 日记页有一条 `#page-diary button` 的通用样式（padding 8/14、字号继承），
+   特异性比工具条高，会把按钮撑大，所以这里必须带上 #page-diary 前缀压回去 */
+#page-diary .rte-diary .rte-bar button{height:34px;min-width:34px;padding:0 6px;font-size:var(--fs-13);font-weight:700;
+  font-family:inherit;line-height:1;border-radius:8px;border:1px solid var(--dy-line);background:var(--dy-card);color:var(--dy-ink)}
+#page-diary .rte-diary .rte-bar button.on{background:var(--dy-accent-soft);color:var(--dy-accent);border-color:var(--dy-accent)}
+#page-diary .rte-diary .rte-bar .r-b{font-size:var(--fs-17)}
+#page-diary .rte-diary .rte-bar .r-blue{color:#3b82f6}
+#page-diary .rte-diary .rte-bar button[data-r="li"],
+#page-diary .rte-diary .rte-bar button[data-r="table"],
+#page-diary .rte-diary .rte-bar button[data-r="row"],
+#page-diary .rte-diary .rte-bar button[data-r="col"]{font-size:var(--fs-12);min-width:46px}
+#dyEditorBody{flex:1;width:100%;min-height:0;overflow-y:auto;background:transparent;font-family:var(--dy-font-serif);font-size:var(--fs-17);line-height:1.85;padding:0 0 30px}
 #dyEditorTitle{border:0;background:transparent;font-family:var(--dy-font-serif);font-size:var(--fs-22);font-weight:600;padding:0;margin-bottom:8px;width:auto}
 #dyEditorTitle::placeholder{color:var(--dy-muted);font-weight:400}
 #page-diary .dy-readbody{font-family:var(--dy-font-serif);font-size:var(--fs-20);line-height:1.9;white-space:pre-wrap;word-break:break-word;margin-top:6px}
@@ -600,6 +634,20 @@ body[data-theme="ios"] #page-diary{--dy-solid:#f2f2f7}
 .yi-sw i{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff}
 .yi-sw.on{background:var(--accent)}
 .yi-sw.on i{left:20px}
+/* 守护频率：四档单选，一行一档，右侧标耗电 */
+.yi-freq{display:flex;flex-direction:column;gap:6px;margin-top:9px}
+.yi-freq-row{display:block;width:100%;text-align:left;padding:9px 11px;border-radius:11px;border:1px solid var(--line);background:var(--card2);color:var(--text);font-family:inherit;cursor:pointer}
+.yi-freq-row.on{border-color:var(--accent);background:rgb(var(--accent-rgb)/.07)}
+.yi-freq-top{display:flex;align-items:baseline;gap:7px}
+.yi-freq-top b{font-size:var(--fs-13);font-weight:700}
+.yi-freq-top em{font-size:var(--fs-11);font-style:normal;color:var(--accent);font-weight:700}
+.yi-freq-top i{margin-left:auto;font-style:normal;font-size:var(--fs-11);color:var(--sub)}
+.yi-freq-desc{display:block;font-size:var(--fs-11);color:var(--sub);line-height:1.55;margin-top:2px}
+.yi-sub{font-size:var(--fs-11);font-weight:400;color:var(--sub);margin-left:4px;letter-spacing:0}
+.yi-warnrow{display:flex;align-items:center;gap:9px;margin-top:9px;padding:9px 11px;border-radius:10px;
+  background:rgb(var(--warn-rgb)/.10);border:1px solid rgb(var(--warn-rgb)/.26);font-size:var(--fs-11);color:var(--text);line-height:1.55}
+.yi-warnrow span{flex:1;min-width:0}
+.yi-warnrow button{flex:none;background:var(--warn);color:#fff;border:0;border-radius:8px;padding:6px 10px;font-size:var(--fs-11);font-weight:700;font-family:inherit;cursor:pointer}
 .yi-note{background:var(--card2);border:1px dashed var(--line);border-radius:12px;padding:11px 12px;font-size:var(--fs-11);color:var(--sub);line-height:1.8}
 .yi-note b{color:var(--text)}
 .yi-sync{border-top:1px solid var(--line);margin-top:12px;padding-top:11px;font-size:var(--fs-11);color:var(--sub);line-height:1.9}
@@ -946,8 +994,7 @@ textarea.auto{resize:none;overflow-y:hidden}
           </div>
           <div class="dy-sheet-body" style="display:flex;flex-direction:column">
             <input type="text" id="dyEditorTitle" placeholder="标题（可不填）" autocomplete="off">
-            <textarea id="dyEditorBody" class="js-rt" placeholder="今天发生了什么？随便写点什么都行……"></textarea>
-            <div class="rt-hint" style="flex:none;padding:4px 0 0">正文支持 <i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div>
+            <div class="rte-diary" id="dyEditorRte"></div>
           </div>
           <div class="dy-sheet-foot">
             <span id="dyEditorStatus">已保存</span>
@@ -1347,16 +1394,49 @@ const $  = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-/* ---- 简单富文本：**粗体**、==蓝色字==、行首「•」项目符号 ----
-   rich() 出 HTML（已转义，不会注入）；plain() 出纯文本，给标题、字数、搜索、导出用。 */
+/* ---- 富文本 ----
+   存储格式仍是轻标记：**粗体** / ==蓝色== / 行首「•」项目符号 / | 表格 |。
+   这样旧数据、导出、云备份都不用迁移；编辑的时候用 contenteditable 直接看到最终效果，
+   屏幕上不会出现星号（写下来的是标记，看见的是效果）。 */
 const rtLi = /^\s*[•·‣▪]\s*/;
-const rich = s => String(s??'').split('\n').map(ln=>{
-  let h = esc(ln).replace(/\*\*([^*\n]+?)\*\*/g,'<b>$1</b>');
-  h = h.replace(/==([^=\n]+?)==/g,'<span class="rt-blue">$1</span>');
-  if(rtLi.test(ln)) h = '<span class="rt-li">'+h+'</span>';
-  return h;
+const rtIsTbl = /^\s*\|/;
+function rtInline(s){
+  return esc(s)
+    .replace(/\*\*([^*\n]+?)\*\*/g,'<b>$1</b>')
+    .replace(/==([^=\n]+?)==/g,'<span class="rt-blue">$1</span>');
+}
+function rtCells(ln){ return String(ln).trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(c=>c.trim()); }
+/* | 表头 | 表头 |
+   | --- | --- |
+   | 内容 | 内容 |    —— 第二行是分隔行才把首行当表头 */
+function rtTableHTML(rows, editable){
+  const grid = rows.map(rtCells);
+  let head = null, body = grid;
+  if(grid.length > 1 && grid[1].every(c=>/^:?-{2,}:?$/.test(c))){ head = grid[0]; body = grid.slice(2); }
+  const cell = (c,tag)=>'<'+tag+'>'+(rtInline(c)||(editable?'<br>':''))+'</'+tag+'>';
+  const tr = (cells,tag)=>'<tr>'+cells.map(c=>cell(c,tag)).join('')+'</tr>';
+  return '<div class="rt-tbl-wrap"><table class="rt-tbl">'
+    + (head?'<thead>'+tr(head,'th')+'</thead>':'')
+    + '<tbody>'+body.map(r=>tr(r,'td')).join('')+'</tbody></table></div>';
+}
+const rich = s => {
+  const out = [];
+  let tbl = null;
+  const flush = ()=>{ if(tbl){ out.push(rtTableHTML(tbl,false)); tbl = null; } };
+  String(s??'').split('\n').forEach(ln=>{
+    if(rtIsTbl.test(ln)){ (tbl = tbl || []).push(ln); return; }
+    flush();
+    if(rtLi.test(ln)) out.push('<span class="rt-li">'+(rtInline(ln.replace(rtLi,''))||'&nbsp;')+'</span>');
+    else out.push(rtInline(ln));
+  });
+  flush();
+  return out.join('\n');
+};
+const plain = s => String(s??'').split('\n').map(l=>{
+  const t = l.replace(rtLi,'');
+  if(rtIsTbl.test(l)) return t.replace(/\|/g,' ').replace(/\s+/g,' ').trim();
+  return t.replace(/\*\*/g,'').replace(/==/g,'');
 }).join('\n');
-const plain = s => String(s??'').replace(/\*\*/g,'').replace(/==/g,'').split('\n').map(l=>l.replace(rtLi,'')).join('\n');
 const num = v => { const n = parseFloat(v); return isNaN(n) ? 0 : n; };
 /* 金额：千元以上取整（月均、结余这类数不需要小数），小额保留 1 位（日均成本 ¥0.5 仍有意义） */
 const money = n => {
@@ -1368,138 +1448,303 @@ const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d
 const daysBetween = (a,b) => Math.floor((new Date(b) - new Date(a)) / 86400000);
 const clamp = (v,lo,hi) => Math.min(hi, Math.max(lo, v));
 
-/* ---- 富文本快捷条：长按选中一段文字，浮出「B / • 列表 / 蓝色」三个按钮 ----
-   只改 textarea 的 value 与选区，然后派发一次 input 事件，原有的自动保存和
-   autoGrow 照旧生效，不需要每个输入框单独接线。按钮按下时阻止默认行为，
-   避免选区在点击瞬间被清掉。 */
-const Rt = (function(){
-  let bar=null, ta=null, timer=0, lastTouchAt=0;
+/* ---- 所见即所得编辑器 ----
+   每个编辑区 = 一条工具条 + 一个 contenteditable 正文。正文里看到的就是最终效果：
+   粗体就是粗的、蓝字就是蓝的，屏幕上不会出现星号。落盘时再序列化回轻标记，
+   所以旧数据、导出、云备份的格式完全不变。工具条就在编辑区上方，不用长按去等浮层。 */
+const Rte = (function(){
+  const BLOCK = /^(DIV|P|LI|H[1-6]|BLOCKQUOTE|PRE|SECTION|ARTICLE)$/;
+  const each = (list, fn)=>Array.prototype.forEach.call(list, fn);
 
-  function act(a){
-    if(!ta || !a) return false;
-    if(a==='b') bold(); else if(a==='blue') blue(); else if(a==='li') bullet(); else return false;
-    return true;
-  }
-  function ensure(){
-    if(bar) return bar;
-    bar=document.createElement('div');
-    bar.id='rtBar';
-    bar.innerHTML='<button type="button" class="rtb-b" data-a="b" aria-label="加粗">B</button>'
-                + '<button type="button" data-a="li" aria-label="项目符号">• 列表</button>'
-                + '<button type="button" class="rtb-blue" data-a="blue" aria-label="蓝色字">蓝色</button>';
-    /* 触摸下必须在 touchstart 里直接执行：只要在这一步 preventDefault()（为了不让
-       按钮抢走 textarea 的选区），浏览器就不会再派发合成的 click —— 旧版正是栽在这里，
-       按钮亮一下、字一点没变，看起来就是「点不动」。桌面/鼠标仍旧走 click。 */
-    bar.addEventListener('touchstart', function(e){
-      const b=e.target && e.target.closest ? e.target.closest('button') : null;
-      if(!b) return;
-      e.preventDefault();
-      lastTouchAt=Date.now();
-      act(b.dataset.a);
-    }, {passive:false});
-    bar.addEventListener('mousedown', function(e){ e.preventDefault(); });   // 别把焦点移出输入框
-    bar.addEventListener('click', function(e){
-      if(Date.now()-lastTouchAt < 800) return;      // 触摸已经处理过，别重复执行
-      const b=e.target && e.target.closest ? e.target.closest('button') : null;
-      if(!b) return;
-      e.preventDefault();
-      act(b.dataset.a);
+  /* 标记 → 编辑器里的块级 HTML（一行一个 div，空行给一个 <br> 占位） */
+  function toHTML(text){
+    let out = '', tbl = null;
+    const flush = ()=>{ if(tbl){ out += rtTableHTML(tbl, true); tbl = null; } };
+    String(text ?? '').split('\n').forEach(ln=>{
+      if(rtIsTbl.test(ln)){ (tbl = tbl || []).push(ln); return; }
+      flush();
+      const li = rtLi.test(ln);
+      const inner = rtInline(li ? ln.replace(rtLi,'') : ln);
+      out += '<div'+(li?' class="rte-li"':'')+'>'+(inner || '<br>')+'</div>';
     });
-    document.body.appendChild(bar);
-    return bar;
+    flush();
+    return out || '<div><br></div>';
   }
-  function isRt(el){ return !!el && el.tagName==='TEXTAREA' && (el.classList.contains('rt-ta') || el.classList.contains('js-rt')); }
-  function selected(el){ return el.value.slice(el.selectionStart, el.selectionEnd); }
-  /* 系统自带的「复制 / 粘贴 / 全选」是原生浮层，网页元素永远盖不过它，
-     而且它出现在选中文字的上方 —— 旧版快捷条也贴在输入框上方，正好被顶掉。
-     现在固定在可视区底部；软键盘弹出时 visualViewport 变矮，条自动跟到键盘上沿。
-     两块浮层各占一头，页面滚动也不再收起它。 */
-  function place(){
-    if(!ta || !bar) return;
-    const bw=bar.offsetWidth||210, bh=bar.offsetHeight||48;
-    const vv=window.visualViewport;
-    const vw=(vv && vv.width) || window.innerWidth || 400;
-    const vh=(vv && vv.height) || window.innerHeight || 800;
-    const offX=(vv && vv.offsetLeft) || 0, offY=(vv && vv.offsetTop) || 0;
-    let top = offY + vh - bh - 14;
-    top = Math.max(offY + 8, Math.min(offY + vh - bh - 8, top));
-    let left = offX + (vw - bw)/2;
-    left = Math.max(offX + 8, Math.min(offX + vw - bw - 8, left));
-    bar.style.top=Math.round(top)+'px';
-    bar.style.left=Math.round(left)+'px';
+
+  /* 编辑器 DOM → 标记。只认 b/strong、span.rt-blue、rte-li 和表格，别的花样一律降级成纯文字 */
+  function inlineOf(node){
+    let s = '';
+    each(node.childNodes, c=>{
+      if(c.nodeType === 3){ s += c.nodeValue; return; }
+      if(c.nodeType !== 1) return;
+      const t = c.tagName;
+      if(t === 'BR'){ s += '\n'; return; }
+      if(t === 'B' || t === 'STRONG'){ const v = inlineOf(c); if(v) s += '**'+v+'**'; return; }
+      if(t === 'SPAN' && c.classList && c.classList.contains('rt-blue')){ const v = inlineOf(c); if(v) s += '=='+v+'=='; return; }
+      if(t === 'TABLE') return;
+      s += inlineOf(c);
+    });
+    return s;
   }
-  function show(el){
-    ensure().classList.add('on');
-    ta=el; place();
+  function tableText(tbl){
+    const rows = [];
+    each(tbl.querySelectorAll('tr'), tr=>{
+      const cells = [];
+      each(tr.querySelectorAll('th,td'), c=>cells.push(inlineOf(c).replace(/\s*\n\s*/g,' ').trim()));
+      /* 空表格也照样存下来：不然插了表格、关掉再打开就没了 */
+      if(!cells.length) return;
+      rows.push('| '+cells.join(' | ')+' |');
+      /* 表头下面必须补一条分隔行，否则下次渲染会把表头当普通行 */
+      if(tr.parentNode && tr.parentNode.tagName === 'THEAD' && rows.length === 1){
+        rows.push('| '+cells.map(()=> '---').join(' | ')+' |');
+      }
+    });
+    return rows;
   }
-  function hide(){
-    if(bar) bar.classList.remove('on');
-    ta=null;
+  function toText(el){
+    const lines = [];
+    const walk = node=>{
+      each(node.childNodes, n=>{
+        if(n.nodeType === 3){ lines.push(n.nodeValue); return; }
+        if(n.nodeType !== 1) return;
+        const t = n.tagName;
+        if(t === 'BR'){ lines.push(''); return; }
+        if(t === 'TABLE'){ tableText(n).forEach(x=>lines.push(x)); return; }
+        if(t === 'UL' || t === 'OL'){
+          each(n.children, li=>lines.push('• '+inlineOf(li).replace(/\n+$/,'')));
+          return;
+        }
+        if(BLOCK.test(t)){
+          if(n.querySelector && n.querySelector('table')){ walk(n); return; }
+          const v = inlineOf(n).replace(/\n+$/,'');
+          lines.push(n.classList && n.classList.contains('rte-li') ? '• '+v : v);
+          return;
+        }
+        lines.push(inlineOf(n));
+      });
+    };
+    walk(el);
+    const out = lines.join('\n').replace(/\n+$/,'');
+    return /^\s*$/.test(out) ? '' : out;
   }
-  function commit(el, value, selStart, selEnd){
-    el.value=value;
-    try{ el.setSelectionRange(selStart, selEnd); }catch(e){}
-    try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
-    /* 只有自适应高度的框才重算高度；日记正文是 flex:1 铺满，别去改它的 height */
-    if(typeof autoGrow==='function' && el.classList.contains('auto')) autoGrow(el);
-    place();
+
+  function value(el){ return el ? toText(el) : ''; }
+  function syncEmpty(el){
+    if(!el) return;
+    const empty = !String(el.textContent||'').replace(/\u200b/g,'').trim() && !el.querySelector('table');
+    if(empty !== el.classList.contains('is-empty')) el.classList.toggle('is-empty', empty);
   }
-  function bold(){
-    const el=ta; if(!el) return;
-    const s=el.selectionStart, e=el.selectionEnd;
-    if(s===e) return;
-    const v=el.value, sel=v.slice(s,e);
-    const wrapped=/^\*\*[\s\S]*\*\*$/.test(sel);
-    const out=wrapped ? sel.slice(2,-2) : '**'+sel+'**';
-    commit(el, v.slice(0,s)+out+v.slice(e), s, s+out.length);
+  function set(el, text){
+    if(!el) return;
+    el.innerHTML = toHTML(text);
+    syncEmpty(el);
   }
-  function blue(){
-    const el=ta; if(!el) return;
-    const s=el.selectionStart, e=el.selectionEnd;
-    if(s===e) return;
-    const v=el.value, sel=v.slice(s,e);
-    const wrapped=/^==[\s\S]*==$/.test(sel);
-    const out=wrapped ? sel.slice(2,-2) : '=='+sel+'==';
-    commit(el, v.slice(0,s)+out+v.slice(e), s, s+out.length);
+
+  /* ---------------- 选区 / 光标 ---------------- */
+  function sel(){ try{ return window.getSelection(); }catch(e){ return null; } }
+  function rangeIn(body){
+    const s = sel();
+    if(!s || !s.rangeCount) return null;
+    const r = s.getRangeAt(0);
+    return body.contains(r.startContainer) ? r : null;
   }
-  function bullet(){
-    const el=ta; if(!el) return;
-    const v=el.value, s=el.selectionStart, e=el.selectionEnd;
-    const ls=v.lastIndexOf('\n', s>0? s-1 : 0)+1;          // 选区起点所在行的行首
-    let le=v.indexOf('\n', e); if(le<0) le=v.length;       // 选区终点所在行的行尾
-    const lines=v.slice(ls,le).split('\n');
-    const all=lines.length>0 && lines.every(l=>rtLi.test(l));
-    const out=lines.map(l=> all ? l.replace(rtLi,'') : (rtLi.test(l) ? l : '• '+l)).join('\n');
-    commit(el, v.slice(0,ls)+out+v.slice(le), ls, ls+out.length);
+  function focusEnd(body){
+    try{ body.focus(); }catch(e){}
+    const r = document.createRange();
+    r.selectNodeContents(body); r.collapse(false);
+    const s = sel(); if(s){ s.removeAllRanges(); s.addRange(r); }
+    return r;
   }
-  /* 选区变化是主线索；部分 WebView 不派发 textarea 的 selectionchange，
-     再用 touchend / mouseup / keyup 兜一次，判断条件相同。 */
-  function check(){
-    clearTimeout(timer);
-    timer=setTimeout(function(){
-      const el=document.activeElement;
-      if(!isRt(el) || el.selectionStart===el.selectionEnd || !selected(el).trim()){ hide(); return; }
-      if(ta!==el) show(el); else place();
-    }, 70);
+  function caret(body){ return rangeIn(body) || focusEnd(body); }
+  function topBlock(node, body){
+    let n = node;
+    while(n && n !== body){ if(n.parentNode === body) return n; n = n.parentNode; }
+    return null;
   }
-  document.addEventListener('selectionchange', check);
-  document.addEventListener('touchend', check, true);
-  document.addEventListener('mouseup', check, true);
-  document.addEventListener('keyup', check, true);
-  /* 系统选择菜单弹出时 WebView 常会轻微滚动，旧版一滚就 hide，浮条直接消失 */
-  document.addEventListener('scroll', function(){ if(ta) place(); }, true);
-  window.addEventListener('resize', function(){ if(ta) place(); });
-  /* 软键盘弹出会改变可视区域，位置要跟着重算 */
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', function(){ if(ta) place(); });
-    window.visualViewport.addEventListener('scroll', function(){ if(ta) place(); });
+  function upTo(node, test, body){
+    let n = node;
+    while(n && n !== body){ if(n.nodeType === 1 && test(n)) return n; n = n.parentNode; }
+    return null;
   }
-  document.addEventListener('focusout', function(ev){
-    if(!isRt(ev.target)) return;
-    setTimeout(function(){ if(!isRt(document.activeElement)) hide(); }, 140);
-  });
-  return { hide, isOpen: function(){ return !!(bar && bar.classList.contains('on')); },
-           openFor: show, act: act, el: function(){ return ta; } };
+  function fire(body){ try{ body.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){} }
+
+  /* ---------------- 六个动作 ---------------- */
+  function bold(body){
+    caret(body);
+    try{ document.execCommand('bold', false, null); }catch(e){}
+    fire(body);
+  }
+  function blue(body){
+    const r = caret(body);
+    if(r.collapsed){ toast('先选中要变蓝的文字'); return; }
+    const hit = upTo(r.commonAncestorContainer, n=>n.classList && n.classList.contains('rt-blue'), body);
+    if(hit){
+      const frag = document.createDocumentFragment();
+      while(hit.firstChild) frag.appendChild(hit.firstChild);
+      hit.parentNode.replaceChild(frag, hit);
+    }else{
+      const span = document.createElement('span');
+      span.className = 'rt-blue';
+      try{ span.appendChild(r.extractContents()); r.insertNode(span); }catch(e){ return; }
+      const nr = document.createRange(); nr.selectNodeContents(span);
+      const s = sel(); if(s){ s.removeAllRanges(); s.addRange(nr); }
+    }
+    fire(body);
+  }
+  function bullet(body){
+    const r = caret(body);
+    const targets = [];
+    if(r.collapsed){
+      const b = topBlock(r.startContainer, body);
+      if(b) targets.push(b);
+    }else{
+      each(body.children, el=>{ try{ if(r.intersectsNode(el)) targets.push(el); }catch(e){} });
+    }
+    const usable = targets.filter(el=>el.tagName !== 'TABLE');
+    if(!usable.length){ toast('把光标放到要变成列表的那一行'); return; }
+    const on = !usable.every(el=>el.classList.contains('rte-li'));
+    usable.forEach(el=>el.classList.toggle('rte-li', on));
+    if(r.collapsed && usable[0]){
+      const nr = document.createRange();
+      nr.selectNodeContents(usable[0]); nr.collapse(false);
+      const s = sel(); if(s){ s.removeAllRanges(); s.addRange(nr); }
+      try{ body.focus(); }catch(e){}
+    }
+    fire(body);
+  }
+  function insertTable(body){
+    const tbl = document.createElement('table');
+    tbl.className = 'rte-tbl';
+    tbl.innerHTML = '<tbody><tr><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td></tr></tbody>';
+    const after = document.createElement('div');
+    after.appendChild(document.createElement('br'));
+    const r = rangeIn(body);
+    const blk = r ? topBlock(r.startContainer, body) : null;
+    if(blk && blk.parentNode === body){
+      body.insertBefore(tbl, blk.nextSibling);
+      body.insertBefore(after, tbl.nextSibling);
+    }else{
+      body.appendChild(tbl); body.appendChild(after);
+    }
+    const cell = tbl.rows[0].cells[0];
+    const nr = document.createRange(); nr.setStart(cell,0); nr.collapse(true);
+    const s = sel(); if(s){ s.removeAllRanges(); s.addRange(nr); }
+    try{ body.focus(); }catch(e){}
+    fire(body);
+  }
+  function tableOf(body){
+    const r = rangeIn(body); if(!r) return null;
+    return upTo(r.startContainer, n=>n.tagName === 'TABLE', body);
+  }
+  function addRow(body){
+    const tbl = tableOf(body);
+    if(!tbl){ toast('先把光标放进表格里，再加一行'); return; }
+    const r = rangeIn(body);
+    let tr = r ? upTo(r.startContainer, n=>n.tagName === 'TR', tbl) : null;
+    const base = tr || tbl.rows[tbl.rows.length-1];
+    if(!base) return;
+    const copy = base.cloneNode(true);
+    each(copy.cells, c=>{ c.innerHTML = '<br>'; });
+    base.parentNode.insertBefore(copy, base.nextSibling);
+    const nr = document.createRange(); nr.setStart(copy.cells[0]||copy,0); nr.collapse(true);
+    const s = sel(); if(s){ s.removeAllRanges(); s.addRange(nr); }
+    fire(body);
+  }
+  function addCol(body){
+    const tbl = tableOf(body);
+    if(!tbl){ toast('先把光标放进表格里，再加一列'); return; }
+    each(tbl.rows, tr=>{
+      const th = tr.cells[0] && tr.cells[0].tagName === 'TH';
+      const cell = document.createElement(th ? 'th' : 'td');
+      cell.innerHTML = '<br>';
+      tr.appendChild(cell);
+    });
+    fire(body);
+  }
+
+  /* ---------------- 工具条 ---------------- */
+  function barHTML(){
+    return '<div class="rte-bar">'
+      + '<button type="button" class="r-b" data-r="b" aria-label="加粗" title="加粗">B</button>'
+      + '<button type="button" class="r-blue" data-r="blue" aria-label="蓝色文字" title="蓝色文字">A</button>'
+      + '<button type="button" data-r="li" aria-label="项目符号" title="变成列表">列表</button>'
+      + '<span class="rte-sp"></span>'
+      + '<button type="button" data-r="table" aria-label="插入表格" title="插入表格">表格</button>'
+      + '<button type="button" data-r="row" aria-label="表格加一行" title="表格加一行">＋行</button>'
+      + '<button type="button" data-r="col" aria-label="表格加一列" title="表格加一列">＋列</button>'
+      + '</div>';
+  }
+  /* ph 占位文案；oninput 直接写进行内属性，交给各页面自己的自动保存 */
+  function html(id, text, ph, oninput){
+    return '<div class="rte">'+barHTML()
+      + '<div class="rte-body'+(String(text||'').trim()?'':' is-empty')+'" id="'+id+'" contenteditable="true"'
+      + ' role="textbox" aria-multiline="true" data-ph="'+esc(ph||'')+'"'
+      + (oninput ? ' oninput="'+oninput+'"' : '') + '>'+toHTML(text)+'</div></div>';
+  }
+  function syncBar(body){
+    const box = body && body.closest ? body.closest('.rte') : null;
+    if(!box) return;
+    const r = rangeIn(body);
+    const inBlue = !!(r && upTo(r.startContainer, n=>n.classList && n.classList.contains('rt-blue'), body));
+    const inBold = !!(r && upTo(r.startContainer, n=>n.tagName === 'B' || n.tagName === 'STRONG', body));
+    const inLi = !!(r && upTo(r.startContainer, n=>n.classList && n.classList.contains('rte-li'), body));
+    const mark = (a,on)=>{ const b=box.querySelector('.rte-bar button[data-r="'+a+'"]'); if(b) b.classList.toggle('on', !!on); };
+    mark('b', inBold); mark('blue', inBlue); mark('li', inLi);
+  }
+  function run(btn){
+    const box = btn.closest ? btn.closest('.rte') : null;
+    if(!box) return;
+    const body = box.querySelector('.rte-body');
+    if(!body) return;
+    const a = btn.dataset.r;
+    if(a === 'b') bold(body);
+    else if(a === 'blue') blue(body);
+    else if(a === 'li') bullet(body);
+    else if(a === 'table') insertTable(body);
+    else if(a === 'row') addRow(body);
+    else if(a === 'col') addCol(body);
+    syncBar(body);
+  }
+  (function bind(){
+    let lastTouch = 0;
+    const hit = e => (e.target && e.target.closest) ? e.target.closest('.rte-bar button') : null;
+    /* 触摸必须在 touchstart 里直接执行：一旦 preventDefault，浏览器就不派发合成 click，
+       旧版富文本按钮「点不动」正是栽在这里。桌面走 click，两边用 800ms 去重。 */
+    document.addEventListener('touchstart', function(e){
+      const b = hit(e); if(!b) return;
+      e.preventDefault();
+      lastTouch = Date.now();
+      run(b);
+    }, {passive:false});
+    document.addEventListener('mousedown', function(e){ if(hit(e)) e.preventDefault(); });
+    document.addEventListener('click', function(e){
+      const b = hit(e); if(!b) return;
+      if(Date.now() - lastTouch < 800) return;
+      e.preventDefault();
+      run(b);
+    });
+    document.addEventListener('input', function(e){
+      const t = e.target;
+      if(t && t.classList && t.classList.contains('rte-body')) syncEmpty(t);
+    });
+    document.addEventListener('selectionchange', function(){
+      const ae = document.activeElement;
+      if(ae && ae.classList && ae.classList.contains('rte-body')) syncBar(ae);
+    });
+    /* 粘贴只取纯文本：别把别处的字体/颜色/表格样式带进来，数据保持干净 */
+    document.addEventListener('paste', function(e){
+      const t = e.target;
+      if(!t || !t.classList || !t.classList.contains('rte-body')) return;
+      let txt = '';
+      try{ txt = (e.clipboardData || window.clipboardData).getData('text/plain') || ''; }catch(err){ return; }
+      e.preventDefault();
+      try{ document.execCommand('insertText', false, txt); }catch(err){}
+    });
+    try{ document.execCommand('styleWithCSS', false, false); }catch(e){}
+  })();
+
+  return { html, set, value, toHTML, toText, syncEmpty, syncBar, barHTML, run, focusEnd,
+           body: function(el){ return el && el.closest ? el.closest('.rte') : null; } };
 })();
 
 /* ---------- Toast / 模态框 ---------- */
@@ -1593,7 +1838,8 @@ function switchPage(p, keepSub){
   if(dbs) dbs.classList.toggle('hidden', p!=='diary');
   if(!keepSub) resetSubViews();
   syncHealthSeg();
-  try{ Rt.hide(); }catch(e){}      // 换页时把富文本快捷条收掉，别飘在别的页面上
+  /* 换页时把正在编辑的正文收键盘，别让输入法挂在新页面上 */
+  try{ const ae=document.activeElement; if(ae && ae.classList && ae.classList.contains('rte-body')) ae.blur(); }catch(e){}
   renderCurrentPage();
   window.scrollTo(0,0);
 }
@@ -1862,7 +2108,7 @@ const LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 /* 有原生桥（window.RewardNative）时走后端落盘；浏览器里降级为 localStorage，方便在电脑上预览界面。 */
 const RewardBridge = (function(){
   const KEY = 'lifeRPG.reward.v1';
-  const DEF = { balanceMs:0, rewardMinutes:30, enforce:true, guardOn:true, statusBar:false, apps:[], earnedMs:0, usedMs:0 };
+  const DEF = { balanceMs:0, rewardMinutes:30, enforce:true, guardOn:true, notify:true, tickProfile:"balanced", apps:[], earnedMs:0, usedMs:0 };
 
   function nat(){ return (window.RewardNative && typeof window.RewardNative.getState === 'function') ? window.RewardNative : null; }
   function parse(s){ try{ return JSON.parse(s); }catch(e){ return null; } }
@@ -1939,12 +2185,25 @@ const RewardBridge = (function(){
     const o = localState(); o.guardOn = !!b; saveLocal(o);
     return (cache = Object.assign({}, o, { ok:true }));
   }
-  /* 系统顶部那条剩余时间（无障碍覆盖层，原生侧画） */
-  function setStatusBar(b){
+  /* 通知栏里的剩余时间（原生常驻通知；浏览器里只记个偏好） */
+  function setNotify(b){
     const n = nat();
-    if(n && typeof n.setStatusBar === 'function') return settle(parse(n.setStatusBar(!!b)));
-    const o = localState(); o.statusBar = !!b; saveLocal(o);
+    if(n && typeof n.setNotify === 'function') return settle(parse(n.setNotify(!!b)));
+    const o = localState(); o.notify = !!b; saveLocal(o);
     return (cache = Object.assign({}, o, { ok:true }));
+  }
+  /* 守护轮询频率：fast 1s / balanced 3s / saver 5s / ultra 8s（越慢越省电） */
+  function setTickProfile(p){
+    const v = String(p||'balanced');
+    const n = nat();
+    if(n && typeof n.setTickProfile === 'function') return settle(parse(n.setTickProfile(v)));
+    const o = localState(); o.tickProfile = v; saveLocal(o);
+    return (cache = Object.assign({}, o, { ok:true }));
+  }
+  function openNotifySettings(){
+    const n = nat();
+    if(n && typeof n.openNotifySettings === 'function'){ n.openNotifySettings(); return; }
+    toast('这个入口只在手机上有效');
   }
   function addApp(pkg, label){
     pkg = String(pkg||'').trim();
@@ -2005,7 +2264,7 @@ const RewardBridge = (function(){
     tileTimer = setTimeout(function(){ if(typeof openRewardSettings==='function' && !$('#modalRoot').classList.contains('hidden')) openRewardSettings(); renderRewardCard(); }, ms);
   }
 
-  return { state, status, checkIn, addMinutes, setRewardMinutes, setEnforce, setGuardOn, setStatusBar,
+  return { state, status, checkIn, addMinutes, setRewardMinutes, setEnforce, setGuardOn, setNotify, setTickProfile, openNotifySettings,
            addApp, removeApp, listApps, drainPayments, requestSms,
            openA11y, openOverlay, openBattery, openAutoStart, fmt };
 })();
@@ -2484,6 +2743,22 @@ const Wall = (function(){
 /* ============ 意 · 专注闭环 / 剩余时间 / 坚果云 ============
    剩余时间就是原有额度余额（RewardBridge.balanceMs / 60000），不另起一套数据；
    专注时间戳、静心提示、时长与单日上限、同步配置存 lifeRPG.yi.v1。 */
+/* 守护轮询四档：间隔越长越省电，代价是「余额刚好用光」那天最多晚这么久才拦住。
+   耗电是估算（亮屏 6 小时 + 熄屏 18 小时的日常强度），真机还要看机型。 */
+const TICK_PROFILES = [
+  { id:'fast',     ms:1000, name:'灵敏',  power:'约 3–5% / 天',   see:'1 秒',
+    desc:'一用光就拦，最跟手，也最费电' },
+  { id:'balanced', ms:3000, name:'均衡',  power:'约 1.5–2.5% / 天', see:'3 秒',
+    desc:'默认。最迟 3 秒拦住，日常几乎察觉不到' },
+  { id:'saver',    ms:5000, name:'省电',  power:'约 0.8–1.2% / 天', see:'5 秒',
+    desc:'扣费仍然准，只是拦截晚几秒' },
+  { id:'ultra',    ms:8000, name:'极省电', power:'约 0.4–0.8% / 天', see:'8 秒',
+    desc:'几乎不耗电，适合只想看个总量的人' }
+];
+function tickProfileOf(id){
+  for(let i=0;i<TICK_PROFILES.length;i++) if(TICK_PROFILES[i].id===id) return TICK_PROFILES[i];
+  return TICK_PROFILES[1];
+}
 const Yi = (function(){
   const KEY='lifeRPG.yi.v1';
   const DEFAULT_QUOTES=[
@@ -2646,6 +2921,12 @@ const Yi = (function(){
     const hh=Math.floor(totalMin/60), mm=totalMin%60;
     const big = hh>0 ? `${hh}<i>小时</i>${mm>0?mm+'<i>分</i>':''}` : `${mm}<i>分钟</i>`;
     const durMin = Math.round(total()/60000);
+    const curTick = tickProfileOf(rw.tickProfile);
+    const tickRows = TICK_PROFILES.map(p=>
+      `<button class="yi-freq-row${p.id===curTick.id?' on':''}" onclick="Yi.setTickProfile('${p.id}')">`
+      + `<span class="yi-freq-top"><b>${p.name}</b><em>每 ${p.see}</em><i>${p.power}</i></span>`
+      + `<span class="yi-freq-desc">${p.desc}</span></button>`).join('');
+    const notifyBlocked = !isLocal() && rw.notify && RewardBridge.status().notify === false;
     box.innerHTML=`
       <div class="yi-head"><div class="yi-seal">意</div>
         <div class="yi-ht"><b>意</b><span>把注意力花在你在意的事上</span></div></div>
@@ -2700,12 +2981,20 @@ const Yi = (function(){
         <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:9px">${[5,15,25,45].map(m=>`<button class="yi-btn${s.durationMin===m?'':' ghost'}" onclick="Yi.setDuration(${m})">${m} 分钟</button>`).join('')}</div>
         <div class="yi-hint" style="margin-top:8px">${ratioOn()?'按比例模式不设上限，这一组只在「固定奖励」时生效。':'走满这一段就自动结算，不按停止会按设定的时长结束。'}</div>
 
-        <div class="yi-lbl" style="margin-top:16px">系统顶部显示剩余时间</div>
+        <div class="yi-lbl" style="margin-top:16px">在通知栏显示剩余时间</div>
         <div class="row" style="justify-content:space-between;align-items:center;gap:12px;margin-top:9px">
-          <div class="yi-hint" style="margin:0;flex:1;min-width:0">在其他应用上方常驻一条小计时条，抬眼就知道还剩多少。跟着无障碍服务走，关掉无障碍它也会消失。</div>
-          <div class="yi-sw${rw.statusBar?' on':''}" role="switch" aria-checked="${rw.statusBar?'true':'false'}" tabindex="0"
-               onclick="Yi.toggleStatusBar()" onkeypress="if(event.key==='Enter')Yi.toggleStatusBar()"><i></i></div>
+          <div class="yi-hint" style="margin:0;flex:1;min-width:0">下拉通知栏就能看到还剩多少。它不占屏幕、不压别的应用，也不用无障碍覆盖层。</div>
+          <div class="yi-sw${rw.notify?' on':''}" role="switch" aria-checked="${rw.notify?'true':'false'}" tabindex="0"
+               onclick="Yi.toggleNotify()" onkeypress="if(event.key==='Enter')Yi.toggleNotify()"><i></i></div>
         </div>
+        ${notifyBlocked ? `<div class="yi-warnrow"><span>系统还没给通知权限，通知栏里不会出现这条。</span><button onclick="RewardBridge.openNotifySettings()">去开启</button></div>` : ''}
+        <div class="yi-hint" style="margin-top:8px">只有分钟数变化时才刷新一次，不额外唤醒 CPU。</div>
+
+        <div class="yi-lbl" style="margin-top:18px">守护频率<span class="yi-sub">越慢越省电</span></div>
+        <div class="yi-freq">
+          ${tickRows}
+        </div>
+        <div class="yi-hint" style="margin-top:8px">这一项只管「多久看一眼前台是谁」。扣费永远按真实时长算，不受影响；只有余额刚好用光的那一刻，最晚要等这么久才拦。<br>现在：<b>${curTick.name}</b> · 每 ${curTick.see} 一次 · 估算 ${curTick.power}（亮屏 6 小时 / 熄屏 18 小时的日常强度）。</div>
         <div class="yi-hint" style="margin-top:9px">真机上用墙上时间戳记录开始时刻，熄屏、清后台、重启都不会让${ratioOn()?'正计时':'倒计时'}归零。</div>
       </div>
       ${permWarn(RewardBridge.status())}
@@ -2924,16 +3213,23 @@ const Yi = (function(){
     save(); refresh();
     toast('专注 10 分钟 → 剩余 '+ratioVal()+' 分钟');
   }
-  /* 系统顶部那条剩余时间：原生侧用无障碍覆盖层画一小条，浏览器里没有 */
-  function toggleStatusBar(){
-    const on = !!RewardBridge.state().statusBar;
+  /* 通知栏里的剩余时间：原生挂一条常驻通知，浏览器里只能记个偏好 */
+  function toggleNotify(){
+    const on = !!RewardBridge.state().notify;
     if(isLocal()){
-      toast('装到手机上才能在其他应用上方常驻这条时间');
+      toast('装到手机上才能在通知栏里显示剩余时间');
       return;
     }
-    RewardBridge.setStatusBar(!on);
+    RewardBridge.setNotify(!on);
     renderPage();
-    toast(!on ? '已开启：其他应用上方会常驻一条剩余时间' : '已关掉顶部剩余时间');
+    toast(!on ? '已开启：下拉通知栏就能看到还剩多少' : '已关掉通知栏里的剩余时间');
+  }
+  /* 守护频率：只改「多久看一眼前台」，扣费精度不受影响 */
+  function setTickProfile(p){
+    RewardBridge.setTickProfile(p);
+    renderPage();
+    const q = tickProfileOf(p);
+    toast('守护频率：'+q.name+' · 每 '+q.see+'一次 · 估算 '+q.power);
   }
   function addApp(){ openAppPicker(); }
   function delApp(p){ RewardBridge.removeApp(p); save(); refresh(); }
@@ -3098,7 +3394,7 @@ const Yi = (function(){
   /* 上次退出时专注还没走完：把计时器接回去，到点（哪怕已经过了）立刻结算 */
   if(s.focusStartAt){ startTick(); try{ tick(); }catch(e){} }
   return { renderCard, renderPage, tick, refresh, openFocus, previewFocus, startFocus, skipFocus, giveUp, askGiveUp, askStop,
-    closeOverlay, closeReward, openPanel, setDuration, setRewardMode, setRatio, toggleStatusBar,
+    closeOverlay, closeReward, openPanel, setDuration, setRewardMode, setRatio, toggleNotify, setTickProfile,
     addApp, delApp,
     setQuote, addQuote, delQuote, resetQuotes,
     jgyCardHTML, saveJgy, syncUp, syncDown, syncDownNo, syncDownYes,
@@ -3170,11 +3466,22 @@ function openRewardSettings(){
 
     <div class="rw-row">
       <div class="grow" style="min-width:0">
-        <b style="font-size:var(--fs-13)">顶部显示剩余时间</b>
-        <div class="sub" style="font-size:var(--fs-11)">在别的应用上方常驻一条小计时条</div>
+        <b style="font-size:var(--fs-13)">通知栏显示剩余时间</b>
+        <div class="sub" style="font-size:var(--fs-11)">下拉通知栏就能看到还剩多少，不占屏幕</div>
       </div>
-      <input type="checkbox" ${st.statusBar?'checked':''} onchange="RewardBridge.setStatusBar(this.checked);renderRewardCard();if(currentPage==='yi')renderYiPage()"
+      <input type="checkbox" ${st.notify?'checked':''} onchange="RewardBridge.setNotify(this.checked);renderRewardCard();if(currentPage==='yi')renderYiPage()"
         style="width:20px;height:20px;accent-color:var(--accent);flex:none">
+    </div>
+
+    <div class="rw-row">
+      <div class="grow" style="min-width:0">
+        <b style="font-size:var(--fs-13)">守护频率</b>
+        <div class="sub" style="font-size:var(--fs-11)">越慢越省电 · 现在 ${tickProfileOf(st.tickProfile).name}（每 ${tickProfileOf(st.tickProfile).see}一次，${tickProfileOf(st.tickProfile).power}）</div>
+      </div>
+      <select onchange="RewardBridge.setTickProfile(this.value);renderRewardCard();if(currentPage==='yi')renderYiPage();openRewardSettings()"
+        style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px;font-size:var(--fs-12);font-family:inherit;color:var(--text);outline:none">
+        ${TICK_PROFILES.map(p=>`<option value="${p.id}"${p.id===tickProfileOf(st.tickProfile).id?' selected':''}>${p.name} · ${p.see}</option>`).join('')}
+      </select>
     </div>
 
     <div class="rw-row">
@@ -3312,8 +3619,6 @@ window.__androidBack = function(){
     if(typeof askOpen==='function' && askOpen()){ closeAsk(); return true; }
     /* 裁剪器在最上层：先关它，别把下面的设置弹层一起收掉 */
     if(typeof Cropper !== 'undefined' && Cropper.isOpen()){ Cropper.close(); return true; }
-    /* 富文本快捷条只是浮层提示，先收它，不要连带关掉编辑页 */
-    if(typeof Rt !== 'undefined' && Rt.isOpen()){ Rt.hide(); return true; }
     const yo = $('#yiOverlay');
     if(yo && !yo.classList.contains('hidden')){ Yi.closeOverlay(); return true; }
     if(fabMenuOpen()){ closeFabMenu(); return true; }   // 现金流「＋」菜单先收，别把弹层一起关掉
@@ -3569,10 +3874,10 @@ function openInsightModal(skillId){
     <h2>${ic('sprout',18)} 新的感悟 · ${esc(sk?sk.name:'')}</h2>
     <p class="sub" style="margin-bottom:12px">这棵树上会多一颗发光果实：外面是它的名字，里面是你的内容。</p>
     <div class="field"><label class="req">感悟名字</label><input type="text" id="inTitle" placeholder="例如：慢即是快、先完成再完美"></div>
-    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto rt-ta" style="min-height:120px" placeholder="写下你悟到了什么、为什么……" oninput="autoGrow(this)"></textarea><div class="rt-hint"><i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div></div>
+    <div class="field"><label class="req">感悟内容</label>${Rte.html('inBody','', '写下你悟到了什么、为什么……','')}</div>
     <button class="btn btn-primary" onclick="saveInsight(null,'${skillId}')">种到树上</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeModal()">取消</button>`);
-  setTimeout(()=>{$('#inTitle')?.focus(); autoGrow($('#inBody'));},100);
+  setTimeout(()=>{$('#inTitle')?.focus();},100);
 }
 function openInsightEdit(id){
   const it = state.insights.find(x=>x.id===id); if(!it) return;
@@ -3580,14 +3885,14 @@ function openInsightEdit(id){
   openModal(`
     <h2>${ic('sprout',18)} 编辑感悟 · ${esc(sk?sk.name:'')}</h2>
     <div class="field"><label class="req">感悟名字</label><input type="text" id="inTitle" value="${esc(it.title)}"></div>
-    <div class="field"><label class="req">感悟内容</label><textarea id="inBody" class="auto rt-ta" style="min-height:120px" oninput="autoGrow(this)">${esc(it.content)}</textarea><div class="rt-hint"><i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div></div>
+    <div class="field"><label class="req">感悟内容</label>${Rte.html('inBody', it.content, '写下你悟到了什么、为什么……','')}</div>
     <button class="btn btn-primary" onclick="saveInsight('${id}')">保存</button>
     <button class="btn btn-ghost" style="margin-top:8px" onclick="closeModal()">取消</button>`);
-  setTimeout(()=>autoGrow($('#inBody')),100);
+
 }
 function saveInsight(id, skillId){
   const title = $('#inTitle').value.trim();
-  const content = $('#inBody').value.trim();
+  const content = Rte.value($('#inBody')).trim();
   if(!title){ toast('给这颗果实起个名字'); return; }
   if(id){
     const it = state.insights.find(x=>x.id===id);
@@ -3761,12 +4066,12 @@ function renderLevelDetail(){
   /* 阅读态点一下就能编辑，所以「✎ 编辑」删掉了；只有编辑态才给一颗小小的「完成」 */
   const done = act => `<button class="lv-done" onclick="${act}">完成</button>`;
   const textBlock = textMode==='edit'
-    ? `<textarea id="fText" class="auto rt-ta" placeholder="这一级练什么、怎么算练到……" oninput="saveLvField('text',this.value);autoGrow(this)">${esc(lvData.text)}</textarea>`
+    ? Rte.html('fText', lvData.text, '这一级练什么、怎么算练到……', "saveLvRich('text',this)")
     : (lvData.text && lvData.text.trim()
         ? `<div class="lv-read" onclick="toggleLvFieldEdit('text')">${rich(lvData.text)}</div>`
         : `<div class="lv-read lv-read-empty" onclick="toggleLvFieldEdit('text')">点击开始填写</div>`);
   const hintText  = hintMode==='edit'
-    ? `<textarea id="fHint" class="auto rt-ta" style="min-height:80px" placeholder="写一句提醒自己的话" oninput="saveLvField('hint',this.value);autoGrow(this)">${esc(lvData.hint||'')}</textarea>`
+    ? Rte.html('fHint', lvData.hint||'', '写一句提醒自己的话', "saveLvRich('hint',this)")
     : (lvData.hint && lvData.hint.trim()
         ? `<div class="lv-read" onclick="toggleLvFieldEdit('hint')">${rich(lvData.hint)}</div>`
         : `<div class="lv-read lv-read-empty" onclick="toggleLvFieldEdit('hint')">点击添加</div>`);
@@ -3774,7 +4079,7 @@ function renderLevelDetail(){
   const tipMode = levelEditState.tip || 'view';
   const tipVal = lvData.tip || '';
   const tipBlock = tipMode==='edit'
-    ? `<textarea id="fTip" class="auto rt-ta" style="min-height:80px" placeholder="这一级考核什么、什么算通过……" oninput="saveSkillTip(this.value);autoGrow(this)">${esc(tipVal)}</textarea>`
+    ? Rte.html('fTip', tipVal, '这一级考核什么、什么算通过……', "saveSkillTip(Rte.value(this))")
     : (tipVal.trim()
         ? `<div class="lv-read" onclick="toggleSkillTipEdit()">${rich(tipVal)}</div>`
         : `<div class="lv-read lv-read-empty" onclick="toggleSkillTipEdit()">点击写一句</div>`);
@@ -3822,16 +4127,13 @@ function renderLevelDetail(){
           </div>`}
     </div>
     <div class="lv-danger-zone"><button class="lv-del" onclick="deleteSkill('${sk.id}')">删除这个技能</button></div>`;
-  if(textMode==='edit') autoGrow($('#fText'));
-  if(hintMode==='edit') autoGrow($('#fHint'));
-  if(tipMode==='edit') autoGrow($('#fTip'));
+  /* contenteditable 自己会撑高，不需要再算高度 */
 }
 function toggleSkillTipEdit(){
   levelEditState.tip = (levelEditState.tip==='edit') ? 'view' : 'edit';
   renderLevelDetail();
   if(levelEditState.tip==='edit'){
-    const el = $('#fTip');
-    if(el){ el.focus(); const len=el.value.length; try{ el.setSelectionRange(len,len); }catch(_){} }
+    Rte.focusEnd($('#fTip'));
   }
 }
 function saveSkillTip(v){
@@ -3846,8 +4148,7 @@ function toggleLvFieldEdit(key){
   if(cur==='view'){
     levelEditState[key] = 'edit';
     renderLevelDetail();
-    const el = key==='text' ? $('#fText') : $('#fHint');
-    if(el){ el.focus(); const len=el.value.length; try{ el.setSelectionRange(len,len); }catch(_){} }
+    Rte.focusEnd(key==='text' ? $('#fText') : $('#fHint'));
   }else{
     levelEditState[key] = 'view';
     renderLevelDetail();
@@ -3868,6 +4169,10 @@ function saveLvField(key, val){
   sk.levels[editing.lv-1][key] = val;
   touchSkill(sk);
   save();
+}
+/* 富文本编辑区：一按键就把 DOM 序列化回轻标记存盘，不丢进度 */
+function saveLvRich(key, el){
+  saveLvField(key, Rte.value(el));
 }
 function setLvNeed(val){
   const sk = findSkill(editing.skillId);
@@ -5177,7 +5482,7 @@ function openDiseaseModal(id){
     <div class="field"><label class="req">疾病名称</label><input type="text" id="dName" value="${d?esc(d.name):''}" placeholder="例如：近视"></div>
     <div class="field"><label class="req">确诊日期</label><input type="date" id="dDate" value="${d?d.diagnoseDate:todayStr()}"></div>
     <div class="field"><label class="req">总花费（元）</label><input type="number" id="dCost" inputmode="decimal" value="${d?d.cost:''}" placeholder="例如：2800"></div>
-    <div class="field"><label>注意事项（支持换行）</label><textarea id="dNotes" class="rt-ta" style="min-height:96px" placeholder="例如：每20分钟看远处">${d?esc(d.notes):''}</textarea><div class="rt-hint"><i>**文字**</i> 加粗 · <i>==文字==</i> 蓝色 · 行首 <i>•</i> 变项目符号</div></div>
+    <div class="field"><label>注意事项</label>${Rte.html('dNotes', d?d.notes:'', '例如：每20分钟看远处', '')}</div>
     <div class="field"><label>当前状态</label>
       <select id="dStatus">
         <option value="治疗中" ${d&&d.status==='治疗中'?'selected':''}>治疗中</option>
@@ -5190,7 +5495,7 @@ function openDiseaseModal(id){
 }
 function saveDisease(id){
   const name=$('#dName').value.trim(), date=$('#dDate').value || todayStr(),
-        cost=num($('#dCost').value), notes=$('#dNotes').value.trim(),
+        cost=num($('#dCost').value), notes=Rte.value($('#dNotes')).trim(),
         status=$('#dStatus').value;
   if(!name){ toast('请填写疾病名称'); return; }
   if(id){
@@ -6302,7 +6607,8 @@ function fabPick(kind){
 
     var right = el("div");
     right.appendChild(el("div", "t", entry.title || firstLine(entry.body) || "（无标题）"));
-    var snippet = entry.title ? entry.body : bodyWithoutFirstLine(entry.body);
+    /* 列表摘要走 plain()：正文里存的是轻标记，卡片上不能漏出 ** 和 == */
+    var snippet = entry.title ? plain(entry.body) : bodyWithoutFirstLine(entry.body);
     if(snippet && snippet.trim()) right.appendChild(el("div", "s", snippet.replace(/\s+/g, " ").trim()));
     else if(!(entry.body && entry.body.trim())) right.appendChild(el("div", "s", "（无正文）"));
     var meta = [];
@@ -6335,7 +6641,7 @@ function fabPick(kind){
     g("dyEditorHeadTitle").textContent = entry ? "编辑日记" : "写日记";
     g("dyEditorDate").value = entry ? entry.date : (/^\d{4}-\d{2}-\d{2}$/.test(String(dateStr || "")) ? dateStr : todayStr());
     g("dyEditorTitle").value = entry ? (entry.title || "") : "";
-    g("dyEditorBody").value = entry ? entry.body : "";
+    Rte.set(g("dyEditorBody"), entry ? entry.body : "");
     setOverlay("dyEditorOverlay", true);
     editor.open = true;
     updateEditorMeta("已保存");
@@ -6354,7 +6660,7 @@ function fabPick(kind){
       id: editor.id,
       date: g("dyEditorDate").value || todayStr(),
       title: g("dyEditorTitle").value.trim(),
-      body: g("dyEditorBody").value
+      body: Rte.value(g("dyEditorBody"))
     };
   }
   function isEmptyBuffer(){
@@ -6584,6 +6890,8 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
     g("dyEditorOverlay").onclick = function(ev){
       if(ev.target === this) closeEditor();
     };
+    /* 正文编辑器：所见即所得（粗体/蓝字/列表/表格都在上方工具条里点） */
+    g("dyEditorRte").innerHTML = Rte.html("dyEditorBody", "", "今天发生了什么？随便写点什么都行……", "");
     ["dyEditorTitle", "dyEditorBody"].forEach(function(id){
       var n = g(id);
       n.addEventListener("input", function(){ scheduleSave(true); });
@@ -6834,32 +7142,35 @@ if(location.search.indexOf('selftest')>=0){
       ok('本地没有遗留的图片大 key', !localStorage.getItem('lifeRPG.wall.v1') && !localStorage.getItem('lifeRPG.focusBg.v1'));
       ok('壁纸模糊度仍在 0–30 内', (function(){ const b=Wall.blur(); return b>=0 && b<=30 && typeof Wall.apply==='function'; })());
       ok('空闲时 tick 不报错（计时器会自己收掉）', (function(){ Yi.tick(); return true; })());
-      ok('富文本快捷条默认收起', typeof Rt.isOpen==='function' && Rt.isOpen()===false);
-      // -- 本轮：快捷条在触摸下真的写进 textarea（旧版 touchstart preventDefault 吞掉了 click） --
-      ok('富文本按钮点下去真的改字', (function(){
-        const ta=document.createElement('textarea'); ta.className='rt-ta'; ta.value='加粗我';
-        document.body.appendChild(ta);
-        ta.focus(); ta.setSelectionRange(0,3);
-        Rt.openFor(ta);
-        const bar=document.getElementById('rtBar');
-        bar.querySelector('button[data-a="b"]').dispatchEvent(new MouseEvent('touchstart',{bubbles:true,cancelable:true}));
-        const bolded=ta.value==='**加粗我**';
-        ta.setSelectionRange(0,ta.value.length);
-        bar.querySelector('button[data-a="blue"]').dispatchEvent(new MouseEvent('touchstart',{bubbles:true,cancelable:true}));
-        const blued=ta.value==='==**加粗我**==';
-        Rt.hide(); ta.remove();
-        return bolded && blued;
+      ok('所见即所得：编辑区里不出现星号标记', (function(){
+        const box=document.createElement('div');
+        box.innerHTML=Rte.html('tRte','**粗** 和 ==蓝== 还有\n• 一条','占位','');
+        const body=box.querySelector('.rte-body');
+        const clean=body.innerHTML.indexOf('**')<0 && body.innerHTML.indexOf('==')<0;
+        const hasB=!!body.querySelector('b') && !!body.querySelector('.rt-blue') && !!body.querySelector('.rte-li');
+        const back=Rte.value(body);
+        return clean && hasB && back==='**粗** 和 ==蓝== 还有\n• 一条';
       })());
-      ok('桌面点击也不会重复执行', (function(){
-        const ta=document.createElement('textarea'); ta.className='rt-ta'; ta.value='字';
-        document.body.appendChild(ta); ta.focus(); ta.setSelectionRange(0,1);
-        Rt.openFor(ta);
-        const realNow=Date.now;
-        Date.now=function(){ return realNow()+3000; };     // 越过触摸后的 800ms 去重窗口
-        document.getElementById('rtBar').querySelector('button[data-a="b"]').click();
-        Date.now=realNow;
-        const v=ta.value; Rt.hide(); ta.remove();
-        return v==='**字**';
+      ok('工具条有加粗/蓝色/列表/表格/加行加列', (function(){
+        const box=document.createElement('div');
+        box.innerHTML=Rte.html('tRte2','','占位','');
+        const rs=Array.prototype.map.call(box.querySelectorAll('.rte-bar button'),function(b){ return b.dataset.r; });
+        const ph=box.querySelector('.rte-body').getAttribute('data-ph');
+        return ['b','blue','li','table','row','col'].every(function(k){ return rs.indexOf(k)>=0; }) && ph==='占位';
+      })());
+      ok('表头往返不会丢（| 行 | 再读回来还是表头）', (function(){
+        const box=document.createElement('div');
+        box.innerHTML=Rte.html('tTbl','| A | B |\n| --- | --- |\n| 1 | 2 |','','');
+        const body=box.querySelector('.rte-body');
+        const back=Rte.value(body);
+        const rendered=rich('| A | B |\n| --- | --- |\n| 1 | 2 |');
+        return !!body.querySelector('table.rt-tbl') && back==='| A | B |\n| --- | --- |\n| 1 | 2 |'
+          && rendered.indexOf('<th>A</th>')>=0 && rendered.indexOf('<td>1</td>')>=0;
+      })());
+      ok('列表圆点改由 CSS 画（正文里不再残留 • 字符）', (function(){
+        const css=Array.prototype.map.call(document.querySelectorAll('style'),function(n){ return n.textContent; }).join('');
+        const hasDot=/\.rt-li::before[^}]*border-radius:50%/.test(css.replace(/\s+/g,''));
+        return rich('• 一行').indexOf('<span class="rt-li">一行</span>')>=0 && hasDot;
       })());
       ok('确认卡是站内卡片、问完才收', (function(){
         uiAsk({title:'标题', desc:'说明', ok:'好', cancel:'算了', onOk:function(){}});
@@ -6867,14 +7178,22 @@ if(location.search.indexOf('selftest')>=0){
         $('#askNo').click();
         return ok1 && !askOpen();
       })());
-      ok('剩余时间可以在系统顶部显示（开关默认关）', (function(){
+      ok('剩余时间改到通知栏：开关与频率都能存', (function(){
         const st=RewardBridge.state();
-        const dflt=st.statusBar===false;
-        RewardBridge.setStatusBar(true);
-        const on=RewardBridge.state().statusBar===true;
-        RewardBridge.setStatusBar(false);
-        const off=RewardBridge.state().statusBar===false;
-        return dflt && on && off && typeof RewardBridge.setStatusBar==='function';
+        const dflt=st.notify===true;
+        RewardBridge.setNotify(false);
+        const off=RewardBridge.state().notify===false;
+        RewardBridge.setNotify(true);
+        const on=RewardBridge.state().notify===true;
+        RewardBridge.setTickProfile('saver');
+        const prof=RewardBridge.state().tickProfile==='saver' && tickProfileOf('saver').ms===5000;
+        RewardBridge.setTickProfile('balanced');
+        return dflt && off && on && prof && tickProfileOf('nope').id==='balanced';
+      })());
+      ok('守护频率四档，间隔依次变长', (function(){
+        const ms=TICK_PROFILES.map(p=>p.ms);
+        return TICK_PROFILES.length===4 && ms[0]<ms[1] && ms[1]<ms[2] && ms[2]<ms[3]
+          && TICK_PROFILES.every(p=>/^\d/.test(p.power)===false && p.power.indexOf('%')>0);
       })());
       ok('正计时超过一小时带小时位', (function(){
         Yi.setRewardMode('ratio'); Yi.startFocus('t','');
@@ -7041,7 +7360,7 @@ if(location.search.indexOf('selftest')>=0){
     ok('写内容后勋章点亮去锁', skillIsLocked(state.skills.find(x=>x.name==='游泳'))===false && skillIsLocked(state.skills.find(x=>x.name==='写作'))===true);
     (function(){ const s=state.skills.find(x=>x.name==='游泳'); s.levels.forEach(l=>l.text='x'); renderSkillPage(); })();
     ok('满5级出现刻印勾标', (function(){ const s=state.skills.find(x=>x.name==='游泳'); return skillArchived(s)===5 && $('#skillList').innerHTML.indexOf('sk-stamp')>=0; })());
-    (function(){ const s=state.skills.find(x=>x.name==='游泳'); s.level=1; openLevelDetail(s.id,1); s.levels[0].text='一行内容\n'.repeat(40); ok('本等级内容默认阅读态', !$('#view-level-detail').innerHTML.match(/id="fText"/)); toggleLvFieldEdit('text'); const t=$('#fText'); ok('本等级内容按文本自适应撑高', t.classList.contains('auto') && /px$/.test(t.style.height) && getComputedStyle(t).resize==='none'); toggleLvFieldEdit('text'); ok('完成按钮切回阅读态', !$('#view-level-detail').innerHTML.match(/id="fText"/)); goBack(); })();
+    (function(){ const s=state.skills.find(x=>x.name==='游泳'); s.level=1; openLevelDetail(s.id,1); s.levels[0].text='**一行**内容\n• 条目\n'.repeat(6); ok('本等级内容默认阅读态', !$('#view-level-detail').innerHTML.match(/id="fText"/)); toggleLvFieldEdit('text'); const t=$('#fText'); const box=t&&t.closest('.rte'); const cssAll=Array.prototype.map.call(document.querySelectorAll('style'),function(n){return n.textContent;}).join('').replace(/\s+/g,''); ok('本等级内容编辑区铺满可用宽度', !!box && t.tagName==='DIV' && t.getAttribute('contenteditable')==='true' && /\.rte\{[^}]*width:100%/.test(cssAll)); ok('编辑区里直接是粗体和列表（无星号）', !!t && !t.innerHTML.match(/\*\*/) && !!t.querySelector('b') && !!t.querySelector('.rte-li')); Rte.set(t, '改过的**粗体**'); saveLvRich('text', t); toggleLvFieldEdit('text'); ok('编辑后按标记存回并能在阅读态渲染', s.levels[0].text==='改过的**粗体**' && $('#view-level-detail .lv-read').innerHTML.indexOf('<b>粗体</b>')>=0); ok('完成按钮切回阅读态', !$('#view-level-detail').innerHTML.match(/id="fText"/)); goBack(); })();
     ok('大师升级触发庆祝层', (function(){ const s=state.skills.find(x=>x.name==='钢琴'); editing={skillId:s.id,lv:4}; s.level=4; onLvSlider('5'); return !$('#celebrate').classList.contains('hidden'); })());
     closeCelebrate();
     ok('庆祝层可关闭', $('#celebrate').classList.contains('hidden'));
@@ -7267,7 +7586,7 @@ if(location.search.indexOf('selftest')>=0){
     $('#dyBtnTheme').click();
     ok('四主题全局切换', ['blue','paper','dark','ios'].indexOf(document.body.getAttribute('data-theme'))>=0);
     $('#dyBtnNew').click();
-    $('#dyEditorBody').value = '自检日记条目';
+    Rte.set($('#dyEditorBody'), '自检日记条目');
     $('#dyEditorDone').click();
     ok('日记写入与列表', $('#dyList').innerHTML.indexOf('自检日记条目')>=0);
     ok('日记统计', $('#dyStats').textContent.indexOf('篇')>=0 && $('#dyStats').textContent.indexOf('字')>=0);
@@ -7286,7 +7605,7 @@ if(location.search.indexOf('selftest')>=0){
       const btn=$('#dyCal .dy-cal-day button'); if(!btn) return false;
       btn.click();
       const got=$('#dyEditorDate').value;
-      $('#dyEditorBody').value=''; $('#dyEditorDone').click();   // 空内容不落盘
+      Rte.set($('#dyEditorBody'), ''); $('#dyEditorDone').click();   // 空内容不落盘
       return got===want;
     })());
     ok('切回列表恢复流水', (function(){ dyAPI.setView('list'); return !$('#dyList').hidden && $('#dyCal').hidden && $('#dyList').innerHTML.indexOf('自检日记条目')>=0; })());
@@ -7339,7 +7658,7 @@ if(location.search.indexOf('selftest')>=0){
     setDetailTab('tree');
     ok('切到悟道树标签', skillDetailTab==='tree' && $('#view-level-detail').innerHTML.indexOf('tree-stage')>=0);
     openInsightModal(xk.id);
-    $('#inTitle').value='慢即是快'; $('#inBody').value='基础打牢';
+    $('#inTitle').value='慢即是快'; Rte.set($('#inBody'),'基础打牢');
     saveInsight(null, xk.id);
     const ins = skillInsights(xk.id);
     ok('感悟挂到该技能', ins.length===1 && ins[0].skillId===xk.id);

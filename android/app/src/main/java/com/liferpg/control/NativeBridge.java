@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 
@@ -86,6 +87,7 @@ public class NativeBridge {
             s.put("accessibility", a11yEnabled());
             s.put("sms", smsGranted());
             s.put("screenOn", true);
+            s.put("notify", ShadeNotify.granted(act));
         } catch (Exception ignored) {
         }
         return s;
@@ -188,13 +190,47 @@ public class NativeBridge {
         return getState();
     }
 
-    /** 状态栏下面那条剩余时间：开关立刻生效，不用等下一次 tick。 */
+    /** 通知栏那条剩余时间：开关立刻生效，不用等下一次 tick。 */
     @JavascriptInterface
-    public String setStatusBar(boolean b) {
-        w().setStatusBar(b);
+    public String setNotify(boolean b) {
+        w().setNotifyShade(b);
+        /* Android 13 起发通知要用户点头；只在第一次打开时问，别每次启动都弹 */
+        if (b && Build.VERSION.SDK_INT >= 33 && !ShadeNotify.granted(act) && !w().notifyAsked()) {
+            w().markNotifyAsked();
+            try {
+                act.requestPermissions(new String[]{"android.permission.POST_NOTIFICATIONS"}, 9102);
+            } catch (Exception ignored) {
+            }
+        }
         AppWatcher watcher = GuardState.watcher();
-        if (watcher != null) watcher.refreshStatusStrip();
+        if (watcher != null) watcher.refreshShadeNotify();
+        else ShadeNotify.refresh(act, w());
         return getState();
+    }
+
+    /** 守护轮询频率：fast 1s / balanced 3s / saver 5s / ultra 8s。 */
+    @JavascriptInterface
+    public String setTickProfile(String p) {
+        w().setTickProfile(p);
+        return getState();
+    }
+
+    /** 通知被系统关掉时，直接跳到本应用的通知设置页。 */
+    @JavascriptInterface
+    public void openNotifySettings() {
+        try {
+            Intent i;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                i = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
+                i.putExtra(Settings.EXTRA_APP_PACKAGE, act.getPackageName());
+            } else {
+                i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:" + act.getPackageName()));
+            }
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            act.startActivity(i);
+        } catch (Exception ignored) {
+        }
     }
 
     @JavascriptInterface

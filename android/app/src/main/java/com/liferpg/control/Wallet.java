@@ -61,7 +61,10 @@ public class Wallet {
             if (!o.has("rewardMinutes")) o.put("rewardMinutes", (int) (DEFAULT_REWARD_MS / 60000L));
             if (!o.has("enforce")) o.put("enforce", true);
             if (!o.has("guardOn")) o.put("guardOn", true);
-            if (!o.has("statusBar")) o.put("statusBar", false);
+            if (!o.has("notify")) o.put("notify", o.optBoolean("statusBar", true));   // 老版本的顶部小条 → 通知栏
+            o.remove("statusBar");
+            if (!o.has("tickProfile")) o.put("tickProfile", "balanced");
+            if (!o.has("notifyAsked")) o.put("notifyAsked", false);
             if (!o.has("apps")) o.put("apps", new JSONArray());
             if (!o.has("earnedMs")) o.put("earnedMs", 0L);
             if (!o.has("usedMs")) o.put("usedMs", 0L);
@@ -113,9 +116,36 @@ public class Wallet {
         return data.optBoolean("guardOn", true);
     }
 
-    /** 是否在状态栏下面常驻一条剩余时间（默认关，省电也省心）。 */
-    public synchronized boolean statusBar() {
-        return data.optBoolean("statusBar", false);
+    /** 是否在通知栏常驻一条剩余时间（默认开：下拉就能看到，不占屏幕）。 */
+    public synchronized boolean notifyShade() {
+        return data.optBoolean("notify", true);
+    }
+
+    /** 是否已经问过通知权限（Android 13+ 只在第一次问，别每次启动都弹）。 */
+    public synchronized boolean notifyAsked() {
+        return data.optBoolean("notifyAsked", false);
+    }
+
+    public synchronized void markNotifyAsked() {
+        try {
+            data.put("notifyAsked", true);
+        } catch (Exception ignored) {
+        }
+        flush();
+    }
+
+    /** 守护轮询档位：fast 1s / balanced 3s / saver 5s / ultra 8s。 */
+    public synchronized String tickProfile() {
+        String p = data.optString("tickProfile", "balanced");
+        return ("fast".equals(p) || "saver".equals(p) || "ultra".equals(p)) ? p : "balanced";
+    }
+
+    public synchronized long tickMs() {
+        String p = tickProfile();
+        if ("fast".equals(p)) return 1000L;
+        if ("saver".equals(p)) return 5000L;
+        if ("ultra".equals(p)) return 8000L;
+        return 3000L;
     }
 
     public synchronized JSONArray apps() {
@@ -198,9 +228,18 @@ public class Wallet {
         flush();
     }
 
-    public synchronized void setStatusBar(boolean b) {
+    public synchronized void setNotifyShade(boolean b) {
         try {
-            data.put("statusBar", b);
+            data.put("notify", b);
+        } catch (Exception ignored) {
+        }
+        flush();
+    }
+
+    public synchronized void setTickProfile(String p) {
+        String v = ("fast".equals(p) || "saver".equals(p) || "ultra".equals(p) || "balanced".equals(p)) ? p : "balanced";
+        try {
+            data.put("tickProfile", v);
         } catch (Exception ignored) {
         }
         flush();
@@ -253,7 +292,8 @@ public class Wallet {
             o.put("rewardMinutes", rewardMinutes());
             o.put("enforce", enforce());
             o.put("guardOn", guardOn());
-            o.put("statusBar", statusBar());
+            o.put("notify", notifyShade());
+            o.put("tickProfile", tickProfile());
             o.put("earnedMs", data.optLong("earnedMs", 0L));
             o.put("usedMs", data.optLong("usedMs", 0L));
             o.put("apps", apps());

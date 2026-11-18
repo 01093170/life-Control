@@ -49,11 +49,10 @@ public class AppWatcher extends AccessibilityService {
     /** 攒够这么久再落一次盘：写文件是这里最贵的动作，10 秒一次没必要。 */
     private static final long CHARGE_CHUNK_MS = 20000L;
 
-    /* 轮询节奏跟着「现在到底要不要盯」走：
-       余额还有、又没在拦截时，没必要每秒去问一遍系统前台是谁（那是跨进程查询，最费电）；
-       余额见底、正在拦截时才回到 1 秒。窗口事件本身仍会即时触发裁决，不用靠轮询发现。 */
+    /* 轮询节奏：基准间隔由用户在「守护频率」里选（1 / 3 / 5 / 8 秒，存在 Wallet.tickMs()）。
+       余额见底、正在拦截时无条件回到 1 秒 —— 那时候慢一拍就会放人过去。
+       窗口事件本身仍会即时触发裁决，不必靠轮询发现「换应用了」。 */
     private static final long TICK_URGENT_MS = 1000L;
-    private static final long TICK_IDLE_MS = 3000L;
     private static final long TICK_SCREEN_OFF_MS = 5000L;
 
     /** 每次窗口切换都打一行日志在真机上是有成本的，排查时再打开。 */
@@ -78,7 +77,7 @@ public class AppWatcher extends AccessibilityService {
         loadLauncherPackages();
         startTicker();
         cleanupLegacyNotificationChannels();
-        StatusStrip.sync(this, Wallet.get(this));
+        ShadeNotify.sync(this, Wallet.get(this));
         Log.d(TAG, "service connected");
         postSync();
     }
@@ -118,13 +117,16 @@ public class AppWatcher extends AccessibilityService {
         }
     };
 
-    /** 每秒（或每几秒）：按前台时长扣额度，并让拦截裁决跟着最新状态走；返回下一次的间隔。 */
+    /** 每一拍：按前台时长扣额度，并让拦截裁决跟着最新状态走；返回下一拍的间隔。 */
     private long tick() {
         Wallet w = Wallet.get(this);
         long now = SystemClock.elapsedRealtime();
         long dt = lastTickAt == 0L ? TICK_URGENT_MS : now - lastTickAt;
         lastTickAt = now;
-        if (dt <= 0 || dt > 8000L) dt = TICK_URGENT_MS;
+        /* 超过 10 秒的间隔当成刚唤醒：宁可少算，也不把熄屏那段时间算进去 */
+        if (dt <= 0 || dt > 10000L) dt = TICK_URGENT_MS;
+
+        final long base = w.tickMs();          // 用户在「意 → 守护频率」里选的档位
 
         boolean screenOn = isScreenOn();
         String pkg = GuardState.fgPackage;
@@ -136,14 +138,17 @@ public class AppWatcher extends AccessibilityService {
             flushAcc();
         }
 
-        /* 熄屏时没人会用受管应用：不查前台、不刷条子，只把节奏放慢 */
-        if (!screenOn) return TICK_SCREEN_OFF_MS;
+        /* 熄屏时没人会用受管应用：不查前台、不刷通知，节奏再放慢一档 */
+        if (!screenOn) return Math.min(15000L, Math.max(TICK_SCREEN_OFF_MS, base));
 
         syncNow();
-        StatusStrip.sync(this, w);
+        ShadeNotify.sync(this, w);
 
-        boolean urgent = w.balance() <= 0L || GuardState.blockedPkg.length() > 0 || counting;
-        return urgent ? TICK_URGENT_MS : TICK_IDLE_MS;
+        /* 正在拦截，或者余额已经见底：这时候慢一拍就会放人过去，回到最快 */
+        if (GuardState.blockedPkg.length() > 0 || w.balance() <= 0L) return TICK_URGENT_MS;
+        /* 余额不到 1 分钟：提前加速，别刚好卡在两次轮询之间 */
+        if (counting && w.balance() <= 60000L) return TICK_URGENT_MS;
+        return base;                            // 其余时候由用户选的频率说了算
     }
 
     private void flushAcc() {
@@ -411,10 +416,10 @@ public class AppWatcher extends AccessibilityService {
         BlockOverlay.show(this, label);
     }
 
-    /** 前端刚打开/关掉「顶部显示剩余时间」时催一次，不用等下一次 tick。 */
-    public void refreshStatusStrip() {
+    /** 前端刚打开/关掉「通知栏显示剩余时间」时催一次，不用等下一次 tick。 */
+    public void refreshShadeNotify() {
         try {
-            StatusStrip.sync(this, Wallet.get(this));
+            ShadeNotify.refresh(this, Wallet.get(this));
         } catch (Exception ignored) {
         }
     }
@@ -457,7 +462,7 @@ public class AppWatcher extends AccessibilityService {
         GuardState.accessibilityConnected = false;
         GuardState.clearBlock();
         BlockOverlay.hide();
-        StatusStrip.hide();
+        ShadeNotify.cancel(this);
         return super.onUnbind(intent);
     }
 
@@ -468,7 +473,7 @@ public class AppWatcher extends AccessibilityService {
         GuardState.watcher = null;
         GuardState.clearBlock();
         BlockOverlay.hide();
-        StatusStrip.hide();
+        ShadeNotify.cancel(this);
         super.onDestroy();
     }
 }

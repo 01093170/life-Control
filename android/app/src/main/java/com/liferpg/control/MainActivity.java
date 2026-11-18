@@ -1,6 +1,8 @@
 package com.liferpg.control;
 
+import android.Manifest;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.webkit.WebView;
 
@@ -40,8 +42,30 @@ public class MainActivity extends BridgeActivity {
                 }
             }, 1500);
 
-            // 守护由系统绑定的无障碍服务承载，不再启动前台服务、也不再申请通知权限。
+            // 守护由系统绑定的无障碍服务承载，不启动前台服务。
+            // 通知栏那条剩余时间是普通通知，Android 13+ 需要一次授权，只在第一次问。
+            maybeAskNotify();
         } catch (Exception ignored) {
+        }
+    }
+
+    private void maybeAskNotify() {
+        try {
+            if (Build.VERSION.SDK_INT < 33) return;
+            Wallet w = Wallet.get(this);
+            if (!w.notifyShade() || w.notifyAsked() || ShadeNotify.granted(this)) return;
+            w.markNotifyAsked();
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 9102);
+        } catch (Exception ignored) {
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
+        super.onRequestPermissionsResult(code, perms, results);
+        if (code == 9102) {
+            AppWatcher watcher = GuardState.watcher();
+            if (watcher != null) watcher.refreshShadeNotify();
         }
     }
 
