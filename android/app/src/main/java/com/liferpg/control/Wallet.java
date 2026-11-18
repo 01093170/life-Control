@@ -61,6 +61,7 @@ public class Wallet {
             if (!o.has("rewardMinutes")) o.put("rewardMinutes", (int) (DEFAULT_REWARD_MS / 60000L));
             if (!o.has("enforce")) o.put("enforce", true);
             if (!o.has("guardOn")) o.put("guardOn", true);
+            if (!o.has("statusBar")) o.put("statusBar", false);
             if (!o.has("apps")) o.put("apps", new JSONArray());
             if (!o.has("earnedMs")) o.put("earnedMs", 0L);
             if (!o.has("usedMs")) o.put("usedMs", 0L);
@@ -110,6 +111,11 @@ public class Wallet {
 
     public synchronized boolean guardOn() {
         return data.optBoolean("guardOn", true);
+    }
+
+    /** 是否在状态栏下面常驻一条剩余时间（默认关，省电也省心）。 */
+    public synchronized boolean statusBar() {
+        return data.optBoolean("statusBar", false);
     }
 
     public synchronized JSONArray apps() {
@@ -192,6 +198,14 @@ public class Wallet {
         flush();
     }
 
+    public synchronized void setStatusBar(boolean b) {
+        try {
+            data.put("statusBar", b);
+        } catch (Exception ignored) {
+        }
+        flush();
+    }
+
     public synchronized void addApp(String pkg, String label) {
         pkg = pkg == null ? "" : pkg.trim();
         if (pkg.length() == 0 || isManaged(pkg)) return;
@@ -239,6 +253,7 @@ public class Wallet {
             o.put("rewardMinutes", rewardMinutes());
             o.put("enforce", enforce());
             o.put("guardOn", guardOn());
+            o.put("statusBar", statusBar());
             o.put("earnedMs", data.optLong("earnedMs", 0L));
             o.put("usedMs", data.optLong("usedMs", 0L));
             o.put("apps", apps());

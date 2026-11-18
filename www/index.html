@@ -222,7 +222,8 @@ body[data-theme="paper"] .rt-blue{color:var(--accent)}
 /* ---------- 富文本快捷条：长按选中文字后浮出来，省得记语法 ---------- */
 #rtBar{position:fixed;left:0;top:0;z-index:900;display:none;gap:6px;padding:6px;border-radius:13px;
   background:rgba(26,32,40,.97);border:1px solid rgba(255,255,255,.14);
-  box-shadow:0 12px 30px rgba(0,0,0,.32);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  box-shadow:0 12px 30px rgba(0,0,0,.32);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  touch-action:manipulation;user-select:none;-webkit-user-select:none}
 #rtBar.on{display:flex}
 #rtBar button{min-width:48px;height:36px;padding:0 11px;border:0;border-radius:10px;background:#313b47;color:#eef3f8;
   font-size:var(--fs-13);font-weight:700;font-family:inherit;white-space:nowrap;cursor:pointer;transition:background .12s}
@@ -642,6 +643,24 @@ body[data-theme="ios"] #page-diary{--dy-solid:#f2f2f7}
 .yi-pop .btns{display:flex;gap:8px;margin-top:20px}
 .yi-pop .btns button{flex:1;padding:11px;border-radius:11px;font-size:var(--fs-13);border:1px solid var(--line);background:var(--card2);color:var(--text);cursor:pointer;font-family:inherit}
 .yi-pop .btns button.hi{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+/* 确认框：替掉系统 confirm（白底 + CANCEL/OK 太跳），沿用「意」的暖色卡片 */
+#askRoot{position:fixed;inset:0;z-index:132;display:none;align-items:center;justify-content:center;padding:26px;
+  background:rgba(22,19,16,.44);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+#askRoot.on{display:flex;animation:askFade .16s ease}
+.ask-card{width:100%;max-width:318px;background:var(--card);border-radius:22px;padding:24px 22px 14px;
+  box-shadow:0 26px 64px rgba(0,0,0,.32);animation:askUp .2s cubic-bezier(.2,.9,.3,1)}
+.ask-k{font-size:var(--fs-11);letter-spacing:2px;color:var(--sub);margin-bottom:8px}
+.ask-card h3{font-size:var(--fs-17);font-weight:700;line-height:1.5;color:var(--text);letter-spacing:.3px}
+.ask-card p{margin:9px 0 0;font-size:var(--fs-13);line-height:1.75;color:var(--sub)}
+.ask-acts{display:flex;gap:8px;margin-top:22px}
+.ask-acts button{flex:1;height:44px;border-radius:13px;border:1px solid var(--line);background:var(--card2);
+  color:var(--text);font-size:var(--fs-13);font-family:inherit;cursor:pointer;
+  transition:transform .12s ease,filter .12s ease}
+.ask-acts button:active{transform:scale(.97)}
+.ask-acts button.hi{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.ask-acts button.dg{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:700}
+@keyframes askFade{from{opacity:0}to{opacity:1}}
+@keyframes askUp{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
 /* 剩余时间卡：技能页唯一入口，点击进入「意」 */
 .yi-heart{cursor:pointer;transition:border-color .2s,box-shadow .2s}
 .yi-heart:hover{border-color:var(--accent);box-shadow:0 3px 14px rgb(var(--accent-rgb)/.10)}
@@ -1354,8 +1373,13 @@ const clamp = (v,lo,hi) => Math.min(hi, Math.max(lo, v));
    autoGrow 照旧生效，不需要每个输入框单独接线。按钮按下时阻止默认行为，
    避免选区在点击瞬间被清掉。 */
 const Rt = (function(){
-  let bar=null, ta=null, timer=0;
+  let bar=null, ta=null, timer=0, lastTouchAt=0;
 
+  function act(a){
+    if(!ta || !a) return false;
+    if(a==='b') bold(); else if(a==='blue') blue(); else if(a==='li') bullet(); else return false;
+    return true;
+  }
   function ensure(){
     if(bar) return bar;
     bar=document.createElement('div');
@@ -1363,15 +1387,23 @@ const Rt = (function(){
     bar.innerHTML='<button type="button" class="rtb-b" data-a="b" aria-label="加粗">B</button>'
                 + '<button type="button" data-a="li" aria-label="项目符号">• 列表</button>'
                 + '<button type="button" class="rtb-blue" data-a="blue" aria-label="蓝色字">蓝色</button>';
-    const hold=e=>{ e.preventDefault(); };               // 别抢走 textarea 的焦点和选区
-    bar.addEventListener('pointerdown', hold);
-    bar.addEventListener('mousedown', hold);
-    bar.addEventListener('touchstart', hold, {passive:false});
-    bar.addEventListener('click', function(e){
-      const b=e.target.closest('button'); if(!b || !ta) return;
+    /* 触摸下必须在 touchstart 里直接执行：只要在这一步 preventDefault()（为了不让
+       按钮抢走 textarea 的选区），浏览器就不会再派发合成的 click —— 旧版正是栽在这里，
+       按钮亮一下、字一点没变，看起来就是「点不动」。桌面/鼠标仍旧走 click。 */
+    bar.addEventListener('touchstart', function(e){
+      const b=e.target && e.target.closest ? e.target.closest('button') : null;
+      if(!b) return;
       e.preventDefault();
-      const a=b.dataset.a;
-      if(a==='b') bold(); else if(a==='blue') blue(); else bullet();
+      lastTouchAt=Date.now();
+      act(b.dataset.a);
+    }, {passive:false});
+    bar.addEventListener('mousedown', function(e){ e.preventDefault(); });   // 别把焦点移出输入框
+    bar.addEventListener('click', function(e){
+      if(Date.now()-lastTouchAt < 800) return;      // 触摸已经处理过，别重复执行
+      const b=e.target && e.target.closest ? e.target.closest('button') : null;
+      if(!b) return;
+      e.preventDefault();
+      act(b.dataset.a);
     });
     document.body.appendChild(bar);
     return bar;
@@ -1466,7 +1498,8 @@ const Rt = (function(){
     if(!isRt(ev.target)) return;
     setTimeout(function(){ if(!isRt(document.activeElement)) hide(); }, 140);
   });
-  return { hide, isOpen: function(){ return !!(bar && bar.classList.contains('on')); } };
+  return { hide, isOpen: function(){ return !!(bar && bar.classList.contains('on')); },
+           openFor: show, act: act, el: function(){ return ta; } };
 })();
 
 /* ---------- Toast / 模态框 ---------- */
@@ -1486,6 +1519,37 @@ function closeModal(){
   const mr=$('#modalRoot');
   if(mr){ mr.classList.add('hidden'); mr.classList.remove('over-diary'); }
 }
+/* ---------- 确认框：替掉 window.confirm ----------
+   系统那个白底、黑字、CANCEL/OK 的对话框跟整站风格完全不搭，还会被 WebView 放大。
+   这里统一成一张居中的暖色卡片：标题 + 一句说明 + 两枚按钮（危险操作给红底）。
+   onOk 走回调；需要「点了确认再继续」的地方改成回调链，别指望同步返回值。 */
+let _askOk=null;
+function uiAsk(o){
+  o=o||{};
+  let root=$('#askRoot');
+  if(!root){ root=document.createElement('div'); root.id='askRoot'; root.setAttribute('aria-hidden','true'); document.body.appendChild(root); }
+  _askOk = typeof o.onOk==='function' ? o.onOk : null;
+  root.innerHTML='<div class="ask-card" role="dialog" aria-modal="true">'
+    + '<h3>'+esc(o.title||'确定吗？')+'</h3>'
+    + (o.desc ? '<p>'+esc(o.desc)+'</p>' : '')
+    + '<div class="ask-acts">'
+    +   '<button type="button" id="askNo">'+esc(o.cancel||'取消')+'</button>'
+    +   '<button type="button" id="askYes" class="'+(o.danger?'dg':'hi')+'">'+esc(o.ok||'确定')+'</button>'
+    + '</div></div>';
+  root.classList.add('on');
+  root.setAttribute('aria-hidden','false');
+  root.onclick=function(e){ if(e.target===root) closeAsk(); };
+  const no=$('#askNo'), yes=$('#askYes');
+  if(no) no.onclick=function(){ closeAsk(); };
+  if(yes) yes.onclick=function(){ const f=_askOk; closeAsk(); if(f) f(); };
+  return true;
+}
+function closeAsk(){
+  _askOk=null;
+  const r=$('#askRoot');
+  if(r){ r.classList.remove('on'); r.setAttribute('aria-hidden','true'); r.innerHTML=''; }
+}
+function askOpen(){ const r=$('#askRoot'); return !!(r && r.classList.contains('on')); }
 /* 数据管理入口已移进「日记 → 设置与备份」：打开时把弹层临时抬到设置弹层之上，
    关掉数据管理后仍停留在设置与备份里。 */
 function openDataFromDiary(){
@@ -1798,7 +1862,7 @@ const LOCK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 /* 有原生桥（window.RewardNative）时走后端落盘；浏览器里降级为 localStorage，方便在电脑上预览界面。 */
 const RewardBridge = (function(){
   const KEY = 'lifeRPG.reward.v1';
-  const DEF = { balanceMs:0, rewardMinutes:30, enforce:true, guardOn:true, apps:[], earnedMs:0, usedMs:0 };
+  const DEF = { balanceMs:0, rewardMinutes:30, enforce:true, guardOn:true, statusBar:false, apps:[], earnedMs:0, usedMs:0 };
 
   function nat(){ return (window.RewardNative && typeof window.RewardNative.getState === 'function') ? window.RewardNative : null; }
   function parse(s){ try{ return JSON.parse(s); }catch(e){ return null; } }
@@ -1875,6 +1939,13 @@ const RewardBridge = (function(){
     const o = localState(); o.guardOn = !!b; saveLocal(o);
     return (cache = Object.assign({}, o, { ok:true }));
   }
+  /* 系统顶部那条剩余时间（无障碍覆盖层，原生侧画） */
+  function setStatusBar(b){
+    const n = nat();
+    if(n && typeof n.setStatusBar === 'function') return settle(parse(n.setStatusBar(!!b)));
+    const o = localState(); o.statusBar = !!b; saveLocal(o);
+    return (cache = Object.assign({}, o, { ok:true }));
+  }
   function addApp(pkg, label){
     pkg = String(pkg||'').trim();
     if(!pkg) return cache;
@@ -1934,7 +2005,7 @@ const RewardBridge = (function(){
     tileTimer = setTimeout(function(){ if(typeof openRewardSettings==='function' && !$('#modalRoot').classList.contains('hidden')) openRewardSettings(); renderRewardCard(); }, ms);
   }
 
-  return { state, status, checkIn, addMinutes, setRewardMinutes, setEnforce, setGuardOn,
+  return { state, status, checkIn, addMinutes, setRewardMinutes, setEnforce, setGuardOn, setStatusBar,
            addApp, removeApp, listApps, drainPayments, requestSms,
            openA11y, openOverlay, openBattery, openAutoStart, fmt };
 })();
@@ -2447,7 +2518,12 @@ const Yi = (function(){
   function dayKey(t){ const d=new Date(t); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
   function shortDay(t){ const d=new Date(t); return pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
   function stamp(t){ const d=new Date(t); return shortDay(t)+' '+pad(d.getHours())+':'+pad(d.getMinutes()); }
-  function fmtClock(ms){ const x=Math.floor(Math.max(0,ms||0)/1000); return pad(Math.floor(x/60))+':'+pad(x%60); }
+  /* 正计时可能一坐就过了一小时，这时候补上小时位，别让数字挤成 125:30 */
+  function fmtClock(ms){
+    const x=Math.floor(Math.max(0,ms||0)/1000);
+    const h=Math.floor(x/3600), m=Math.floor((x%3600)/60), sec=x%60;
+    return h>0 ? (h+':'+pad(m)+':'+pad(sec)) : (pad(m)+':'+pad(sec));
+  }
   /* 倒计时用「向上取整」：刚开一段时显示 15:00 而不是 14:59，最后一秒才落到 00:00 */
   function fmtDown(ms){ const x=Math.ceil(Math.max(0,ms||0)/1000); return pad(Math.floor(x/60))+':'+pad(x%60); }
   function load(){
@@ -2468,7 +2544,9 @@ const Yi = (function(){
   }
   /* 一律用墙上时间戳算已坐住的时长；系统时间被往回拨时不让它变成负数 */
   function elapsed(){ return s.focusStartAt ? Math.max(0, Date.now() - s.focusStartAt) : 0; }
-  function focusing(){ return !!s.focusStartAt && elapsed() < total(); }
+  /* 按比例不设终点：只要不按停止，时间就一直往上累加。
+     fixed 仍是「走满这一段就自动结算」的倒计时。 */
+  function focusing(){ return !!s.focusStartAt && (openEnded() || elapsed() < total()); }
   function isLocal(){ return !!RewardBridge.status().local; }
   /* 专注页背景图：和日记设置里的 FocusBg 共用同一个 key */
   function bgURL(){ try{ return FocusBg.get()||''; }catch(e){ return ''; } }
@@ -2488,9 +2566,18 @@ const Yi = (function(){
   /* 进行中实时显示「已经挣到多少」：不满一格就如实显示 0，不提前把保底那 1 分钟摆出来 */
   function liveGain(ms){ return Math.max(0, Math.floor(Math.max(0,ms||0)/MIN_MS/RATIO_BASE*segRatio())); }
   function ratioPreviewMin(){ return ratioGain(total()); }
+  /* 按比例这一段是「开了就不停」的正计时：没有终点，停不停由人决定 */
+  function openEnded(){ return segMode()==='ratio'; }
+  /* 进度条：固定奖励按整段算；按比例每 RATIO_BASE 分钟填满一格，再从零开始 */
+  function progress(){
+    if(!s.focusStartAt) return 0;
+    const el=elapsed();
+    if(openEnded()){ const g=Math.max(MIN_MS, RATIO_BASE*MIN_MS); return Math.min(100, (el%g)/g*100); }
+    return Math.min(100, el/total()*100);
+  }
   function rewardHint(rw){
     return ratioOn()
-      ? `专注 ${RATIO_BASE} 分钟换 ${ratioVal()} 分钟 · 按实际坐满的时长结算`
+      ? `专注 ${RATIO_BASE} 分钟换 ${ratioVal()} 分钟 · 不限时长，坐到想停为止`
       : `每完成一段专注 +${(rw&&rw.rewardMinutes)||30} 分钟`;
   }
 
@@ -2549,8 +2636,9 @@ const Yi = (function(){
     const run=focusing();
     const up = run && segMode()==='ratio';                       // 按比例正计时
     const el = run ? elapsed() : 0;
-    const shown = up ? el : Math.max(0, total()-el);
-    const pct=run?Math.round(el/total()*100):0;
+    /* 按比例还没开始时应显示 00:00（从零往上走），别拿固定时长的 15:00 糊弄 */
+    const shown = run ? (up ? el : Math.max(0, total()-el)) : (ratioOn() ? 0 : total());
+    const pct=run?Math.round(progress()):0;
     const rw=RewardBridge.state();
     const apps=rw.apps||[];
     const balMs=rw.balanceMs||0;
@@ -2570,12 +2658,12 @@ const Yi = (function(){
 
       <div class="yi-card card yi-dark">
         <div class="yi-row"><span class="yi-lbl">${run?'这一段专注进行中':'下一段专注'}</span>
-          <span class="yi-pill" style="background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.14);color:#d8cdbb">${segMode()==='ratio'?durMin+' → '+ratioPreviewMin():durMin} 分钟</span></div>
+          <span class="yi-pill" style="background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.14);color:#d8cdbb">${segMode()==='ratio'?'不限时':durMin+' 分钟'}</span></div>
         <div class="yi-time" id="yiPageTime">${up?fmtClock(shown):fmtDown(shown)}</div>
         <div class="yi-bar"><i id="yiPageBar" style="width:${pct}%"></i></div>
         <div class="yi-hint">${run
-          ? (up ? '按实际坐满的时长结算 · 现在约 +'+liveGain(el)+' 分钟' : '这一段没走完，还不能开下一段')
-          : '打卡不是领奖，是给自己一段安静的时间'}</div>
+          ? (up ? '按实际坐满的时长结算 · 现在约 +'+liveGain(el)+' 分钟 · 不按停止就一直累加' : '这一段没走完，还不能开下一段')
+          : (ratioOn() ? '不限时长：点技能打卡开始，坐到想停时按右下角结束' : '打卡不是领奖，是给自己一段安静的时间')}</div>
         <button class="btn" style="margin-top:12px;background:#d98a63;color:#2b2823" onclick="${run?'Yi.openFocus()':'yiStartHint()'}">${run?'回到专注':'开始一段 · 点技能打卡'}</button>
       </div>
 
@@ -2597,18 +2685,27 @@ const Yi = (function(){
 
       <div class="yi-sec">设置</div>
       <div class="yi-card card">
-        <div class="yi-lbl">一段专注的时长</div>
-        <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:9px">${[5,15,25,45].map(m=>`<button class="yi-btn${s.durationMin===m?'':' ghost'}" onclick="Yi.setDuration(${m})">${m} 分钟</button>`).join('')}</div>
-        <div class="yi-lbl" style="margin-top:16px">奖励怎么算</div>
+        <div class="yi-lbl">奖励怎么算</div>
         <div class="seg-bar" style="margin-top:9px">
           <button class="seg-btn${ratioOn()?'':' active'}" onclick="Yi.setRewardMode('fixed')">固定奖励</button>
           <button class="seg-btn${ratioOn()?' active':''}" onclick="Yi.setRewardMode('ratio')">按比例</button>
         </div>
         ${ratioOn()
           ? `<div class="yi-ratio">专注 <b>${RATIO_BASE}</b> 分钟 → 剩余 <input type="number" min="1" max="30" inputmode="numeric" value="${ratioVal()}" onchange="Yi.setRatio(this.value)"> 分钟</div>
-             <div class="yi-hint" style="margin-top:8px">按实际坐满的时长结算：这一段 ${durMin} 分钟 → 剩余 ${ratioPreviewMin()} 分钟。中断或提前退出不计。</div>`
+             <div class="yi-hint" style="margin-top:8px">不设上限：开始后一直正计时，坐到想停的时候按右下角「结束」，按实际坐住的时长结算；中途中断才作废。</div>`
           : `<div class="field" style="margin-top:12px"><label>每完成一段，奖励多少分钟</label><input type="number" min="1" max="600" value="${rw.rewardMinutes||30}" onchange="rwSaveMinutesFromYi(this.value)"></div>
              <div class="yi-hint">奖励在专注结束时才入账，不是打卡那一刻。</div>`}
+
+        <div class="yi-lbl" style="margin-top:16px">一段专注的时长</div>
+        <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:9px">${[5,15,25,45].map(m=>`<button class="yi-btn${s.durationMin===m?'':' ghost'}" onclick="Yi.setDuration(${m})">${m} 分钟</button>`).join('')}</div>
+        <div class="yi-hint" style="margin-top:8px">${ratioOn()?'按比例模式不设上限，这一组只在「固定奖励」时生效。':'走满这一段就自动结算，不按停止会按设定的时长结束。'}</div>
+
+        <div class="yi-lbl" style="margin-top:16px">系统顶部显示剩余时间</div>
+        <div class="row" style="justify-content:space-between;align-items:center;gap:12px;margin-top:9px">
+          <div class="yi-hint" style="margin:0;flex:1;min-width:0">在其他应用上方常驻一条小计时条，抬眼就知道还剩多少。跟着无障碍服务走，关掉无障碍它也会消失。</div>
+          <div class="yi-sw${rw.statusBar?' on':''}" role="switch" aria-checked="${rw.statusBar?'true':'false'}" tabindex="0"
+               onclick="Yi.toggleStatusBar()" onkeypress="if(event.key==='Enter')Yi.toggleStatusBar()"><i></i></div>
+        </div>
         <div class="yi-hint" style="margin-top:9px">真机上用墙上时间戳记录开始时刻，熄屏、清后台、重启都不会让${ratioOn()?'正计时':'倒计时'}归零。</div>
       </div>
       ${permWarn(RewardBridge.status())}
@@ -2629,7 +2726,7 @@ const Yi = (function(){
       set('yiCardGain',' · 约 +'+liveGain(el)+' 分钟');
       set('yiTag','已挣 +'+liveGain(el)+' 分');
     }
-    const pct=run?Math.round(el/total()*100):0;
+    const pct=run?Math.round(progress()):0;
     const b2=document.getElementById('yiPageBar'), b3=document.getElementById('yiBar2');
     if(b2) b2.style.width=pct+'%'; if(b3) b3.style.width=pct+'%';
     /* 专注页那枚小环：数字 + 环上的进度一起走 */
@@ -2661,7 +2758,10 @@ const Yi = (function(){
     const up = !preview && segMode()==='ratio';
     const pvRatio = preview && ratioOn();
     const back = preview ? 'Yi.closeOverlay()' : 'Yi.closeOverlay();Yi.refresh()';
-    const stop = preview ? '' : `<button class="fz-ico" aria-label="中断这一段" title="中断" onclick="Yi.askGiveUp()">${ICON_STOP}</button>`;
+    /* 按比例：右下角是「结束并结算」；固定奖励：仍是「中断作废」 */
+    const rtNow = preview ? ratioOn() : openEnded();
+    const stop = preview ? ''
+      : `<button class="fz-ico" aria-label="${rtNow?'结束这一段':'中断这一段'}" title="${rtNow?'结束并结算':'中断'}" onclick="${rtNow?'Yi.askStop()':'Yi.askGiveUp()'}">${ICON_STOP}</button>`;
     /* 预览也按当前奖励方式摆：比例模式就摆一个正计时的样子，别拿倒计时糊弄 */
     const clock = preview ? (pvRatio ? fmtClock(total()*0.65) : fmtDown(total()*0.65))
                           : (up ? fmtClock(0) : fmtDown(total()));
@@ -2723,7 +2823,8 @@ const Yi = (function(){
   /* quiet=true：紧接着要开新的一段（或 App 回到前台自动补结算），只入账不弹「这一程稳住了」 */
   function finishFocus(quiet){
     if(!s.focusStartAt) return;
-    const focused = Math.min(elapsed(), total());   // 实际坐住的时间，封顶到设定时长
+    /* 按比例没有终点：坐多久就结算多久；固定奖励封顶到设定时长 */
+    const focused = openEnded() ? elapsed() : Math.min(elapsed(), total());
     const mode = s.focusMode || (ratioOn()?'ratio':'fixed');   // 按这一段开始时的算法结算
     let gain;
     if(mode==='ratio'){
@@ -2739,7 +2840,7 @@ const Yi = (function(){
     try{ if(typeof ckFocusAdd==='function') ckFocusAdd(focused); }catch(e){}
     stopTick();
     closeOverlay(); refresh();
-    if(quiet) toast('上一段已走满 · 剩余时间 +'+gain+' 分钟');
+    if(quiet) toast((mode==='ratio'?'上一段已结束':'上一段已走满')+' · 剩余时间 +'+gain+' 分钟');
     else showReward(gain);
   }
   function skipFocus(){
@@ -2747,11 +2848,28 @@ const Yi = (function(){
     if(!s.focusStartAt){ toast('现在没有进行中的专注'); return; }
     finishFocus();
   }
-  /* 右下角的中断图标：先问一句，免得手滑把这一段作废 */
+  /* 右下角那枚图标：固定奖励走「中断作废」，按比例走「结束并结算」。
+     都用站内的暖色确认卡，不再弹系统那个白底 CANCEL/OK。 */
   function askGiveUp(){
     if(!s.focusStartAt){ closeOverlay(); return; }
-    if(!window.confirm('中断这一段？没坐满不算数，奖励也不会发。')) return;
-    giveUp();
+    const m=Math.floor(elapsed()/MIN_MS);
+    uiAsk({
+      title:'中断这一段？',
+      desc:'没坐满不算数，奖励也不会发。'+(m<1 ? '已经开始的这一小会儿' : '已经坐住的 '+m+' 分钟')+'会一起作废。',
+      ok:'中断', cancel:'再坐一会儿', danger:true,
+      onOk:giveUp
+    });
+  }
+  /* 按比例模式没有终点：什么时候停由你说了算，停了就按实际坐住的时长结算 */
+  function askStop(){
+    if(!s.focusStartAt){ closeOverlay(); return; }
+    const el=elapsed(), m=Math.floor(el/MIN_MS), g=ratioGain(el);
+    uiAsk({
+      title:'结束这一段？',
+      desc:(m<1 ? '还不到 1 分钟' : '已经坐了 '+m+' 分钟')+'，结算后剩余时间 +'+g+' 分钟。不按的话，计时会一直往上走。',
+      ok:'结束并结算', cancel:'继续坐',
+      onOk:function(){ finishFocus(); }
+    });
   }
   function giveUp(){
     s.focusStartAt=0; s.focusName=''; s.focusMin=0; s.focusMode=''; s.focusRatio=0;
@@ -2766,9 +2884,10 @@ const Yi = (function(){
   function startTick(){ if(tickTimer) return; tickTimer=setInterval(tick,1000); }
   function stopTick(){ if(tickTimer){ clearInterval(tickTimer); tickTimer=0; } }
   function tick(){
-    if(s.focusStartAt && elapsed()>=total()){ finishFocus(); return; }
-    if(focusing()){ updateLive(); return; }
-    stopTick();                       // 没有进行中的专注，收掉计时器
+    if(!s.focusStartAt){ stopTick(); return; }
+    /* 固定奖励走满就自动结算；按比例不设终点，等你自己按「结束」 */
+    if(!openEnded() && elapsed()>=total()){ finishFocus(); return; }
+    updateLive();
   }
 
   /* ---------------- 静心提示：自己编辑 ---------------- */
@@ -2804,6 +2923,17 @@ const Yi = (function(){
     s.ratio = clamp(Math.round(num(v))||RATIO_BASE,1,30);
     save(); refresh();
     toast('专注 10 分钟 → 剩余 '+ratioVal()+' 分钟');
+  }
+  /* 系统顶部那条剩余时间：原生侧用无障碍覆盖层画一小条，浏览器里没有 */
+  function toggleStatusBar(){
+    const on = !!RewardBridge.state().statusBar;
+    if(isLocal()){
+      toast('装到手机上才能在其他应用上方常驻这条时间');
+      return;
+    }
+    RewardBridge.setStatusBar(!on);
+    renderPage();
+    toast(!on ? '已开启：其他应用上方会常驻一条剩余时间' : '已关掉顶部剩余时间');
   }
   function addApp(){ openAppPicker(); }
   function delApp(p){ RewardBridge.removeApp(p); save(); refresh(); }
@@ -2967,8 +3097,8 @@ const Yi = (function(){
   load();
   /* 上次退出时专注还没走完：把计时器接回去，到点（哪怕已经过了）立刻结算 */
   if(s.focusStartAt){ startTick(); try{ tick(); }catch(e){} }
-  return { renderCard, renderPage, tick, refresh, openFocus, previewFocus, startFocus, skipFocus, giveUp, askGiveUp,
-    closeOverlay, closeReward, openPanel, setDuration, setRewardMode, setRatio,
+  return { renderCard, renderPage, tick, refresh, openFocus, previewFocus, startFocus, skipFocus, giveUp, askGiveUp, askStop,
+    closeOverlay, closeReward, openPanel, setDuration, setRewardMode, setRatio, toggleStatusBar,
     addApp, delApp,
     setQuote, addQuote, delQuote, resetQuotes,
     jgyCardHTML, saveJgy, syncUp, syncDown, syncDownNo, syncDownYes,
@@ -3035,6 +3165,15 @@ function openRewardSettings(){
         <div class="sub" style="font-size:var(--fs-11)">关掉后只统计时长，不做任何限制</div>
       </div>
       <input type="checkbox" ${st.enforce?'checked':''} onchange="RewardBridge.setEnforce(this.checked);renderRewardCard()"
+        style="width:20px;height:20px;accent-color:var(--accent);flex:none">
+    </div>
+
+    <div class="rw-row">
+      <div class="grow" style="min-width:0">
+        <b style="font-size:var(--fs-13)">顶部显示剩余时间</b>
+        <div class="sub" style="font-size:var(--fs-11)">在别的应用上方常驻一条小计时条</div>
+      </div>
+      <input type="checkbox" ${st.statusBar?'checked':''} onchange="RewardBridge.setStatusBar(this.checked);renderRewardCard();if(currentPage==='yi')renderYiPage()"
         style="width:20px;height:20px;accent-color:var(--accent);flex:none">
     </div>
 
@@ -3169,6 +3308,8 @@ function toggleManagedApp(cb){
 /* ---- 安卓返回键：弹窗 → 日记弹层 → 详情页 → 退出 ---- */
 window.__androidBack = function(){
   try{
+    /* 确认卡在最上层，先收它，别连带把下面的页面/弹层一起关掉 */
+    if(typeof askOpen==='function' && askOpen()){ closeAsk(); return true; }
     /* 裁剪器在最上层：先关它，别把下面的设置弹层一起收掉 */
     if(typeof Cropper !== 'undefined' && Cropper.isOpen()){ Cropper.close(); return true; }
     /* 富文本快捷条只是浮层提示，先收它，不要连带关掉编辑页 */
@@ -5570,10 +5711,21 @@ function exportAll(){
   showExportModal(JSON.stringify(obj, null, 2), 'lifegame-backup-'+todayStr()+'.json');
 }
 /* force=true 表示调用方（坚果云「确认覆盖」）已经问过一次，不再弹第二次确认 */
-function applySnapshot(obj, force){
+/* force=true 表示调用方（坚果云「确认覆盖」）已经问过一次，不再弹第二次确认；
+   done(ok) 是可选回调：确认框变成回调链之后，调用方要把「导入完再做的事」放进来 */
+function applySnapshot(obj, force, done){
   let life = (obj && obj.app==='lifeRPG' && obj.life) ? obj.life : null;
   if(!life && obj && Array.isArray(obj.skills)) life = obj; // 兼容纯生活数据快照
-  if(life && (force || confirm('导入将覆盖当前 技能/财富/健康/职业/打卡统计 数据，确定继续？'))){
+  if(life && !force){
+    uiAsk({
+      title:'导入会覆盖当前数据',
+      desc:'技能 / 财富 / 健康 / 职业 / 打卡统计会被这份备份替换，日记只做合并。',
+      ok:'继续导入', cancel:'先不导',
+      onOk:function(){ applySnapshot(obj, true, done); }
+    });
+    return false;
+  }
+  if(life){
     state.skills = Array.isArray(life.skills) ? normalizeSkillTones(life.skills) : [];
     state.insights = (life.insights||[]).filter(x=>x&&x.id&&x.skillId);
     /* 财富走和本机读取同一份归一：短信记的账（src:'sms' / smsId / off / fixedId）原样带回来 */
@@ -5601,11 +5753,12 @@ function applySnapshot(obj, force){
     if(life) toast('导入完成 · 日记：新增 '+r.added+' 篇 / 更新 '+r.updated+' 篇');
     else toast('日记导入：新增 '+r.added+' 篇 / 更新 '+r.updated+' 篇');
   } else if(life){ toast('导入完成'); }
-  else { toast('文件格式不对，请粘贴/选择本应用导出的 JSON'); return false; }
+  else { toast('文件格式不对，请粘贴/选择本应用导出的 JSON'); if(done) done(false); return false; }
+  if(done) done(true);
   return true;
 }
 function importAllText(txt){
-  try{ applySnapshot(JSON.parse(String(txt))); closeModal(); }
+  try{ applySnapshot(JSON.parse(String(txt)), false, function(ok){ if(ok) closeModal(); }); }
   catch(err){ toast('导入失败：'+err.message); }
 }
 function importAll(file){
@@ -6346,9 +6499,10 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
       rb.onclick = function(){ e.deletedAt = null; saveData(); renderTrash(); renderSettings(); toast("已恢复"); };
       var db = el("button", "dy-btn-danger", "彻底删除");
       db.onclick = function(){
-        if(!window.confirm("彻底删除这篇日记？这个操作无法撤销，建议先导出一份备份。")) return;
-        data.entries = data.entries.filter(function(x){ return x.id !== e.id; });
-        saveData(); renderTrash(); renderSettings(); toast("已彻底删除");
+        uiAsk({ title:"彻底删除这篇日记？", desc:"这个操作无法撤销，建议先导出一份备份。", ok:"彻底删除", cancel:"再想想", danger:true, onOk:function(){
+          data.entries = data.entries.filter(function(x){ return x.id !== e.id; });
+          saveData(); renderTrash(); renderSettings(); toast("已彻底删除");
+        }});
       };
       acts.appendChild(rb); acts.appendChild(db);
       row.appendChild(acts);
@@ -6388,7 +6542,7 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
      这里只保留解析与合并逻辑给整体导入复用（applySnapshot → dyAPI.importEntries）。 */
   function wipeAll(){
     if(!data.entries.length){ toast("本来就是空的"); return; }
-    if(!window.confirm("确定清空这台设备上的全部日记？会先把整份数据导出为可复制的备份文本。")) return;
+    uiAsk({ title:"清空全部日记？", desc:"会先把整份数据导出成可复制的备份文本，再清掉这台设备上的日记。", ok:"清空", cancel:"取消", danger:true, onOk:function(){
     /* 导出弹层由 #modalRoot 承载，压在日记设置弹层下面，先提升层级 */
     var mr = document.getElementById("modalRoot");
     if(mr) mr.classList.add("over-diary");
@@ -6398,6 +6552,7 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
       saveData(); renderList(); renderSettings();
       toast("日记已清空（备份就在刚才的弹层里，记得复制保存）");
     }, 900);
+    }});
   }
 
   /* ---------------- events ---------------- */
@@ -6446,10 +6601,10 @@ g("dyBtnTheme").setAttribute("aria-label", "切换主题，当前为" + (themeNa
     };
     g("dyReadDelete").onclick = function(){
       var e = filtered()[readIndex]; if(!e) return;
-      var ok = window.confirm("删除这篇日记？（会先进回收站，可以恢复）");
-      if(!ok) return;
-      removeEntry(e.id);
-      closeRead();
+      uiAsk({ title:"删除这篇日记？", desc:"会先进回收站，需要时还能恢复。", ok:"删除", cancel:"取消", danger:true, onOk:function(){
+        removeEntry(e.id);
+        closeRead();
+      }});
     };
     g("dyReadPrev").onclick = function(){
       var list = filtered();
@@ -6680,6 +6835,57 @@ if(location.search.indexOf('selftest')>=0){
       ok('壁纸模糊度仍在 0–30 内', (function(){ const b=Wall.blur(); return b>=0 && b<=30 && typeof Wall.apply==='function'; })());
       ok('空闲时 tick 不报错（计时器会自己收掉）', (function(){ Yi.tick(); return true; })());
       ok('富文本快捷条默认收起', typeof Rt.isOpen==='function' && Rt.isOpen()===false);
+      // -- 本轮：快捷条在触摸下真的写进 textarea（旧版 touchstart preventDefault 吞掉了 click） --
+      ok('富文本按钮点下去真的改字', (function(){
+        const ta=document.createElement('textarea'); ta.className='rt-ta'; ta.value='加粗我';
+        document.body.appendChild(ta);
+        ta.focus(); ta.setSelectionRange(0,3);
+        Rt.openFor(ta);
+        const bar=document.getElementById('rtBar');
+        bar.querySelector('button[data-a="b"]').dispatchEvent(new MouseEvent('touchstart',{bubbles:true,cancelable:true}));
+        const bolded=ta.value==='**加粗我**';
+        ta.setSelectionRange(0,ta.value.length);
+        bar.querySelector('button[data-a="blue"]').dispatchEvent(new MouseEvent('touchstart',{bubbles:true,cancelable:true}));
+        const blued=ta.value==='==**加粗我**==';
+        Rt.hide(); ta.remove();
+        return bolded && blued;
+      })());
+      ok('桌面点击也不会重复执行', (function(){
+        const ta=document.createElement('textarea'); ta.className='rt-ta'; ta.value='字';
+        document.body.appendChild(ta); ta.focus(); ta.setSelectionRange(0,1);
+        Rt.openFor(ta);
+        const realNow=Date.now;
+        Date.now=function(){ return realNow()+3000; };     // 越过触摸后的 800ms 去重窗口
+        document.getElementById('rtBar').querySelector('button[data-a="b"]').click();
+        Date.now=realNow;
+        const v=ta.value; Rt.hide(); ta.remove();
+        return v==='**字**';
+      })());
+      ok('确认卡是站内卡片、问完才收', (function(){
+        uiAsk({title:'标题', desc:'说明', ok:'好', cancel:'算了', onOk:function(){}});
+        const ok1=askOpen() && $('#askRoot').innerHTML.indexOf('ask-card')>=0 && $('#askYes').textContent==='好';
+        $('#askNo').click();
+        return ok1 && !askOpen();
+      })());
+      ok('剩余时间可以在系统顶部显示（开关默认关）', (function(){
+        const st=RewardBridge.state();
+        const dflt=st.statusBar===false;
+        RewardBridge.setStatusBar(true);
+        const on=RewardBridge.state().statusBar===true;
+        RewardBridge.setStatusBar(false);
+        const off=RewardBridge.state().statusBar===false;
+        return dflt && on && off && typeof RewardBridge.setStatusBar==='function';
+      })());
+      ok('正计时超过一小时带小时位', (function(){
+        Yi.setRewardMode('ratio'); Yi.startFocus('t','');
+        const realNow=Date.now, t0=realNow();
+        Date.now=function(){ return t0+65*60000; };
+        Yi.tick();
+        const clk=$('#yiClk')?$('#yiClk').textContent:'';
+        Date.now=realNow;
+        Yi.giveUp(); Yi.setRewardMode('fixed');
+        return clk==='1:05:00';
+      })());
 
       // -- 第 18 轮：==蓝色字== 富文本 --
       ok('==文字== 渲染成蓝色 span', /<span class="rt-blue">蓝色<\/span>/.test(rich('==蓝色==')));
@@ -6917,6 +7123,13 @@ if(location.search.indexOf('selftest')>=0){
     })();
     ok('专注页有环形倒计时', (function(){ const h=Yi.focusHTML(false); return h.indexOf('fz-ring')>=0 && h.indexOf('id="yiClk"')>=0 && h.indexOf('fz-prog')>=0; })());
     ok('专注页左下返回、右下中断', (function(){ const h=Yi.focusHTML(false); return (h.match(/fz-ico/g)||[]).length===2 && h.indexOf('askGiveUp')>=0 && h.indexOf('‹ 返回')<0; })());
+    ok('按比例时右下角变「结束并结算」', (function(){
+      Yi.setRewardMode('ratio'); Yi.startFocus('t','');
+      const h=Yi.focusHTML(false);
+      const good=h.indexOf('askStop')>=0 && h.indexOf('askGiveUp')<0;
+      Yi.giveUp(); Yi.setRewardMode('fixed');
+      return good;
+    })());
     ok('专注页预览只留返回键', (function(){ const h=Yi.focusHTML(true); return (h.match(/fz-ico/g)||[]).length===1 && h.indexOf('giveUp')<0; })());
     ok('比例基准是 10 分钟（30 分钟 ×0.5 = 15）', (function(){ Yi.setRewardMode('ratio'); Yi.setRatio(5); const g=Yi.ratioGain(30*60000); Yi.setRewardMode('fixed'); return g===15 && Yi.ratioVal()===5; })());
     ok('固定奖励文案保持原样', Yi.rewardHint({rewardMinutes:30}).indexOf('+30')>=0);
@@ -6931,18 +7144,17 @@ if(location.search.indexOf('selftest')>=0){
       RewardBridge.addMinutes(-1);           // 复原余额，别影响后面的断言
       return gained===60000;
     })());
-    ok('中断前会先确认', (function(){
+    ok('中断前会先确认（站内卡片，不再是系统白框）', (function(){
       Yi.startFocus('t','');
-      const oc=window.confirm;
-      window.confirm=function(){ return false; };
       const running=Yi.focusing();
-      Yi.askGiveUp();                       // 点了取消：这一段还在
-      const still=Yi.focusing();
-      window.confirm=function(){ return true; };
-      Yi.askGiveUp();                       // 确认中断：清掉这一段
-      const gone=!Yi.focusing();
-      window.confirm=oc;
-      return running && still && gone;
+      Yi.askGiveUp();
+      const shown=askOpen() && !!$('#askYes') && $('#askRoot').innerHTML.indexOf('ask-card')>=0;
+      $('#askNo').click();                  // 点了取消：这一段还在
+      const still=Yi.focusing() && !askOpen();
+      Yi.askGiveUp();
+      $('#askYes').click();                 // 确认中断：清掉这一段
+      const gone=!Yi.focusing() && !askOpen();
+      return running && shown && still && gone;
     })());
     // -- 本轮：按比例改正计时 / 段内快照 / 备份还原（含短信账目） --
     ok('按比例：专注页从 00:00 正计时往上走', (function(){
@@ -6966,36 +7178,55 @@ if(location.search.indexOf('selftest')>=0){
       Yi.giveUp();
       return /^1[45]:/.test(t);
     })());
-    ok('结算按开始时的快照：走满还没结算也不许改比例', (function(){
-      const b0=RewardBridge.state().balanceMs;
+    ok('按比例：走满设定时长也不自动结束，时间继续累加', (function(){
       Yi.setRewardMode('ratio'); Yi.setRatio(10); Yi.setDuration(15);
       Yi.startFocus('t','');
       const realNow=Date.now, t0=realNow();
-      Date.now=function(){ return t0+16*60000; };   // 已经超过设定时长
-      const was=Yi.ratioVal();
-      Yi.setRatio(1);
-      const guarded=Yi.ratioVal()===was;
-      Yi.tick();                                     // 到点结算：15 分钟 × 1 = 15
+      Date.now=function(){ return t0+16*60000; };
+      Yi.tick();                                   // 越过 15 分钟：不该自己结算
+      const still=Yi.focusing();
+      const at16=$('#yiClk')?$('#yiClk').textContent:'';
+      Date.now=function(){ return t0+95*60000; };
+      Yi.tick();
+      const at95=$('#yiClk')?$('#yiClk').textContent:'';
+      Date.now=realNow;
+      Yi.setRatio(1);                              // 进行中不许改比例
+      const guarded=Yi.ratioVal()===10;
+      Yi.giveUp();
+      Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
+      return still && at16==='16:00' && at95==='1:35:00' && guarded;
+    })());
+    ok('按比例：按「结束」才结算，按实际坐住的时长算', (function(){
+      const b0=RewardBridge.state().balanceMs;
+      Yi.setRewardMode('ratio'); Yi.setRatio(6); Yi.setDuration(15);
+      Yi.startFocus('t','');
+      const realNow=Date.now, t0=realNow();
+      Date.now=function(){ return t0+42*60000; };  // 42 分钟 × 0.6 = 25
+      Yi.askStop();
+      const shown=askOpen() && $('#askRoot').innerHTML.indexOf('42 分钟')>=0;
+      $('#askYes').click();
       Date.now=realNow;
       const gained=Math.round((RewardBridge.state().balanceMs-b0)/60000);
       Yi.closeReward();
       RewardBridge.addMinutes(-gained);
       Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
-      return guarded && gained===15;
+      return shown && gained===25;
     })());
-    ok('走满但还没 tick 就再开一段：先结算上一段', (function(){
+    ok('固定奖励走满就自动结算', (function(){
       const b0=RewardBridge.state().balanceMs;
-      Yi.setRewardMode('ratio'); Yi.setRatio(5); Yi.setDuration(15);
+      Yi.setRewardMode('fixed'); Yi.setDuration(15);
+      const add=RewardBridge.state().rewardMinutes||30;
       Yi.startFocus('t','');
       const realNow=Date.now, t0=realNow();
       Date.now=function(){ return t0+16*60000; };
-      const started=Yi.startFocus('t','');     // 上一段已走满：安静结算（15 分钟 × 0.5 = 8）后开新段
+      Yi.tick();
+      const done=!Yi.focusing();
       Date.now=realNow;
       const gained=Math.round((RewardBridge.state().balanceMs-b0)/60000);
-      Yi.giveUp(); Yi.closeReward();
+      Yi.closeReward();
       RewardBridge.addMinutes(-gained);
       Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
-      return started===true && gained===8;
+      return done && gained===add;
     })());
     ok('备份里带着短信自动记的账', (function(){
       ingestSms({id:'bk-sms-1', amount:88, merchant:'备份测试商户', date:todayStr()});
@@ -7006,9 +7237,7 @@ if(location.search.indexOf('selftest')>=0){
       const ckBefore=ckStats().total;
       const snap=JSON.stringify(appSnapshot());
       state.wealth.expenses=[]; state.checkinStats={total:0,days:[],focusMs:0};
-      const oc=window.confirm; window.confirm=function(){ return true; };
-      applySnapshot(JSON.parse(snap));
-      window.confirm=oc;
+      applySnapshot(JSON.parse(snap), true);
       const back=state.wealth.expenses.filter(e=>e && e.smsId==='bk-sms-1')[0];
       return !!back && back.amount===88 && back.src==='sms' && ckStats().total===ckBefore;
     })());
@@ -7016,9 +7245,7 @@ if(location.search.indexOf('selftest')>=0){
       Yi.setRewardMode('ratio'); Yi.setRatio(7); Yi.setDuration(25);
       const snap=JSON.stringify(appSnapshot());
       Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
-      const oc=window.confirm; window.confirm=function(){ return true; };
-      applySnapshot(JSON.parse(snap));
-      window.confirm=oc;
+      applySnapshot(JSON.parse(snap), true);
       const back=Yi.ratioOn() && Yi.ratioVal()===7;
       Yi.setRewardMode('fixed'); Yi.setRatio(10); Yi.setDuration(15);
       return back;
@@ -7153,7 +7380,6 @@ if(location.search.indexOf('selftest')>=0){
       try{
         const skId = 'rt-sk-1';
         state.insights = []; state.skills = [];
-        window.confirm = ()=>true;
         window.save = ()=>{};
         window.renderCurrentPage = ()=>{};
         const obj = { app:'lifeRPG', version:1, life:{
@@ -7163,7 +7389,7 @@ if(location.search.indexOf('selftest')>=0){
           health:{birthday:null,diseases:[]},
           career:{current:{pays:[]},target:{skills:[]}}
         }};
-        applySnapshot(obj);
+        applySnapshot(obj, true);
         const got = skillInsights(skId);
         return got.length===1 && got[0].title==='慢即是快' && got[0].skillId===skId;
       } finally {

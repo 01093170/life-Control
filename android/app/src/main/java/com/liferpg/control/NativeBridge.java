@@ -188,6 +188,15 @@ public class NativeBridge {
         return getState();
     }
 
+    /** 状态栏下面那条剩余时间：开关立刻生效，不用等下一次 tick。 */
+    @JavascriptInterface
+    public String setStatusBar(boolean b) {
+        w().setStatusBar(b);
+        AppWatcher watcher = GuardState.watcher();
+        if (watcher != null) watcher.refreshStatusStrip();
+        return getState();
+    }
+
     @JavascriptInterface
     public String resetBalance() {
         w().reset();

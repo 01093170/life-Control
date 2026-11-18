@@ -46,7 +46,18 @@ public class AppWatcher extends AccessibilityService {
 
     /** 真实前台连续多久不是受管应用，才认定真的离开了。用于吞掉瞬时弹窗。 */
     private static final long LEAVE_GRACE_MS = 2500L;
-    private static final long CHARGE_CHUNK_MS = 10000L;
+    /** 攒够这么久再落一次盘：写文件是这里最贵的动作，10 秒一次没必要。 */
+    private static final long CHARGE_CHUNK_MS = 20000L;
+
+    /* 轮询节奏跟着「现在到底要不要盯」走：
+       余额还有、又没在拦截时，没必要每秒去问一遍系统前台是谁（那是跨进程查询，最费电）；
+       余额见底、正在拦截时才回到 1 秒。窗口事件本身仍会即时触发裁决，不用靠轮询发现。 */
+    private static final long TICK_URGENT_MS = 1000L;
+    private static final long TICK_IDLE_MS = 3000L;
+    private static final long TICK_SCREEN_OFF_MS = 5000L;
+
+    /** 每次窗口切换都打一行日志在真机上是有成本的，排查时再打开。 */
+    private static final boolean DEBUG = false;
 
     /* 按秒扣费与拦截裁决都放在无障碍服务里：它由系统绑定，不需要前台服务，
        也就不需要那条「专注守护运行中」的常驻通知。 */
@@ -67,6 +78,7 @@ public class AppWatcher extends AccessibilityService {
         loadLauncherPackages();
         startTicker();
         cleanupLegacyNotificationChannels();
+        StatusStrip.sync(this, Wallet.get(this));
         Log.d(TAG, "service connected");
         postSync();
     }
@@ -97,31 +109,41 @@ public class AppWatcher extends AccessibilityService {
     private final Runnable ticker = new Runnable() {
         @Override
         public void run() {
+            long next = TICK_URGENT_MS;
             try {
-                tick();
+                next = tick();
             } catch (Exception ignored) {
             }
-            if (handler != null) handler.postDelayed(this, 1000);
+            if (handler != null) handler.postDelayed(this, next);
         }
     };
 
-    /** 每秒：按前台时长扣额度，并让拦截裁决跟着最新状态走。 */
-    private void tick() {
+    /** 每秒（或每几秒）：按前台时长扣额度，并让拦截裁决跟着最新状态走；返回下一次的间隔。 */
+    private long tick() {
         Wallet w = Wallet.get(this);
         long now = SystemClock.elapsedRealtime();
-        long dt = lastTickAt == 0L ? 1000L : now - lastTickAt;
+        long dt = lastTickAt == 0L ? TICK_URGENT_MS : now - lastTickAt;
         lastTickAt = now;
-        if (dt <= 0 || dt > 8000L) dt = 1000L;
+        if (dt <= 0 || dt > 8000L) dt = TICK_URGENT_MS;
 
+        boolean screenOn = isScreenOn();
         String pkg = GuardState.fgPackage;
-        boolean counting = w.isManaged(pkg) && isScreenOn() && w.guardOn() && w.enforce();
+        boolean counting = screenOn && w.isManaged(pkg) && w.guardOn() && w.enforce();
         if (counting) {
             accMs += dt;
             if (accMs >= CHARGE_CHUNK_MS || w.balance() <= 0) flushAcc();
         } else {
             flushAcc();
         }
+
+        /* 熄屏时没人会用受管应用：不查前台、不刷条子，只把节奏放慢 */
+        if (!screenOn) return TICK_SCREEN_OFF_MS;
+
         syncNow();
+        StatusStrip.sync(this, w);
+
+        boolean urgent = w.balance() <= 0L || GuardState.blockedPkg.length() > 0 || counting;
+        return urgent ? TICK_URGENT_MS : TICK_IDLE_MS;
     }
 
     private void flushAcc() {
@@ -179,7 +201,7 @@ public class AppWatcher extends AccessibilityService {
         boolean full = event.isFullScreen();
         CharSequence cn = event.getClassName();
         final String cls = cn == null ? "" : cn.toString();
-        Log.d(TAG, "event pkg=" + pkg + " class=" + cls + " full=" + full);
+        if (DEBUG) Log.d(TAG, "event pkg=" + pkg + " class=" + cls + " full=" + full);
 
         // 拦截页本身也是本包的窗口（TYPE_ACCESSIBILITY_OVERLAY），一加窗系统就会回送
         // TYPE_WINDOW_STATE_CHANGED。旧逻辑把它当成「用户回到本 App」，于是刚盖上就被
@@ -267,6 +289,9 @@ public class AppWatcher extends AccessibilityService {
             String ev = GuardState.fgPackage;
             String b = GuardState.blockedPkg;
             String probe = auth.length() > 0 ? auth : ev;
+
+            // 顺手把权威前台写回事件记忆：系统合并/丢事件时，按秒扣费也不会漏。
+            if (auth.length() > 0 && !isNoise(auth)) GuardState.reportForeground(auth);
 
             if (probe.equals(getPackageName()) || isLauncher(probe)) {
                 // 某些 ROM 的 getRootInActiveWindow() 会把我们自己的覆盖层当成活动窗口；
@@ -386,6 +411,14 @@ public class AppWatcher extends AccessibilityService {
         BlockOverlay.show(this, label);
     }
 
+    /** 前端刚打开/关掉「顶部显示剩余时间」时催一次，不用等下一次 tick。 */
+    public void refreshStatusStrip() {
+        try {
+            StatusStrip.sync(this, Wallet.get(this));
+        } catch (Exception ignored) {
+        }
+    }
+
     public void hideBlock() {
         GuardState.clearBlock();
         BlockOverlay.hide();
@@ -424,6 +457,7 @@ public class AppWatcher extends AccessibilityService {
         GuardState.accessibilityConnected = false;
         GuardState.clearBlock();
         BlockOverlay.hide();
+        StatusStrip.hide();
         return super.onUnbind(intent);
     }
 
@@ -434,6 +468,7 @@ public class AppWatcher extends AccessibilityService {
         GuardState.watcher = null;
         GuardState.clearBlock();
         BlockOverlay.hide();
+        StatusStrip.hide();
         super.onDestroy();
     }
 }
