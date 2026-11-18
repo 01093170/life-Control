@@ -57,7 +57,21 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee "$RUNNER_TEMP/gradle.log"
+
+      # 构建日志要登录才能看；失败时把关键几行贴到 run 摘要里，谁都能看到。
+      - name: Report build errors
+        if: failure()
+        run: |
+          LOG="$RUNNER_TEMP/gradle.log"
+          echo "## Gradle failure" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          grep -nE "^e: |error:|What went wrong|FAILURE:|Execution failed" -A 3 "$LOG" 2>/dev/null | head -120 >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          grep -E "^e: |error:" "$LOG" 2>/dev/null | head -3 | while IFS= read -r line; do
+            echo "::error::$line"
+          done
 
       - name: Rename APK
         run: |
