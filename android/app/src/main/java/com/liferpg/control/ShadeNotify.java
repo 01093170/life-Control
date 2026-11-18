@@ -74,9 +74,10 @@ public class ShadeNotify {
                     .setCategory(Notification.CATEGORY_STATUS)
                     .setVisibility(Notification.VISIBILITY_SECRET)
                     .setContentIntent(openIntent(ctx));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                b.setSilent(true);
-            } else {
+            /* 通道本身就是 IMPORTANCE_LOW + 无声，这里再兜一层：
+               老系统没有通道，只能靠 defaults=0 + 低优先级做到不响不震。 */
+            b.setDefaults(0).setSound(null);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                 b.setPriority(Notification.PRIORITY_LOW);
             }
 
