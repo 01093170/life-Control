@@ -5,8 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 
@@ -316,6 +322,39 @@ public class NativeBridge {
         } catch (Exception e) {
             return fail("list");
         }
+    }
+
+    /* ---------------- 提示音＋震动 ---------------- */
+
+    /** 倒计时走完的提示音＋震动（原生优先；浏览器里 JS 用 Web Audio＋vibrate 兜底）。 */
+    @JavascriptInterface
+    public String doneCue() {
+        try {
+            Vibrator vb = (Vibrator) act.getSystemService(Context.VIBRATOR_SERVICE);
+            if (vb != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vb.vibrate(VibrationEffect.createWaveform(new long[]{0, 180, 120, 260}, -1));
+                } else {
+                    vb.vibrate(new long[]{0, 180, 120, 260}, -1);
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        try {
+            final ToneGenerator tg = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, 85);
+            tg.startTone(ToneGenerator.TONE_PROP_BEEP, 300);
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        tg.release();
+                    } catch (Exception ignored) {
+                    }
+                }
+            }, 800);
+        } catch (Exception ignored) {
+        }
+        return getState();
     }
 
     /* ---------------- 权限 / 跳转 ---------------- */

@@ -1,6 +1,6 @@
 {
   "name": "life-control",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "description": "人生RPG · 打卡换娱乐额度的 Android 壳",
   "scripts": {

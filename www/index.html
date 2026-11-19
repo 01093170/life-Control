@@ -240,6 +240,11 @@ body[data-theme="dark"] .rt-blue{color:#7db3ff}
 body[data-theme="dark"] .rte-bar .r-blue{color:#7db3ff}
 .rte-sp{width:4px;flex:none}
 .rte-bar button[data-r="li"],.rte-bar button[data-r="table"],.rte-bar button[data-r="row"],.rte-bar button[data-r="col"]{font-size:var(--fs-12);letter-spacing:0;min-width:46px}
+/* 工具条贴软键盘：正文获焦时工具条脱离弹层、fixed 到键盘上方；原位留占位防跳动 */
+.rte-bar-float{position:fixed;left:0;right:0;bottom:var(--rte-kb,0px);z-index:98!important;margin:0!important;
+  border-radius:0!important;border-bottom:none!important;box-shadow:0 -2px 14px rgba(15,23,42,.16);
+  padding-bottom:calc(5px + env(safe-area-inset-bottom))}
+.rte-bar-ph{display:block}
 .rte-body{min-height:104px;padding:12px 14px;font-size:var(--fs-15);line-height:1.85;letter-spacing:.2px;
   color:var(--text);outline:none;word-break:break-word;overflow-wrap:break-word}
 .rte-body:empty::before,.rte-body.is-empty::before{content:attr(data-ph);color:var(--sub);opacity:.7;pointer-events:none}
@@ -406,6 +411,16 @@ canvas.chart{width:100%;height:190px;display:block}
 .seg-btn svg{flex:none}
 .iconpick{display:flex;align-items:center;justify-content:center;color:var(--sub)}
 .iconpick.pickon{border-color:var(--accent);background:var(--acc-08);color:var(--accent)}
+/* 类别图标格子：点图标即选类别，行末「＋」打开自定义类别小面板 */
+.cat-grid{display:flex;flex-wrap:wrap;gap:8px}
+.cat-cell{width:64px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:7px 4px;border:1px solid var(--line);border-radius:11px;background:var(--card2);color:var(--sub);cursor:pointer;font-size:var(--fs-11);line-height:1.2}
+.cat-cell i{font-style:normal;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-cell.on{border-color:var(--accent);background:var(--acc-08);color:var(--accent)}
+.cat-cell.cat-add{border-style:dashed;font-size:var(--fs-20);color:var(--sub)}
+.cat-add\boxed{margin-top:10px;padding:12px;border:1px dashed var(--line);border-radius:11px;background:var(--card2)}
+.cat-add-h{font-size:var(--fs-12);font-weight:700;color:var(--sub);margin-bottom:8px}
+.cat-icpick{display:flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--sub);cursor:pointer}
+.cat-icpick.on{border-color:var(--accent);background:var(--acc-08);color:var(--accent)}
 /* ---------- 图标 / 杂项 ---------- */
 .ic{flex:none;vertical-align:-3px}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
@@ -756,18 +771,15 @@ body[data-theme="ios"] #page-diary{--dy-solid:#f2f2f7}
 .yi-full.yi-cover::before{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.45),rgba(0,0,0,0) 45%);pointer-events:none}
 .yi-full.yi-cover .yi-pbar{position:relative;z-index:2;width:72%;max-width:420px;height:6px;background:rgba(255,255,255,.34)}
 .yi-full.yi-cover .yi-pbar>i{background:#fff}
-/* 专注页：一枚小小的环形倒计时居中，左右下角两枚图标（返回 / 中断） */
-.fz-ring{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);width:104px;height:104px;z-index:2;pointer-events:none}
-.fz-ring svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
-.fz-ring circle{fill:none;stroke-width:1.5;stroke-linecap:round}
-.fz-track{stroke:rgba(255,255,255,.22)}
-.fz-prog{stroke:rgba(255,255,255,.92);stroke-dasharray:276.46;stroke-dashoffset:276.46;transition:stroke-dashoffset .9s linear}
-.fz-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
-.fz-clock{font-size:var(--fs-20);font-weight:300;color:#fff;letter-spacing:1.2px;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 1px 12px rgba(0,0,0,.3)}
-.fz-tag{font-size:var(--fs-11);color:rgba(255,255,255,.62);letter-spacing:3px;text-indent:3px;line-height:1}
-/* 按比例是正计时，读数更长（已挣 +12 分），字距收一点别顶出圆环 */
+/* 专注页：中间轮换静心提示；时间放在底部、进度条上方；左下暂停 / 右下中断（返回走侧边手势） */
+.fz-quote{position:absolute;left:50%;top:37%;transform:translate(-50%,-50%);width:min(82vw,360px);text-align:center;
+  font-size:var(--fs-17);line-height:2.1;color:rgba(255,255,255,.92);letter-spacing:1px;
+  text-shadow:0 1px 14px rgba(0,0,0,.38);font-family:"Songti SC",SimSun,serif;z-index:2;transition:opacity .45s ease}
+.fz-clock{font-size:var(--fs-32);font-weight:300;color:#fff;letter-spacing:2px;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 1px 12px rgba(0,0,0,.3)}
+.fz-tag{font-size:var(--fs-11);color:rgba(255,255,255,.62);letter-spacing:3px;text-indent:3px;line-height:1;margin-top:9px}
+/* 按比例是正计时，读数更长（已挣 +12 分），字距收一点 */
 .fz-tag.rt{letter-spacing:.5px;text-indent:0;white-space:nowrap}
-.fz-bottom{position:relative;z-index:3;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:22px;padding:0 20px}
+.fz-bottom{position:relative;z-index:3;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;gap:16px;padding:0 20px}
 .fz-bottom .yi-pbar{width:100%;max-width:280px;height:3px;background:rgba(255,255,255,.24)}
 .fz-row{display:flex;align-items:center;justify-content:space-between;width:100%}
 .fz-ico{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.26);color:#fff;cursor:pointer;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);transition:transform .15s ease,background .15s ease}
@@ -1268,6 +1280,19 @@ const IC = {
   suitcase:'<rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v3M8 12v4M16 12v4"/>',
   piano:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M7 5v9M12 5v9M17 5v9M2 14h20"/>',
   car:'<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10.5 15.7 6.4A2 2 0 0 0 14 5.5h-4a2 2 0 0 0-1.8 1.1L6 10.5l-2.5.6C2.7 11.3 2 12.1 2 13v3c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 17h6"/>',
+  /* 类别 / 物品补充 */
+  utensils:'<path d="M5 2v6a2.5 2.5 0 0 0 5 0V2"/><path d="M7.5 2v6"/><path d="M7.5 8v14"/><path d="M17.5 2 15 2c-1.2 3-1.6 6.2-.8 9.5h5.3V2z"/><path d="M17.8 11.5V22"/>',
+  coffee:'<path d="M4 8h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8z"/><path d="M16 9h2a2.5 2.5 0 0 1 0 5h-2"/><path d="M4 22h13"/>',
+  bag:'<path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  ticket:'<path d="M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1a2 2 0 0 0 0 4v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1a2 2 0 0 0 0-4V9z"/><path d="M13 7v2M13 11v2M13 15v2"/>',
+  bus:'<rect x="4" y="3" width="16" height="13" rx="2"/><path d="M4 10h16"/><circle cx="7.5" cy="19" r="1.8"/><circle cx="16.5" cy="19" r="1.8"/><path d="M6 16v2M18 16v2"/>',
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/>',
+  gift:'<rect x="3" y="8" width="18" height="4"/><path d="M5 12v9h14v-9"/><path d="M12 8v13"/><path d="M12 8S9.5 8 8 6.5 9 3 12 8zM12 8s2.5 0 4-1.5S15 3 12 8z"/>',
+  dumbbell:'<path d="M6.5 8v8M3.5 10v4M17.5 8v8M20.5 10v4"/><path d="M6.5 12h11"/>',
+  paw:'<circle cx="6" cy="9" r="2"/><circle cx="10.5" cy="6.5" r="2"/><circle cx="15.5" cy="6.5" r="2"/><circle cx="19" cy="9" r="2"/><path d="M12 12c-3 0-6 2-6 5s2.5 5 6 5 6-2 6-5-3-5-6-5z"/>',
+  film:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14"/><path d="M3 12h18"/>',
+  wifi:'<path d="M2 8.8a15.5 15.5 0 0 1 20 0"/><path d="M5 12.5a10.5 10.5 0 0 1 14 0"/><path d="M8.5 16a5.5 5.5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/>',
+  cap:'<path d="M2 8l10-4 10 4-10 4L2 8z"/><path d="M6 10v5c0 1.6 2.7 3 6 3s6-1.4 6-3v-5"/><path d="M22 8v6"/>',
   /* 疾病 */
   glasses:'<circle cx="7" cy="14" r="3.5"/><circle cx="17" cy="14" r="3.5"/><path d="M10.5 14h3M3.5 13 2 8M20.5 13 22 8"/>',
   tooth:'<path d="M12 2C8.5 2 5.5 4.5 5.5 8c0 3 1 4.5 1.5 7.5.3 1.9.8 4.5 2 4.5.9 0 1.2-1.6 1.5-3.2.3-1.4.7-2.3 1.5-2.3s1.2.9 1.5 2.3c.3 1.6.6 3.2 1.5 3.2 1.2 0 1.7-2.6 2-4.5.5-3 1.5-4.5 1.5-7.5 0-3.5-3-6-6.5-6z"/>',
@@ -1285,10 +1310,18 @@ const IC = {
 };
 const ic = (name, s=18) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="${name==='star'?'currentColor':'none'}" stroke="${name==='star'?'none':'currentColor'}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${IC[name]||''}</svg>`;
 
-const ITEM_ICONS = ['phone','laptop','headphones','watch','gamepad','bike','car','tv','camera','shirt','shoe','book','music','sofa','pan','suitcase','piano'];
+const ITEM_ICONS = ['phone','laptop','headphones','watch','gamepad','bike','car','tv','camera','shirt','shoe','book','music','sofa','pan','suitcase','piano',
+                    'utensils','coffee','bag','ticket','bus','home','gift','dumbbell','paw','film','wifi','cap'];
 const DISEASE_ICONS = ['glasses','tooth','pill','heart','cpu','bone','thermometer','moon','bandage','wind'];
 /* 旧版 emoji 图标 → 新版图标名（数据迁移） */
 const LEGACY_ICONS = {'📱':'phone','💻':'laptop','🎧':'headphones','⌚':'watch','🎮':'gamepad','🚲':'bike','📺':'tv','📷':'camera','👔':'shirt','👟':'shoe','📚':'book','🎸':'music','🛋️':'sofa','🍳':'pan','🧳':'suitcase','🎹':'piano','👓':'glasses','🦷':'tooth','💊':'pill','🫀':'heart','🧠':'cpu','🦴':'bone','🤒':'thermometer','😴':'moon','🩹':'bandage','🫁':'wind'};
+
+/* 默认三类：图标驱动的类别体系（自定义类别追加在 state.wealth.cats 末尾） */
+const CAT_DEFAULTS = [
+  {name:'饮食', icon:'utensils'},
+  {name:'购物', icon:'bag'},
+  {name:'娱乐出行', icon:'ticket'}
+];
 
 const DEFAULT_STATE = {
   skills: [],
@@ -1320,6 +1353,14 @@ function normalizeWealth(w){
     if(['month','quarter','year'].indexOf(f.cycle)<0) f.cycle='month';
     if(!f.settled || typeof f.settled!=='object') f.settled={};
   });
+  /* 类别：三个默认类别永远在最前且不可被同名自定义顶掉，自定义排后面去重 */
+  const cats = CAT_DEFAULTS.map(c=>({name:c.name, icon:c.icon}));
+  (Array.isArray(out.cats)?out.cats:[]).forEach(c=>{
+    const n = c && c.name ? String(c.name).trim() : '';
+    if(!n || n==='未分类' || cats.some(x=>x.name===n)) return;
+    cats.push({ name:n, icon: (c.icon && IC[c.icon]) ? c.icon : 'box' });
+  });
+  out.cats = cats;
   return out;
 }
 function loadState(){
@@ -1613,18 +1654,23 @@ const Rte = (function(){
     fire(body);
   }
   function insertTable(body){
+    /* 结构必须和 rtTableHTML 一致（div.rt-tbl-wrap>table.rt-tbl）：
+       旧版直接塞 table.rte-tbl，没有样式，插入后看着一片空白，得退出再进才显示。 */
+    const wrap = document.createElement('div');
+    wrap.className = 'rt-tbl-wrap';
     const tbl = document.createElement('table');
-    tbl.className = 'rte-tbl';
+    tbl.className = 'rt-tbl';
     tbl.innerHTML = '<tbody><tr><td><br></td><td><br></td></tr><tr><td><br></td><td><br></td></tr></tbody>';
+    wrap.appendChild(tbl);
     const after = document.createElement('div');
     after.appendChild(document.createElement('br'));
     const r = rangeIn(body);
     const blk = r ? topBlock(r.startContainer, body) : null;
     if(blk && blk.parentNode === body){
-      body.insertBefore(tbl, blk.nextSibling);
-      body.insertBefore(after, tbl.nextSibling);
+      body.insertBefore(wrap, blk.nextSibling);
+      body.insertBefore(after, wrap.nextSibling);
     }else{
-      body.appendChild(tbl); body.appendChild(after);
+      body.appendChild(wrap); body.appendChild(after);
     }
     const cell = tbl.rows[0].cells[0];
     const nr = document.createRange(); nr.setStart(cell,0); nr.collapse(true);
@@ -1705,6 +1751,43 @@ const Rte = (function(){
     else if(a === 'col') addCol(body);
     syncBar(body);
   }
+  /* ---------------- 工具条贴软键盘 ---------------- */
+  /* 正文一获焦，就把这一条工具条挪到视口底部（软键盘上方）；失焦放回原位。
+     挪出去是为了脱离带 transform 的弹层（fixed 会被 transform 限住），占位留高度防跳动。 */
+  let pinnedRte = null;
+  function syncRteKb(){
+    let kb = 0;
+    try{
+      if(window.visualViewport){
+        kb = Math.max(0, window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop);
+      }
+    }catch(e){}
+    document.documentElement.style.setProperty('--rte-kb', kb+'px');
+  }
+  function pinRte(box){
+    if(pinnedRte && pinnedRte.box === box) return;
+    if(pinnedRte) unpinRte();
+    const bar = box.querySelector('.rte-bar');
+    const body = box.querySelector('.rte-body');
+    if(!bar || !body) return;
+    const ph = document.createElement('div');
+    ph.className = 'rte-bar-ph';
+    ph.style.height = (bar.offsetHeight || 40) + 'px';
+    bar.parentNode.insertBefore(ph, bar);
+    document.body.appendChild(bar);
+    bar.classList.add('rte-bar-float');
+    pinnedRte = { box: box, bar: bar, ph: ph };
+    syncRteKb();
+  }
+  function unpinRte(){
+    if(!pinnedRte) return;
+    const p = pinnedRte; pinnedRte = null;
+    const body = p.box.querySelector('.rte-body');
+    if(body && p.bar.parentNode) p.box.insertBefore(p.bar, body);
+    p.bar.classList.remove('rte-bar-float');
+    if(p.ph.parentNode) p.ph.parentNode.removeChild(p.ph);
+  }
+
   (function bind(){
     let lastTouch = 0;
     const hit = e => (e.target && e.target.closest) ? e.target.closest('.rte-bar button') : null;
@@ -1740,6 +1823,30 @@ const Rte = (function(){
       e.preventDefault();
       try{ document.execCommand('insertText', false, txt); }catch(err){}
     });
+    /* 工具条贴软键盘：获焦贴底，失焦还原（焦点若只是走到工具条按钮上就不动） */
+    document.addEventListener('focusin', function(e){
+      const t = e.target;
+      if(!t || !t.classList || !t.classList.contains('rte-body')) return;
+      const box = t.closest ? t.closest('.rte') : null;
+      if(box) pinRte(box);
+    });
+    document.addEventListener('focusout', function(e){
+      const t = e.target;
+      if(!t || !t.classList || !t.classList.contains('rte-body')) return;
+      const box = t.closest ? t.closest('.rte') : null;
+      setTimeout(function(){
+        const ae = document.activeElement;
+        if(box && ae && box.contains(ae)) return;      // 还在同一个编辑器里
+        if(!box || (pinnedRte && pinnedRte.box === box)) unpinRte();
+      }, 120);
+    });
+    window.addEventListener('resize', syncRteKb);
+    try{
+      if(window.visualViewport){
+        window.visualViewport.addEventListener('resize', syncRteKb);
+        window.visualViewport.addEventListener('scroll', syncRteKb);
+      }
+    }catch(e){}
     try{ document.execCommand('styleWithCSS', false, false); }catch(e){}
   })();
 
@@ -2773,8 +2880,9 @@ const Yi = (function(){
     /* rewardMode：fixed=每段固定奖励分钟数；ratio=按「专注 10 分钟换 N 分钟」结算
        focusMin / focusMode / focusRatio：这一段开始那一刻的快照。
        中途去设置里改时长或换算法，都不该把已经在走的这一段算错。 */
-    return { focusStartAt:0, focusName:'', focusMin:0, focusMode:'', focusRatio:0,
-      durationMin:15, rewardMode:'fixed', ratio:10,
+    return { focusStartAt:0, focusName:'', focusSkill:'', focusMin:0, focusMode:'', focusRatio:0,
+      pausedMs:0, focusPausedAt:0,
+      durationMin:15, customMin:0, rewardMode:'fixed', ratio:10,
       quotes:DEFAULT_QUOTES.slice(),
       jgy:{email:'',secret:'',lastUp:0,lastDown:0,backups:[]}, pendingDown:false };
   }
@@ -2817,8 +2925,13 @@ const Yi = (function(){
     const m = (s.focusStartAt && num(s.focusMin) > 0) ? num(s.focusMin) : (num(s.durationMin) || 15);
     return clamp(Math.round(m) || 15, 1, 180) * MIN_MS;
   }
-  /* 一律用墙上时间戳算已坐住的时长；系统时间被往回拨时不让它变成负数 */
-  function elapsed(){ return s.focusStartAt ? Math.max(0, Date.now() - s.focusStartAt) : 0; }
+  /* 一律用墙上时间戳算已坐住的时长；系统时间被往回拨时不让它变成负数。
+     暂停的时间不算坐住：pausedMs 是已累计的暂停，focusPausedAt 是这一次暂停的起点。 */
+  function elapsed(){
+    if(!s.focusStartAt) return 0;
+    const pausedNow = s.focusPausedAt ? Math.max(0, Date.now() - s.focusPausedAt) : 0;
+    return Math.max(0, Date.now() - s.focusStartAt - (s.pausedMs||0) - pausedNow);
+  }
   /* 按比例不设终点：只要不按停止，时间就一直往上累加。
      fixed 仍是「走满这一段就自动结算」的倒计时。 */
   function focusing(){ return !!s.focusStartAt && (openEnded() || elapsed() < total()); }
@@ -2884,6 +2997,7 @@ const Yi = (function(){
     const box=document.getElementById('rewardCard'); if(!box) return;
     const run=focusing();
     const up = run && segMode()==='ratio';          // 按比例：正计时，看得见自己坐住了多久
+    const paused = run && !!s.focusPausedAt;
     const el = run ? elapsed() : 0;
     const shown = up ? el : Math.max(0, total()-el);
     const rw=RewardBridge.state(), st=RewardBridge.status();
@@ -2900,7 +3014,7 @@ const Yi = (function(){
         </div>
         <div class="yi-num">${big}</div>
         <div class="yi-foot">${rewardHint(rw)}</div>
-        ${run?`<div class="yi-focusline">● ${up?'专注中 · 已':'这一段专注中，还剩'} <b id="yiCardTime">${up?fmtClock(shown):fmtDown(shown)}</b>${up?`<span id="yiCardGain"> · 约 +${liveGain(el)} 分钟</span>`:''}<button onclick="event.stopPropagation();Yi.openFocus()">回到专注</button></div>`:''}
+        ${run?`<div class="yi-focusline">● ${up?(paused?'已暂停 · 已':'专注中 · 已'):(paused?'已暂停，还剩':'这一段专注中，还剩')} <b id="yiCardTime">${up?fmtClock(shown):fmtDown(shown)}</b>${up?`<span id="yiCardGain"> · ${paused?'已暂停':'约 +'+liveGain(el)+' 分钟'}</span>`:''}<button onclick="event.stopPropagation();Yi.openFocus()">回到专注</button></div>`:''}
       </div>
       ${cardWarn(st)}`;
   }
@@ -2921,6 +3035,7 @@ const Yi = (function(){
     const hh=Math.floor(totalMin/60), mm=totalMin%60;
     const big = hh>0 ? `${hh}<i>小时</i>${mm>0?mm+'<i>分</i>':''}` : `${mm}<i>分钟</i>`;
     const durMin = Math.round(total()/60000);
+    const cMin = customMinOf();
     const curTick = tickProfileOf(rw.tickProfile);
     const tickRows = TICK_PROFILES.map(p=>
       `<button class="yi-freq-row${p.id===curTick.id?' on':''}" onclick="Yi.setTickProfile('${p.id}')">`
@@ -2978,7 +3093,8 @@ const Yi = (function(){
              <div class="yi-hint">奖励在专注结束时才入账，不是打卡那一刻。</div>`}
 
         <div class="yi-lbl" style="margin-top:16px">一段专注的时长</div>
-        <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:9px">${[5,15,25,45].map(m=>`<button class="yi-btn${s.durationMin===m?'':' ghost'}" onclick="Yi.setDuration(${m})">${m} 分钟</button>`).join('')}</div>
+        <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:9px">${[10,20,30,40].map(m=>`<button class="yi-btn${s.durationMin===m?'':' ghost'}" onclick="Yi.setDuration(${m})">${m} 分钟</button>`).join('')}<button class="yi-btn${cMin>0&&s.durationMin===cMin?'':' ghost'}" onclick="Yi.pickCustom()">${cMin?cMin+' 分钟':'自定义'}</button>${cMin?`<button class="yi-btn ghost" title="改自定义时长" onclick="Yi.editCustom()">✎</button>`:''}</div>
+        ${showCustomDur?`<div class="row" style="gap:6px;align-items:center;margin-top:9px"><input id="yiCustomDur" type="number" min="1" max="180" inputmode="numeric" value="${cMin||s.durationMin||15}" style="width:76px;text-align:center;background:var(--card2);border:1px solid var(--line);border-radius:9px;color:var(--text);padding:7px 6px;font-size:var(--fs-13);font-family:inherit"><span class="yi-hint" style="margin:0">分钟</span><button class="yi-btn" onclick="Yi.saveCustomDur()">用它</button><button class="yi-btn ghost" onclick="Yi.cancelCustomDur()">取消</button></div>`:''}
         <div class="yi-hint" style="margin-top:8px">${ratioOn()?'按比例模式不设上限，这一组只在「固定奖励」时生效。':'走满这一段就自动结算，不按停止会按设定的时长结束。'}</div>
 
         <div class="yi-lbl" style="margin-top:16px">在通知栏显示剩余时间</div>
@@ -2994,7 +3110,7 @@ const Yi = (function(){
         <div class="yi-freq">
           ${tickRows}
         </div>
-        <div class="yi-hint" style="margin-top:8px">这一项只管「多久看一眼前台是谁」。扣费永远按真实时长算，不受影响；只有余额刚好用光的那一刻，最晚要等这么久才拦。<br>现在：<b>${curTick.name}</b> · 每 ${curTick.see} 一次 · 估算 ${curTick.power}（亮屏 6 小时 / 熄屏 18 小时的日常强度）。</div>
+        <div class="yi-hint" style="margin-top:8px">这一项只管「多久例行看一眼」，<b>不影响拦截快慢</b>：受管应用一打开就立刻裁决，四个档位一样灵敏；扣费也永远按真实时长算。余额不到 1 分钟会自动加速到 1 秒一查，见底马上拦。所以这个档位其实只在省电上有区别。<br>现在：<b>${curTick.name}</b> · 每 ${curTick.see} 一次 · 估算 ${curTick.power}（亮屏 6 小时 / 熄屏 18 小时的日常强度）。</div>
         <div class="yi-hint" style="margin-top:9px">真机上用墙上时间戳记录开始时刻，熄屏、清后台、重启都不会让${ratioOn()?'正计时':'倒计时'}归零。</div>
       </div>
       ${permWarn(RewardBridge.status())}
@@ -3002,26 +3118,29 @@ const Yi = (function(){
   }
 
   /* ---------------- 实时刷新 ---------------- */
-  const RING_C = 276.46;             // 环形进度周长（r=44）
   function updateLive(){
     const run=focusing(), el=run?elapsed():0, rem=run?Math.max(0,total()-el):total();
     /* 按比例这一段是正计时：数字往上走，看得见自己坐住了多久；固定奖励仍是倒计时 */
     const up = run && segMode()==='ratio';
+    const paused = run && !!s.focusPausedAt;
     const shown = up ? el : rem;
     const text = up ? fmtClock(shown) : fmtDown(shown);
     const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
     set('yiCardTime',text); set('yiPageTime',text);
-    if(up){
+    if(paused){
+      set('yiTag','已暂停');
+      set('yiCardGain',' · 已暂停');
+    }else if(up){
       set('yiCardGain',' · 约 +'+liveGain(el)+' 分钟');
       set('yiTag','已挣 +'+liveGain(el)+' 分');
+    }else{
+      set('yiTag','专注中');
     }
     const pct=run?Math.round(progress()):0;
     const b2=document.getElementById('yiPageBar'), b3=document.getElementById('yiBar2');
     if(b2) b2.style.width=pct+'%'; if(b3) b3.style.width=pct+'%';
-    /* 专注页那枚小环：数字 + 环上的进度一起走 */
+    /* 专注页时间在进度条上方：只刷数字 */
     set('yiClk',text);
-    const ring=document.getElementById('yiRing');
-    if(ring) ring.style.strokeDashoffset=String(RING_C*(1-Math.min(1,pct/100)));
   }
   function refresh(){
     renderCard();
@@ -3034,19 +3153,25 @@ const Yi = (function(){
     const nb=document.querySelector('.nav-btn[data-page="skill"]'); if(nb) nb.classList.add('active');
     try{ setFab(null); }catch(e){}      // 「意」页不该留技能页那颗「＋新建」按钮，会压住静心提示
   }
-  function closeOverlay(){ const ov=document.getElementById('yiOverlay'); if(ov){ ov.classList.add('hidden'); ov.classList.remove('yi-bgmode'); ov.innerHTML=''; } }
+  function closeOverlay(){
+    stopQuoteRot();
+    const ov=document.getElementById('yiOverlay');
+    if(ov){ ov.classList.add('hidden'); ov.classList.remove('yi-bgmode'); ov.innerHTML=''; }
+  }
 
   /* ---------------- 闭环 ---------------- */
-  /* 专注页只留：占满全屏的背景图、居中一枚小小的环形计时、左下返回 / 右下中断两枚图标。
-     固定奖励走倒计时，按比例走正计时（数字从 00:00 往上走，环跟着填）。
-     preview=true 是设置页里的全屏预览，不影响真实专注。 */
-  const ICON_BACK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+  /* 专注页：中间轮换静心提示；时间放在底部、进度条上方；左下暂停/继续、右下中断（返回走侧边手势，不设返回键）。
+     固定奖励走倒计时，按比例走正计时（数字从 00:00 往上走，进度条跟着填）。
+     preview=true 是设置页里的全屏预览，只留一枚关闭。 */
+  const ICON_PAUSE = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="7" y="5.5" width="3.6" height="13" rx="1.2"/><rect x="13.4" y="5.5" width="3.6" height="13" rx="1.2"/></svg>';
+  const ICON_PLAY  = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M8.5 5.8v12.4a.8.8 0 0 0 1.22.68l9.6-6.2a.8.8 0 0 0 0-1.36l-9.6-6.2a.8.8 0 0 0-1.22.68z"/></svg>';
+  const ICON_CLOSE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>';
   const ICON_STOP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="8" height="8" rx="1.5"/></svg>';
   function focusHTML(preview){
     const pct = preview ? 35 : 0;
     const up = !preview && segMode()==='ratio';
     const pvRatio = preview && ratioOn();
-    const back = preview ? 'Yi.closeOverlay()' : 'Yi.closeOverlay();Yi.refresh()';
+    const paused = !preview && !!s.focusPausedAt;
     /* 按比例：右下角是「结束并结算」；固定奖励：仍是「中断作废」 */
     const rtNow = preview ? ratioOn() : openEnded();
     const stop = preview ? ''
@@ -3055,19 +3180,21 @@ const Yi = (function(){
     const clock = preview ? (pvRatio ? fmtClock(total()*0.65) : fmtDown(total()*0.65))
                           : (up ? fmtClock(0) : fmtDown(total()));
     const tag = preview ? (pvRatio ? '已挣 +'+liveGain(total()*0.65)+' 分' : '预览')
-                        : (up ? '已挣 +0 分' : '专注中');
+                        : (paused ? '已暂停' : (up ? '已挣 +0 分' : '专注中'));
+    const qs = quotes();
+    const q = qs[Math.floor(Math.random()*qs.length)] || '';
+    /* 左下：真实专注是暂停/继续，预览只留一枚关闭（返回靠侧边手势） */
+    const left = preview
+      ? `<button class="fz-ico" aria-label="关闭预览" title="关闭预览" onclick="Yi.closeOverlay()">${ICON_CLOSE}</button>`
+      : `<button class="fz-ico" id="yiPauseBtn" aria-label="${paused?'继续':'暂停'}" title="${paused?'继续':'暂停'}" onclick="Yi.togglePause()">${paused?ICON_PLAY:ICON_PAUSE}</button>`;
     return `<div class="yi-full yi-cover" id="yiCover">
-      <div class="fz-ring" aria-live="off">
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          <circle class="fz-track" cx="50" cy="50" r="44"></circle>
-          <circle class="fz-prog" id="yiRing" cx="50" cy="50" r="44" style="stroke-dashoffset:${(RING_C*(1-pct/100)).toFixed(2)}"></circle>
-        </svg>
-        <div class="fz-mid"><div class="fz-clock" id="yiClk">${clock}</div><div class="fz-tag${up||pvRatio?' rt':''}" id="yiTag">${tag}</div></div>
-      </div>
+      <div class="fz-quote" id="yiQuote">${esc(q)}</div>
       <div class="fz-bottom">
+        <div class="fz-clock" id="yiClk">${clock}</div>
+        <div class="fz-tag${up||pvRatio?' rt':''}" id="yiTag">${tag}</div>
         <div class="yi-pbar"><i id="yiBar2" style="width:${pct}%"></i></div>
         <div class="fz-row">
-          <button class="fz-ico" aria-label="返回" title="返回" onclick="${back}">${ICON_BACK}</button>
+          ${left}
           ${stop}
         </div>
       </div>
@@ -3080,6 +3207,7 @@ const Yi = (function(){
     ov.innerHTML=focusHTML(preview);
     const bg=bgURL(), cover=document.getElementById('yiCover');
     if(bg && cover) cover.style.backgroundImage='url("'+bg+'")';
+    startQuoteRot();
     if(!preview) updateLive();
   }
   function openFocus(){
@@ -3092,7 +3220,7 @@ const Yi = (function(){
       if(focusing()){ toast('这一段还没走完，等它结束再开下一段'); openFocus(); return false; }
       finishFocus(true);      // 已经走满、只是 tick 还没轮到：先安静地结算，别把它悄悄吞掉
     }
-    s.focusStartAt=Date.now(); s.focusName=name||'';
+    s.focusStartAt=Date.now(); s.focusName=name||''; s.focusSkill=id||''; s.pausedMs=0; s.focusPausedAt=0;
     /* 把这一段要用到的三个参数就地快照，之后改设置也不会影响正在走的这一段 */
     s.focusMin=clamp(Math.round(num(s.durationMin))||15,1,180);
     s.focusMode=ratioOn()?'ratio':'fixed';
@@ -3124,9 +3252,9 @@ const Yi = (function(){
       const rw=RewardBridge.checkIn();
       gain=(rw && rw.addedMinutes) || (RewardBridge.state().rewardMinutes||30);
     }
-    s.focusStartAt=0; s.focusName=''; s.focusMin=0; s.focusMode=''; s.focusRatio=0;
+    s.focusStartAt=0; s.focusName=''; s.focusSkill=''; s.focusMin=0; s.focusMode=''; s.focusRatio=0; s.pausedMs=0; s.focusPausedAt=0;
     save();
-    try{ if(typeof ckFocusAdd==='function') ckFocusAdd(focused); }catch(e){}
+    try{ if(typeof ckFocusAdd==='function') ckFocusAdd(focused, s.focusSkill); }catch(e){}
     stopTick();
     closeOverlay(); refresh();
     if(quiet) toast((mode==='ratio'?'上一段已结束':'上一段已走满')+' · 剩余时间 +'+gain+' 分钟');
@@ -3161,7 +3289,7 @@ const Yi = (function(){
     });
   }
   function giveUp(){
-    s.focusStartAt=0; s.focusName=''; s.focusMin=0; s.focusMode=''; s.focusRatio=0;
+    s.focusStartAt=0; s.focusName=''; s.focusSkill=''; s.focusMin=0; s.focusMode=''; s.focusRatio=0; s.pausedMs=0; s.focusPausedAt=0;
     save();
     stopTick();
     closeOverlay(); refresh();
@@ -3175,8 +3303,64 @@ const Yi = (function(){
   function tick(){
     if(!s.focusStartAt){ stopTick(); return; }
     /* 固定奖励走满就自动结算；按比例不设终点，等你自己按「结束」 */
-    if(!openEnded() && elapsed()>=total()){ finishFocus(); return; }
+    if(!openEnded() && elapsed()>=total()){ playDone(); finishFocus(); return; }
     updateLive();
+  }
+  /* 暂停/继续：暂停的时间不算坐住，恢复后接着走（墙上时间戳口径不变） */
+  function togglePause(){
+    if(!s.focusStartAt) return;
+    if(s.focusPausedAt){
+      s.pausedMs=(s.pausedMs||0)+(Date.now()-s.focusPausedAt);
+      s.focusPausedAt=0;
+    }else{
+      s.focusPausedAt=Date.now();
+    }
+    save();
+    const btn=document.getElementById('yiPauseBtn');
+    if(btn){
+      const on=!!s.focusPausedAt;
+      btn.innerHTML=on?ICON_PLAY:ICON_PAUSE;
+      btn.setAttribute('aria-label', on?'继续':'暂停');
+      btn.title=on?'继续':'暂停';
+    }
+    updateLive();
+    toast(s.focusPausedAt?'已暂停，时间停在这里':'继续');
+  }
+  /* 专注页中间的静心提示：每 20 秒淡出换下一句（提示词在「意」页可以自己改） */
+  let quoteTimer=0;
+  function startQuoteRot(){
+    stopQuoteRot();
+    const list=quotes(); if(list.length<2) return;
+    let i=Math.floor(Math.random()*list.length);
+    quoteTimer=setInterval(function(){
+      const el=document.getElementById('yiQuote');
+      if(!el){ stopQuoteRot(); return; }
+      el.style.opacity='0';
+      setTimeout(function(){
+        const e2=document.getElementById('yiQuote'); if(!e2) return;
+        const l=quotes(); i=(i+1)%l.length;
+        e2.textContent=l[i]; e2.style.opacity='1';
+      },450);
+    },20000);
+  }
+  function stopQuoteRot(){ if(quoteTimer){ clearInterval(quoteTimer); quoteTimer=0; } }
+  /* 倒计时走完的提示音＋震动：原生优先（ToneGenerator＋Vibrator），浏览器里用 Web Audio＋vibrate 兜底 */
+  function playDone(){
+    const n=(window.RewardNative && typeof window.RewardNative.doneCue==='function')?window.RewardNative:null;
+    if(n){ try{ n.doneCue(); return; }catch(e){} }
+    try{
+      const AC=window.AudioContext||window.webkitAudioContext;
+      if(AC){
+        const ctx=new AC(), o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='sine'; o.frequency.value=880;
+        const t=ctx.currentTime;
+        g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.2,t+0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001,t+0.85);
+        o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+0.9);
+        setTimeout(function(){ try{ ctx.close(); }catch(e){} },1200);
+      }
+    }catch(e){}
+    try{ if(navigator.vibrate) navigator.vibrate([180,120,260]); }catch(e){}
   }
 
   /* ---------------- 静心提示：自己编辑 ---------------- */
@@ -3201,6 +3385,32 @@ const Yi = (function(){
   /* ---------------- 设置 ---------------- */
   /* 有专注在走（含刚走满还没结算的那一下）都不许改：这一段按开始时的快照算，改了只会让人以为没生效 */
   function setDuration(m){ if(s.focusStartAt){ toast('专注进行中不能改时长'); return; } s.durationMin=clamp(Math.round(num(m))||15,1,180); save(); refresh(); }
+  /* 时长选项卡：10/20/30/40＋自定义。自定义值存 customMin；旧数据里不在预设中的时长也归到自定义一格 */
+  let showCustomDur=false;
+  function customMinOf(){
+    if(num(s.customMin)>0) return clamp(Math.round(num(s.customMin)),1,180);
+    return [10,20,30,40].indexOf(num(s.durationMin))>=0 ? 0 : (num(s.durationMin)>0 ? clamp(Math.round(num(s.durationMin)),1,180) : 0);
+  }
+  function pickCustom(){
+    if(s.focusStartAt){ toast('专注进行中不能改时长'); return; }
+    const c=customMinOf();
+    if(c>0){ setDuration(c); toast('已选自定义 '+c+' 分钟'); return; }
+    showCustomDur=true; refresh();
+  }
+  function editCustom(){
+    if(s.focusStartAt){ toast('专注进行中不能改时长'); return; }
+    showCustomDur=true; refresh();
+  }
+  function saveCustomDur(){
+    const el=document.getElementById('yiCustomDur');
+    const v=clamp(Math.round(num(el&&el.value))||0,1,180);
+    if(!v){ toast('先填一个分钟数'); return; }
+    s.customMin=v; showCustomDur=false; save();
+    if(!s.focusStartAt) s.durationMin=v;
+    save(); refresh();
+    toast('自定义时长 '+v+' 分钟');
+  }
+  function cancelCustomDur(){ showCustomDur=false; refresh(); }
   function setRewardMode(m){
     if(s.focusStartAt){ toast('专注进行中不能切换奖励方式'); return; }
     s.rewardMode = (m==='ratio') ? 'ratio' : 'fixed';
@@ -3395,6 +3605,7 @@ const Yi = (function(){
   if(s.focusStartAt){ startTick(); try{ tick(); }catch(e){} }
   return { renderCard, renderPage, tick, refresh, openFocus, previewFocus, startFocus, skipFocus, giveUp, askGiveUp, askStop,
     closeOverlay, closeReward, openPanel, setDuration, setRewardMode, setRatio, toggleNotify, setTickProfile,
+    togglePause, pickCustom, editCustom, saveCustomDur, cancelCustomDur,
     addApp, delApp,
     setQuote, addQuote, delQuote, resetQuotes,
     jgyCardHTML, saveJgy, syncUp, syncDown, syncDownNo, syncDownYes,
@@ -3643,32 +3854,59 @@ document.addEventListener('visibilitychange', function(){
   }
 });
 
-/* ---- 打卡总账：连续天数 / 累计次数 / 累计专注（与技能内的当前等级经验分开记） ---- */
+/* ---- 打卡总账：分技能记（sk.ck = {total,days,focusMs}） ----
+   外层技能页显示各技能之和；等级详情只读该技能自己的一份。
+   旧的全局 checkinStats（无法拆到技能上的历史累计）保留在数据里、继续随备份走，但不再显示。 */
 function ckStats(){
   if(!state.checkinStats || typeof state.checkinStats!=='object') state.checkinStats={total:0,days:[],focusMs:0};
   if(!Array.isArray(state.checkinStats.days)) state.checkinStats.days=[];
   if(!isFinite(Number(state.checkinStats.focusMs))) state.checkinStats.focusMs=0;
   return state.checkinStats;
 }
+function skCk(sk){
+  if(!sk) return {total:0,days:[],focusMs:0};
+  if(!sk.ck || typeof sk.ck!=='object') sk.ck={total:0,days:[],focusMs:0};
+  if(!Array.isArray(sk.ck.days)) sk.ck.days=[];
+  if(!isFinite(Number(sk.ck.total))) sk.ck.total=0;
+  if(!isFinite(Number(sk.ck.focusMs))) sk.ck.focusMs=0;
+  return sk.ck;
+}
+function ckSum(){
+  const out={total:0,focusMs:0};
+  const set=new Set();
+  (state.skills||[]).forEach(sk=>{
+    const c=skCk(sk);
+    out.total+=Number(c.total)||0;
+    out.focusMs+=Number(c.focusMs)||0;
+    (c.days||[]).forEach(d=>set.add(d));
+  });
+  out.days=Array.from(set).sort();
+  return out;
+}
 function ckDay(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function ckStreak(){
-  const st=ckStats(); if(!st.days.length) return 0;
+function ckStreakOf(st){
+  if(!st || !Array.isArray(st.days) || !st.days.length) return 0;
   const set=new Set(st.days), d=new Date(); d.setHours(0,0,0,0);
   if(!set.has(ckDay(d))) d.setDate(d.getDate()-1); // 今天还没打卡不算断，从昨天接着数
   let n=0;
   while(set.has(ckDay(d))){ n++; d.setDate(d.getDate()-1); if(n>2000) break; }
   return n;
 }
-function ckRecord(){
-  const st=ckStats(), t=todayStr();
+function ckStreak(){ return ckStreakOf(ckStats()); }
+function ckRecord(sk){
+  const t=todayStr();
+  const st = sk ? skCk(sk) : ckStats();
   st.total=(st.total||0)+1;
   if(st.days.indexOf(t)<0) st.days.push(t);
   if(st.days.length>900) st.days=st.days.slice(-900); // 控制体积，足够回溯两年
+  save();
 }
-/* 专注结束（Yi.finishFocus）回报实际坐住的毫秒数，累进「累计专注」 */
-function ckFocusAdd(ms){
-  const st=ckStats(), m=Math.round(Math.max(0, Number(ms)||0));
+/* 专注结束（Yi.finishFocus）回报实际坐住的毫秒数与这一段的技能归属，累进该技能的「累计专注」 */
+function ckFocusAdd(ms, skId){
+  const m=Math.round(Math.max(0, Number(ms)||0));
   if(!m) return;
+  const sk = skId ? findSkill(skId) : null;
+  const st = sk ? skCk(sk) : ckStats();
   st.focusMs=(Number(st.focusMs)||0)+m;
   save();
 }
@@ -3678,10 +3916,11 @@ function ckFmtFocus(ms){
   const h=Math.floor(min/60), m=min%60;
   return `${h}<i>时</i>${m?m+'<i>分</i>':''}`;
 }
-function ckStatHTML(alone){
-  const st=ckStats();
+/* sk 传技能对象=该技能自己的三格；不传=各技能之和（外层） */
+function ckStatHTML(sk, alone){
+  const st = sk ? skCk(sk) : ckSum();
   return `<div class="ck-grid${alone?' alone':''}">`
-    + `<div class="ck-cell"><b>${ckStreak()}<i>天</i></b><span>连续打卡</span></div>`
+    + `<div class="ck-cell"><b>${ckStreakOf(st)}<i>天</i></b><span>连续打卡</span></div>`
     + `<div class="ck-cell"><b>${st.total||0}<i>次</i></b><span>累计打卡</span></div>`
     + `<div class="ck-cell"><b>${ckFmtFocus(st.focusMs)}</b><span>累计专注</span></div>`
     + `</div>`;
@@ -3705,7 +3944,7 @@ function checkin(id){
   }
   const need = lvNeed(sk);
   sk.checkins = num(sk.checkins)+1;
-  ckRecord();                 // 全局打卡总账：累计次数 +1、记录今天
+  ckRecord(sk);               // 打卡总账按技能分记：累计次数 +1、记录今天
   touchSkill(sk);
   let leveled = false;
   if(sk.checkins>=need){
@@ -3926,7 +4165,7 @@ function deleteInsight(id){
 function renderSkillSummary(){
   const n = state.skills.length;
   const masters = state.skills.filter(s=>s.level===5);
-  if(!n){ $('#skillSum').innerHTML = `<div class="card" style="padding:12px 14px">${ckStatHTML(true)}</div>`; return; }
+  if(!n){ $('#skillSum').innerHTML = `<div class="card" style="padding:12px 14px">${ckStatHTML(null,true)}</div>`; return; }
   const total = state.skills.reduce((a,s)=>a+s.level,0);
   const avg = (total/n).toFixed(1).replace(/\.0$/,'');
   /* 下一位大师 = 尚未满级的技能里，离满级最近的那项还差几级 */
@@ -4092,7 +4331,7 @@ function renderLevelDetail(){
     <div class="card">
       <h3>修炼打卡 · 经验</h3>
       ${xpBarHTML(sk,true)}
-      ${ckStatHTML()}
+      ${ckStatHTML(sk)}
     </div>
 
     <div class="card lv-file">
@@ -4491,11 +4730,12 @@ function renderCashView(){
   const fixed = (state.wealth.fixed||[]).filter(f=>monthKey(f.startDate||todayStr())<=ym);
   const totalIn = incs.reduce((a,i)=>a+(+i.amount||0),0) + careerInc;
 
-  /* 三类 + 未分类：流水按归一后的类别累加，固定开销按"本期是否到期、是否已被短信核销"计入 */
+  /* 类别 + 未分类：流水按归一后的类别累加，固定开销按"本期是否到期、是否已被短信核销"计入 */
   const cat = {'饮食':0,'购物':0,'娱乐出行':0,'未分类':0};
-  counted.forEach(e=>{ cat[normCat(e.category)] += num(e.amount); });
-  fixed.forEach(f=>{ const a = fixedAmountIn(f, ym); if(a) cat[normCat(f.category)] += a; });
-  const totalOut = cat['饮食'] + cat['购物'] + cat['娱乐出行'] + cat['未分类'];
+  catList().forEach(n=>{ if(!(n in cat)) cat[n]=0; });       // 自定义类别也入账
+  counted.forEach(e=>{ const k=normCat(e.category); cat[k]=(cat[k]||0)+num(e.amount); });
+  fixed.forEach(f=>{ const a = fixedAmountIn(f, ym); if(a){ const k=normCat(f.category); cat[k]=(cat[k]||0)+a; } });
+  const totalOut = Object.keys(cat).reduce((a,k)=>a+cat[k],0);
   const free = totalIn - totalOut;                        // 口径：收入 − 全部支出
   // 结余能撑多久：按该月日均总开销折算（本月用已过天数，查看过去的整月用全月天数）
   const daysInMonth = new Date(yy, mm, 0).getDate();
@@ -4503,8 +4743,9 @@ function renderCashView(){
   const dailyOut = totalOut/Math.max(1,elapsed);
   const surviveDays = dailyOut>0 ? Math.floor(free/dailyOut) : (free>0?'∞':0);
   const ymLabel = yy+'年'+mm+'月';
-  const legendItems = CAT3.map(c=>({label:c, value:cat[c], color:CAT_COLOR[c]}));
-  if(cat['未分类']>0) legendItems.push({label:'未分类', value:cat['未分类'], color:CAT_COLOR['未分类']});
+  const legendItems = CAT3.map(c=>({label:c, value:cat[c]||0, color:catColorOf(c)}));
+  catList().filter(c=>CAT3.indexOf(c)<0).forEach(c=>{ if(cat[c]>0) legendItems.push({label:c, value:cat[c], color:catColorOf(c)}); });
+  if(cat['未分类']>0) legendItems.push({label:'未分类', value:cat['未分类'], color:catColorOf('未分类')});
 
   let html = `<div class="cash-wrap"><div class="cash-main">
     <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -4592,7 +4833,7 @@ function renderCashView(){
                    : `${fixedCycleText(f)} · 下期 ${nextK?nextK.slice(0,4)+'/'+nextK.slice(5):'—'}`);
           return `
           <div class="row" style="padding:7px 0;border-bottom:1px solid var(--line);cursor:pointer" title="点击修改这笔固定开销" onclick="openFixedModal('${f.id}')">
-            <span class="tag ${CAT_TAG[normCat(f.category)]||'blue'}">${normCat(f.category)}</span>
+            <span class="tag ${catTagOf(normCat(f.category))}">${normCat(f.category)}</span>
             <div class="grow" style="margin-left:6px;min-width:0"><b>${esc(f.name)}</b><div class="sub">${stateTxt}</div></div>
             <b class="money" style="color:${settled?'var(--sub)':(due?'var(--red)':'var(--sub)')}">${due?'−'+money(f.amount):'—'}</b>
             <button class="btn btn-sm btn-ghost" style="margin-left:8px" title="删除" onclick="event.stopPropagation();delFixed('${f.id}')">${ic('x',14)}</button>
@@ -4633,22 +4874,107 @@ function cashDefaultDate(){
   if(!cashMonth || cashMonth===cur) return todayStr();
   return cashMonth+'-01';                     // 新增记录默认落在所选月
 }
-/* ---- 三类分类体系 ----
-   流水的分类只有 饮食 / 购物 / 娱乐出行；未分类 是"金额没认出来"的临时落脚点。
-   旧数据的 必需/娱乐/学习 不改原值，只在统计与显示时归一（必需→购物、学习→购物、娱乐→娱乐出行），
-   这样升级不会动你已有的账，改一次那条记录才写回新值。 */
-const CAT3 = ['饮食','购物','娱乐出行'];
+/* ---- 类别体系：图标驱动 ----
+   类别 = 名称 + 图标。三个默认类别（饮食/购物/娱乐出行，定义见 CAT_DEFAULTS）固定存在，
+   自定义类别追加在 state.wealth.cats 里。流水的 category 仍存名称字符串，
+   旧账（必需/娱乐/学习）继续按别名归一，不迁移原值。 */
+const CAT3 = CAT_DEFAULTS.map(c=>c.name);          // 兼容旧引用（默认三类名称）
 const CAT_LABEL = {'饮食':'饮食','购物':'购物','娱乐出行':'娱乐出行','未分类':'未分类',
                    '必需':'购物','娱乐':'娱乐出行','学习':'购物'};
 const CAT_COLOR = {'饮食':'#2563eb','购物':'#f59e0b','娱乐出行':'#7c3aed','未分类':'#94a3b8'};
+const CAT_COLOR_POOL = ['#0ea5e9','#f43f5e','#10b981','#f97316','#8b5cf6','#14b8a6','#e11d48','#84cc16'];
 const CAT_TAG   = {'饮食':'blue','购物':'gold','娱乐出行':'green','未分类':'gray'};
+const CAT_TAG_POOL = ['blue','gold','green','red'];
+function catList(){
+  const arr = (state && state.wealth && Array.isArray(state.wealth.cats)) ? state.wealth.cats : [];
+  return arr.map(c=>c.name);
+}
+function catIconOf(n){
+  const c = ((state&&state.wealth&&state.wealth.cats)||[]).filter(x=>x&&x.name===n)[0];
+  return (c && IC[c.icon]) ? c.icon : (n==='未分类' ? 'box' : 'bag');
+}
+function catColorOf(n){
+  if(CAT_COLOR[n]) return CAT_COLOR[n];
+  const i = Math.max(0, catList().indexOf(n));
+  return CAT_COLOR_POOL[i % CAT_COLOR_POOL.length];
+}
+function catTagOf(n){
+  if(CAT_TAG[n]) return CAT_TAG[n];
+  const i = Math.max(0, catList().indexOf(n));
+  return CAT_TAG_POOL[i % CAT_TAG_POOL.length];
+}
 function normCat(c){
-  if(c==='未分类') return '未分类';
-  if(CAT3.indexOf(c)>=0) return c;
-  if(c==='娱乐') return '娱乐出行';
-  return '购物';                       // 必需 / 学习 / 其它历史值
+  const s = String(c==null?'':c).trim();
+  if(s==='未分类') return '未分类';
+  if(s==='娱乐') return '娱乐出行';
+  if(s==='必需' || s==='学习') return '购物';
+  if(catList().indexOf(s)>=0) return s;            // 自定义类别原名放行
+  return '购物';                       // 其它历史值
 }
 function catLabelOf(c){ const n=normCat(c); return CAT_LABEL[n]||n; }
+
+/* ---- 类别图标格子：点图标即选类别，行末「＋」加自定义类别 ---- */
+function catGridInner(inputId, cur, withUnsorted){
+  const names = catList().slice();
+  if(withUnsorted) names.push('未分类');
+  const cells = names.map(n=>`<button type="button" class="cat-cell${n===cur?' on':''}" data-cat="${esc(n)}" onclick="pickCat(this,'${inputId}')">${ic(catIconOf(n),18)}<i>${esc(n)}</i></button>`).join('');
+  return cells
+    + `<button type="button" class="cat-cell cat-add" onclick="toggleCatAdd()" title="添加类别">＋</button>`
+    + `<input type="hidden" id="${inputId}" value="${esc(cur)}">`;
+}
+function catGridHTML(inputId, cur, withUnsorted){
+  return `<div class="cat-grid" id="${inputId}Grid">${catGridInner(inputId,cur,withUnsorted)}</div>`
+    + `<div class="cat-addbox hidden" id="catAddBox" data-for="${inputId}">
+        <div class="cat-add-h">新类别</div>
+        <input type="text" id="catAddName" maxlength="12" placeholder="类别名称，例如：交通">
+        <div class="row" id="catAddIcons" style="flex-wrap:wrap;gap:6px;margin:8px 0">
+          ${ITEM_ICONS.map(n=>`<button type="button" class="cat-icpick${n==='bag'?' on':''}" data-ic="${n}" onclick="pickCatIcon(this)">${ic(n,16)}</button>`).join('')}
+        </div>
+        <div class="row" style="gap:8px">
+          <button type="button" class="btn btn-primary btn-sm" onclick="saveCatAdd()">保存</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="toggleCatAdd()">取消</button>
+        </div>
+      </div>`;
+}
+function pickCat(btn, inputId){
+  const wrap = btn.closest('.cat-grid');
+  if(wrap) Array.prototype.forEach.call(wrap.querySelectorAll('.cat-cell'), b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const inp = document.getElementById(inputId);
+  if(inp) inp.value = btn.dataset.cat;
+}
+function pickCatIcon(btn){
+  window._catNewIcon = btn.dataset.ic;
+  const row = btn.closest('#catAddIcons');
+  if(row) Array.prototype.forEach.call(row.querySelectorAll('.cat-icpick'), b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function toggleCatAdd(){
+  const box = document.getElementById('catAddBox');
+  if(!box) return;
+  const nowHidden = box.classList.toggle('hidden');
+  if(!nowHidden){
+    window._catNewIcon = 'bag';
+    const nm = document.getElementById('catAddName');
+    if(nm){ nm.value=''; try{ nm.focus(); }catch(e){} }
+  }
+}
+function saveCatAdd(){
+  const box = document.getElementById('catAddBox');
+  if(!box) return;
+  const inputId = box.dataset.for || 'exCat';
+  const name = (document.getElementById('catAddName').value||'').trim();
+  if(!name){ toast('给类别起个名字'); return; }
+  if(name==='未分类'){ toast('「未分类」是系统保留的'); return; }
+  if(catList().indexOf(name)>=0){ toast('已经有这个类别了'); return; }
+  state.wealth.cats = state.wealth.cats || [];
+  state.wealth.cats.push({name:name, icon: window._catNewIcon || 'box'});
+  save();
+  const wrap = document.getElementById(inputId+'Grid');
+  if(wrap) wrap.innerHTML = catGridInner(inputId, name, inputId==='exCat');
+  box.classList.add('hidden');                      // 收起面板，选中态留在新格子上
+  toast('类别「'+name+'」已添加');
+}
 
 /* ---- 金额三档规则：< lowT 饮食 / [lowT, highT) 娱乐出行 / ≥ highT 购物 ---- */
 function catThresholds(){
@@ -4858,6 +5184,7 @@ function openCashAnnual(y){
   const labels=[], incomeData=[], outData=[], balData=[];
   let totalIn=0;
   const catY = {'饮食':0,'购物':0,'娱乐出行':0,'未分类':0};
+  catList().forEach(n=>{ if(!(n in catY)) catY[n]=0; });
   for(let m=1;m<=12;m++){
     const key = ymKey(year,m);
     const active = monthCounts(key);
@@ -4867,15 +5194,16 @@ function openCashAnnual(y){
     /* 与月度视图同口径：剔除「不计入」，固定开销按周期到期 + 是否已核销计入 */
     const expM = state.wealth.expenses.filter(e=>monthKey(e.date)===key && !e.off);
     const outM = expM.reduce((a,e)=>a+num(e.amount),0) + monthTotalFixed(key);
-    expM.forEach(e=>{ catY[normCat(e.category)] += num(e.amount); });
-    (state.wealth.fixed||[]).forEach(f=>{ const a = fixedAmountIn(f, key); if(a) catY[normCat(f.category)] += a; });
+    expM.forEach(e=>{ const k=normCat(e.category); catY[k]=(catY[k]||0)+num(e.amount); });
+    (state.wealth.fixed||[]).forEach(f=>{ const a = fixedAmountIn(f, key); if(a){ const k=normCat(f.category); catY[k]=(catY[k]||0)+a; } });
     totalIn += inM;
     labels.push(m+'月'); incomeData.push(inM); outData.push(outM); balData.push(inM-outM);
     if(wageM>0){ payM.src==='record' ? recMonths++ : estMonths++; }
   }
-  const totalOut = catY['饮食'] + catY['购物'] + catY['娱乐出行'] + catY['未分类'];
-  const legendY = CAT3.map(c=>({label:c, value:catY[c], color:CAT_COLOR[c]}));
-  if(catY['未分类']>0) legendY.push({label:'未分类', value:catY['未分类'], color:CAT_COLOR['未分类']});
+  const totalOut = Object.keys(catY).reduce((a,k)=>a+catY[k],0);
+  const legendY = CAT3.map(c=>({label:c, value:catY[c]||0, color:catColorOf(c)}));
+  catList().filter(c=>CAT3.indexOf(c)<0).forEach(c=>{ if(catY[c]>0) legendY.push({label:c, value:catY[c], color:catColorOf(c)}); });
+  if(catY['未分类']>0) legendY.push({label:'未分类', value:catY['未分类'], color:catColorOf('未分类')});
   const wageN = recMonths+estMonths;
   const wageDesc = wageN ? ' · 工资计入 '+wageN+' 个月（'+[recMonths?recMonths+' 个月发薪记录':'', estMonths?estMonths+' 个月按最近记录/预期推算':''].filter(Boolean).join('，')+'）' : '';
   const bal = totalIn-totalOut;
@@ -4965,10 +5293,7 @@ function openExpenseModal(id){
     <h2>${r?'编辑开销':'记一笔开销'}</h2>
     ${fromSms?`<p class="sub" style="margin:2px 0 10px">来自银行短信${r.merchant?' · '+esc(r.merchant):''}${r.auto?' · 自动分类，可以直接改成别的类别':''}</p>`:''}
     <div class="field"><label class="req">类别</label>
-      <select id="exCat">
-        ${CAT3.map(c=>`<option value="${c}"${cur===c?' selected':''}>${c}</option>`).join('')}
-        <option value="未分类"${cur==='未分类'?' selected':''}>未分类（待确认）</option>
-      </select></div>
+      ${catGridHTML('exCat', cur, true)}</div>
     <div class="field"><label class="req">金额（元）</label><input type="number" id="exAmt" inputmode="decimal" value="${r?r.amount:''}" placeholder="例如：50"></div>
     <div class="field"><label class="req">发生日期</label><input type="date" id="exDate" value="${r?r.date:cashDefaultDate()}"></div>
     <label class="row" style="gap:9px;padding:2px 0 12px;cursor:pointer;align-items:flex-start">
@@ -5012,9 +5337,7 @@ function openFixedModal(id){
     <p class="sub" style="margin:4px 0 12px">房租、订阅这类周期性支出。按周期自动计入；收到对应短信时自动核销，不重复计。</p>
     <div class="field"><label class="req">名称</label><input type="text" id="fxName" value="${f?esc(f.name):''}" placeholder="例如：房租、视频会员"></div>
     <div class="field"><label class="req">类别</label>
-      <select id="fxCat">
-        ${CAT3.map(c=>`<option value="${c}"${cat0===c?' selected':''}>${c}</option>`).join('')}
-      </select></div>
+      ${catGridHTML('fxCat', cat0, false)}</div>
     <div class="field"><label class="req">每期金额（元）</label><input type="number" id="fxAmt" inputmode="decimal" value="${f?f.amount:''}" placeholder="例如：3000"></div>
     <div class="field"><label class="req">周期</label>
       <select id="fxCycle" onchange="fxCycleHint()">
@@ -7380,7 +7703,16 @@ if(location.search.indexOf('selftest')>=0){
       goBack();
     })();
     ok('打卡统计三格且含累计专注', (function(){ const h=ckStatHTML(); return h.indexOf('累计专注')>=0 && (h.match(/ck-cell/g)||[]).length===3; })());
-    ok('累计专注时长会累加', (function(){ const b=ckStats().focusMs; ckFocusAdd(60000); const r=ckStats().focusMs===b+60000; ckStats().focusMs=b; return r; })());
+    ok('专注分技能记账：外层=各技能之和、详情只算自己', (function(){
+      const mk=function(id){ let sk=findSkill(id); if(!sk){ sk={id:id,name:'测'+id,level:1,checkins:0,levels:[{need:5}],ck:{total:0,days:[],focusMs:0}}; state.skills.push(sk); } skCk(sk).focusMs=0; skCk(sk).total=0; return sk; };
+      const a=mk('__ckA'), b=mk('__ckB');
+      ckFocusAdd(60000, a.id); ckFocusAdd(120000, b.id); ckRecord(a);
+      const okA=skCk(a).focusMs===60000 && skCk(a).total===1;
+      const okB=skCk(b).focusMs===120000;
+      const okSum=ckSum().focusMs>=180000 && ckSum().total>=1;
+      state.skills=state.skills.filter(function(x){ return x.id!=='__ckA'&&x.id!=='__ckB'; });
+      return okA && okB && okSum;
+    })());
     switchPage('health');
     ok('健康页含职业页签', $$('#page-health .seg-bar .seg-btn').length===2);
     switchHealthTab('career');
@@ -7440,8 +7772,8 @@ if(location.search.indexOf('selftest')>=0){
       toggleLvFieldEdit('text');
       goBack();
     })();
-    ok('专注页有环形倒计时', (function(){ const h=Yi.focusHTML(false); return h.indexOf('fz-ring')>=0 && h.indexOf('id="yiClk"')>=0 && h.indexOf('fz-prog')>=0; })());
-    ok('专注页左下返回、右下中断', (function(){ const h=Yi.focusHTML(false); return (h.match(/fz-ico/g)||[]).length===2 && h.indexOf('askGiveUp')>=0 && h.indexOf('‹ 返回')<0; })());
+    ok('专注页无圆环：静心提示居中，时间在进度条上方', (function(){ const h=Yi.focusHTML(false); return h.indexOf('fz-ring')<0 && h.indexOf('id="yiQuote"')>=0 && h.indexOf('id="yiClk"')>=0 && h.indexOf('yiBar2')>=0 && h.indexOf('id="yiClk"')<h.indexOf('yiBar2'); })());
+    ok('专注页左下暂停、右下中断（返回走侧边手势）', (function(){ const h=Yi.focusHTML(false); return (h.match(/fz-ico/g)||[]).length===2 && h.indexOf('askGiveUp')>=0 && h.indexOf('Yi.togglePause()')>=0 && h.indexOf('返回')<0; })());
     ok('按比例时右下角变「结束并结算」', (function(){
       Yi.setRewardMode('ratio'); Yi.startFocus('t','');
       const h=Yi.focusHTML(false);
@@ -7449,7 +7781,20 @@ if(location.search.indexOf('selftest')>=0){
       Yi.giveUp(); Yi.setRewardMode('fixed');
       return good;
     })());
-    ok('专注页预览只留返回键', (function(){ const h=Yi.focusHTML(true); return (h.match(/fz-ico/g)||[]).length===1 && h.indexOf('giveUp')<0; })());
+    ok('专注页预览只留关闭键', (function(){ const h=Yi.focusHTML(true); return (h.match(/fz-ico/g)||[]).length===1 && h.indexOf('giveUp')<0 && h.indexOf('togglePause')<0 && h.indexOf('关闭预览')>=0; })());
+    ok('暂停/继续可切换，状态就地刷新', (function(){
+      Yi.startFocus('t',''); Yi.togglePause();
+      const h=Yi.focusHTML(false);
+      const pausedOK=h.indexOf('已暂停')>=0 && h.indexOf('aria-label="继续"')>=0;
+      Yi.togglePause();
+      const h2=Yi.focusHTML(false);
+      const resumedOK=h2.indexOf('已暂停')<0 && h2.indexOf('aria-label="暂停"')>=0;
+      Yi.giveUp();
+      return pausedOK && resumedOK;
+    })());
+    ok('时长选项卡 10/20/30/40＋自定义入口', (function(){
+      return typeof Yi.pickCustom==='function' && typeof Yi.saveCustomDur==='function' && typeof Yi.editCustom==='function';
+    })());
     ok('比例基准是 10 分钟（30 分钟 ×0.5 = 15）', (function(){ Yi.setRewardMode('ratio'); Yi.setRatio(5); const g=Yi.ratioGain(30*60000); Yi.setRewardMode('fixed'); return g===15 && Yi.ratioVal()===5; })());
     ok('固定奖励文案保持原样', Yi.rewardHint({rewardMinutes:30}).indexOf('+30')>=0);
     ok('按比例结算真的加时长', (function(){

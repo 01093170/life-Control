@@ -77,6 +77,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- 通知栏那条剩余时间是普通通知（不是前台服务），只要一个通知权限 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 倒计时走完的提示震动（普通权限，安装即给） -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
