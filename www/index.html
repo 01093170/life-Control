@@ -755,6 +755,45 @@ body[data-theme="ios"] #page-diary{--dy-solid:#f2f2f7}
 .ck-cell b{display:block;font-family:"Songti SC",SimSun,serif;font-size:var(--fs-20);line-height:1.2;color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
 .ck-cell b i{font-style:normal;font-size:var(--fs-11);font-weight:600;color:var(--sub);margin:0 1px 0 2px;letter-spacing:0}
 .ck-cell span{display:block;margin-top:3px;font-size:var(--fs-11);color:var(--sub);letter-spacing:.2px}
+/* 「累计专注」这一格可以点开明细：其余两格保持纯文字，别让人乱点 */
+.ck-cell.act{background:none;border:0;padding:0;width:100%;font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ck-cell.act span::after{content:"›";margin-left:3px;opacity:.5}
+.ck-cell.act:active b{opacity:.7}
+
+/* ---- 专注时长明细（点「累计专注」从底部升起） ---- */
+.ck-overlay{position:fixed;inset:0;z-index:130;background:rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:center}
+.ck-overlay[hidden]{display:none}
+.ck-sheet{width:100%;max-width:480px;max-height:88vh;background:var(--card);border-radius:20px 20px 0 0;
+  display:flex;flex-direction:column;box-shadow:0 -14px 44px rgba(15,23,42,.22);animation:ckUp .2s ease}
+@keyframes ckUp{from{transform:translateY(18px);opacity:.45}to{transform:none;opacity:1}}
+.ck-head{display:flex;align-items:center;gap:8px;padding:15px 18px 3px}
+.ck-head .t{font-size:var(--fs-17);font-weight:700;margin-right:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ck-head button{border:0;background:var(--card2);color:var(--sub);font-family:inherit;font-size:var(--fs-12);padding:6px 13px;border-radius:999px;cursor:pointer}
+.ck-body{overflow-y:auto;padding:6px 18px calc(16px + env(safe-area-inset-bottom))}
+.ck-two{display:grid;grid-template-columns:repeat(3,1fr);margin-top:8px}
+.ck-two > div{position:relative;text-align:center;padding:0 2px}
+.ck-two > div+div::before{content:"";position:absolute;left:0;top:14%;height:72%;width:1px;background:var(--line)}
+.ck-two b{display:block;font-family:"Songti SC",SimSun,serif;font-size:var(--fs-22);line-height:1.15;color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.2px}
+.ck-two b i{font-style:normal;font-size:var(--fs-11);font-weight:600;color:var(--sub);margin:0 1px 0 2px;letter-spacing:0}
+.ck-two span{display:block;margin-top:2px;font-size:var(--fs-11);color:var(--sub);letter-spacing:.2px}
+.ck-sec{display:flex;align-items:baseline;gap:8px;margin:20px 0 9px}
+.ck-sec b{font-size:var(--fs-13);font-weight:700}
+.ck-sec small{margin-left:auto;font-size:var(--fs-11);color:var(--sub)}
+.ck-heat{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.ck-hd{text-align:center;font-size:var(--fs-11);color:var(--sub);opacity:.72;padding-bottom:1px}
+.ck-d{aspect-ratio:1/1;max-height:46px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:var(--fs-11);color:var(--sub);background:var(--card2);font-variant-numeric:tabular-nums}
+.ck-d.b{background:transparent}
+.ck-d.l1{background:rgb(var(--accent-rgb)/.13);color:var(--text)}
+.ck-d.l2{background:rgb(var(--accent-rgb)/.28);color:var(--text)}
+.ck-d.l3{background:rgb(var(--accent-rgb)/.48);color:var(--text)}
+.ck-d.l4{background:rgb(var(--accent-rgb)/.74);color:var(--accent-ink)}
+.ck-d.today{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.ck-note{margin-top:15px;font-size:var(--fs-11);color:var(--sub);line-height:1.75}
+@media (min-width:768px){
+  .ck-overlay{align-items:center;padding:24px}
+  .ck-sheet{border-radius:20px;max-height:82vh}
+}
 /* ---- 等级档案：内容 / 阶段考核 / 提示 合到一张卡，不再画分隔线，只用留白分段 ---- */
 .lv-file{padding:12px 14px 3px}
 .lv-sec{padding:8px 0 2px}
@@ -1172,6 +1211,17 @@ textarea.auto{resize:none;overflow-y:hidden}
 <div id="toast" class="hidden"></div>
 <div id="yiOverlay" class="hidden"></div>
 
+<!-- 专注时长明细：点技能页 / 技能详情里的「累计专注」从底部升起 -->
+<div class="ck-overlay" id="ckOverlay" hidden onclick="if(event.target===this)closeFocusStats()">
+  <div class="ck-sheet" role="dialog" aria-modal="true" aria-label="专注时长">
+    <div class="ck-head">
+      <div class="t" id="ckTitle">专注时长</div>
+      <button type="button" id="ckClose" onclick="closeFocusStats()">关闭</button>
+    </div>
+    <div class="ck-body" id="ckBody"></div>
+  </div>
+</div>
+
 <div id="celebrate" class="hidden" onclick="closeCelebrate()">
   <div class="cel-card" onclick="event.stopPropagation()">
     <div class="cel-medal" id="celMedal"></div>
@@ -1336,7 +1386,9 @@ const DEFAULT_STATE = {
   career: {
     current: { name: '', income: 0, hours: 8, satisfaction: 3, pays: [] },
     target:  { name: '', income: 0, skills: [] }
-  }
+  },
+  /* 专注按天账本：{ 'YYYY-MM-DD': 毫秒 }，只用于「专注时长」里的今天 / 本月 / 日历 */
+  focusLog: {}
 };
 let state = loadState();
 
@@ -1380,6 +1432,8 @@ function loadState(){
     const _fm = Number(merged.checkinStats.focusMs);
     merged.checkinStats.focusMs = isFinite(_fm) && _fm>0 ? Math.round(_fm) : 0;
     if(['recent','created','level'].indexOf(merged.pref.skillSort)<0) merged.pref.skillSort='recent';
+    /* 专注按天账本：旧数据没有，补空对象；技能里那份顺手清掉非法键、只留最近一年多的 */
+    merged.focusLog = normalizeFocusLog(merged.focusLog);
     merged.wealth = normalizeWealth(merged.wealth);
     merged.insights = (merged.insights||[]).filter(x=>x&&x.id&&x.skillId);
     // 职业：补齐发薪记录数组（旧数据无 pays，首次使用时预期收入/工时作为兜底）
@@ -1390,6 +1444,7 @@ function loadState(){
     // 旧版 4 个必填字段（识别标志/核心任务/有效示例/无效示例）合并为单一 text 字段
     (merged.skills||[]).forEach(sk=>{
       if(typeof sk.checkins!=='number') sk.checkins=0;
+      if(sk.ck && typeof sk.ck==='object') sk.ck.log = normalizeFocusLog(sk.ck.log);
       (sk.levels||[]).forEach(lv=>{
         if(lv && lv.hint===undefined) lv.hint='';
         if(lv && lv.tip===undefined) lv.tip='';
@@ -1727,6 +1782,17 @@ const Rte = (function(){
       + ' role="textbox" aria-multiline="true" data-ph="'+esc(ph||'')+'"'
       + (oninput ? ' oninput="'+oninput+'"' : '') + '>'+toHTML(text)+'</div></div>';
   }
+  /* 工具条被挪到 body 贴着软键盘时，它已经不在 .rte 里了：
+     按钮点击和状态回写都得靠 pinnedRte 反查它属于哪个编辑器，别再指望 closest('.rte')。 */
+  function boxOf(el){
+    const box = el && el.closest ? el.closest('.rte') : null;
+    if(box) return box;
+    return (pinnedRte && pinnedRte.bar && el && pinnedRte.bar.contains(el)) ? pinnedRte.box : null;
+  }
+  function barOf(box){
+    if(!box) return null;
+    return (pinnedRte && pinnedRte.box===box) ? pinnedRte.bar : box.querySelector('.rte-bar');
+  }
   function syncBar(body){
     const box = body && body.closest ? body.closest('.rte') : null;
     if(!box) return;
@@ -1734,11 +1800,12 @@ const Rte = (function(){
     const inBlue = !!(r && upTo(r.startContainer, n=>n.classList && n.classList.contains('rt-blue'), body));
     const inBold = !!(r && upTo(r.startContainer, n=>n.tagName === 'B' || n.tagName === 'STRONG', body));
     const inLi = !!(r && upTo(r.startContainer, n=>n.classList && n.classList.contains('rte-li'), body));
-    const mark = (a,on)=>{ const b=box.querySelector('.rte-bar button[data-r="'+a+'"]'); if(b) b.classList.toggle('on', !!on); };
+    const bar = barOf(box);
+    const mark = (a,on)=>{ const b=bar ? bar.querySelector('button[data-r="'+a+'"]') : null; if(b) b.classList.toggle('on', !!on); };
     mark('b', inBold); mark('blue', inBlue); mark('li', inLi);
   }
   function run(btn){
-    const box = btn.closest ? btn.closest('.rte') : null;
+    const box = boxOf(btn);
     if(!box) return;
     const body = box.querySelector('.rte-body');
     if(!body) return;
@@ -3242,6 +3309,7 @@ const Yi = (function(){
     if(!s.focusStartAt) return;
     /* 按比例没有终点：坐多久就结算多久；固定奖励封顶到设定时长 */
     const focused = openEnded() ? elapsed() : Math.min(elapsed(), total());
+    const skId = s.focusSkill || '';                           // 清空前先记下归属：等下要记到这个技能头上
     const mode = s.focusMode || (ratioOn()?'ratio':'fixed');   // 按这一段开始时的算法结算
     let gain;
     if(mode==='ratio'){
@@ -3254,7 +3322,7 @@ const Yi = (function(){
     }
     s.focusStartAt=0; s.focusName=''; s.focusSkill=''; s.focusMin=0; s.focusMode=''; s.focusRatio=0; s.pausedMs=0; s.focusPausedAt=0;
     save();
-    try{ if(typeof ckFocusAdd==='function') ckFocusAdd(focused, s.focusSkill); }catch(e){}
+    try{ if(typeof ckFocusAdd==='function') ckFocusAdd(focused, skId); }catch(e){}
     stopTick();
     closeOverlay(); refresh();
     if(quiet) toast((mode==='ratio'?'上一段已结束':'上一段已走满')+' · 剩余时间 +'+gain+' 分钟');
@@ -3606,6 +3674,7 @@ const Yi = (function(){
   return { renderCard, renderPage, tick, refresh, openFocus, previewFocus, startFocus, skipFocus, giveUp, askGiveUp, askStop,
     closeOverlay, closeReward, openPanel, setDuration, setRewardMode, setRatio, toggleNotify, setTickProfile,
     togglePause, pickCustom, editCustom, saveCustomDur, cancelCustomDur,
+    finishFocus,      /* 只给自检用：验证结算时确实把时长记到这一段所属的技能上 */
     addApp, delApp,
     setQuote, addQuote, delQuote, resetQuotes,
     jgyCardHTML, saveJgy, syncUp, syncDown, syncDownNo, syncDownYes,
@@ -3828,6 +3897,8 @@ window.__androidBack = function(){
   try{
     /* 确认卡在最上层，先收它，别连带把下面的页面/弹层一起关掉 */
     if(typeof askOpen==='function' && askOpen()){ closeAsk(); return true; }
+    /* 专注时长明细盖在技能页上，先收它 */
+    if(typeof ckSheetOpen==='function' && ckSheetOpen()){ closeFocusStats(); return true; }
     /* 裁剪器在最上层：先关它，别把下面的设置弹层一起收掉 */
     if(typeof Cropper !== 'undefined' && Cropper.isOpen()){ Cropper.close(); return true; }
     const yo = $('#yiOverlay');
@@ -3874,6 +3945,12 @@ function skCk(sk){
 function ckSum(){
   const out={total:0,focusMs:0};
   const set=new Set();
+  /* 旧全局账（分技能之前的历史 + 早期没记归属的那几段）没有技能可挂，只在最外层合计里算上，
+     不然换算法那一刻起历史就凭空归零了；新记录一律进 sk.ck，不会重复计。 */
+  const legacy=ckStats();
+  out.total+=Number(legacy.total)||0;
+  out.focusMs+=Number(legacy.focusMs)||0;
+  (legacy.days||[]).forEach(d=>set.add(d));
   (state.skills||[]).forEach(sk=>{
     const c=skCk(sk);
     out.total+=Number(c.total)||0;
@@ -3901,13 +3978,37 @@ function ckRecord(sk){
   if(st.days.length>900) st.days=st.days.slice(-900); // 控制体积，足够回溯两年
   save();
 }
-/* 专注结束（Yi.finishFocus）回报实际坐住的毫秒数与这一段的技能归属，累进该技能的「累计专注」 */
+/* ---- 按天记账：{ 'YYYY-MM-DD': 毫秒 }。只留最近 420 天，够看一年多的日/月分布。
+   旧的 checkinStats.focusMs 只有一个总数，拆不到天，所以「今天 / 本月」只能从这一版开始记。 ---- */
+function normalizeFocusLog(o){
+  const out={};
+  if(o && typeof o==='object'){
+    Object.keys(o).forEach(k=>{
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(k)) return;
+      const v=Math.round(Number(o[k]));
+      if(isFinite(v) && v>0) out[k]=v;
+    });
+  }
+  const keys=Object.keys(out).sort();
+  if(keys.length>420) keys.slice(0, keys.length-420).forEach(k=>{ delete out[k]; });
+  return out;
+}
+function focusLogAdd(log, ms){
+  const d=new Date(), k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const out=normalizeFocusLog(log);
+  out[k]=Math.round((Number(out[k])||0)+ms);
+  return normalizeFocusLog(out);
+}
+/* 专注结束（Yi.finishFocus）回报实际坐住的毫秒数与这一段的技能归属，累进该技能的「累计专注」，
+   同时写进按天账本（全局一份 + 该技能一份），供「专注时长」明细页读日 / 月的分布 */
 function ckFocusAdd(ms, skId){
   const m=Math.round(Math.max(0, Number(ms)||0));
   if(!m) return;
   const sk = skId ? findSkill(skId) : null;
   const st = sk ? skCk(sk) : ckStats();
   st.focusMs=(Number(st.focusMs)||0)+m;
+  if(sk) st.log = focusLogAdd(st.log, m);
+  state.focusLog = focusLogAdd(state.focusLog, m);
   save();
 }
 function ckFmtFocus(ms){
@@ -3916,15 +4017,82 @@ function ckFmtFocus(ms){
   const h=Math.floor(min/60), m=min%60;
   return `${h}<i>时</i>${m?m+'<i>分</i>':''}`;
 }
-/* sk 传技能对象=该技能自己的三格；不传=各技能之和（外层） */
+/* sk 传技能对象=该技能自己的三格；不传=各技能之和（外层）
+   「累计专注」那一格可点：打开日 / 月明细（技能详情里点就只看这个技能） */
 function ckStatHTML(sk, alone){
   const st = sk ? skCk(sk) : ckSum();
+  const sid = sk ? String(sk.id).replace(/'/g,'') : '';
   return `<div class="ck-grid${alone?' alone':''}">`
     + `<div class="ck-cell"><b>${ckStreakOf(st)}<i>天</i></b><span>连续打卡</span></div>`
     + `<div class="ck-cell"><b>${st.total||0}<i>次</i></b><span>累计打卡</span></div>`
-    + `<div class="ck-cell"><b>${ckFmtFocus(st.focusMs)}</b><span>累计专注</span></div>`
+    + `<button type="button" class="ck-cell act" aria-label="查看专注时长明细" onclick="openFocusStats('${sid}')">`
+      + `<b>${ckFmtFocus(st.focusMs)}</b><span>累计专注</span></button>`
     + `</div>`;
 }
+
+/* ---------------- 专注时长明细（日 / 月） ---------------- */
+function ckSheetOpen(){ const ov=document.getElementById('ckOverlay'); return !!(ov && !ov.hidden); }
+function closeFocusStats(){ const ov=document.getElementById('ckOverlay'); if(ov) ov.hidden=true; }
+function openFocusStats(skId){
+  const ov=document.getElementById('ckOverlay'); if(!ov) return;
+  const sk = skId ? findSkill(skId) : null;
+  const t=document.getElementById('ckTitle');
+  if(t) t.textContent = sk ? sk.name+' · 专注时长' : '专注时长';
+  const b=document.getElementById('ckBody');
+  if(b) b.innerHTML = ckSheetHTML(sk);
+  ov.hidden=false;
+}
+/* 一格一天按分钟数分四档底色；没练的那天只是浅灰，不加任何网格线 */
+function ckHeatLvl(ms){
+  const m=(Number(ms)||0)/60000;
+  if(m<=0) return 0;
+  if(m<10) return 1;
+  if(m<30) return 2;
+  if(m<60) return 3;
+  return 4;
+}
+function ckSheetHTML(sk){
+  const log = normalizeFocusLog(sk ? skCk(sk).log : state.focusLog);
+  const now = new Date(), y=now.getFullYear(), mo=now.getMonth();
+  const pad2 = n=>String(n).padStart(2,'0');
+  const todayKey = y+'-'+pad2(mo+1)+'-'+pad2(now.getDate());
+  const ym = y+'-'+pad2(mo+1);
+  const total = sk ? (Number(skCk(sk).focusMs)||0) : ckSum().focusMs;
+
+  let monthMs=0, daysWith=0;
+  for(let d=1; d<=now.getDate(); d++){
+    const v=log[ym+'-'+pad2(d)]||0;
+    monthMs+=v; if(v>0) daysWith++;
+  }
+  const todayMs = log[todayKey]||0;
+  const avgMs = now.getDate() ? Math.round(monthMs/now.getDate()) : 0;
+
+  /* 日历：周一起排，只画到今天，之后不画空格子（免得像个没填的表格） */
+  const lead=(new Date(y,mo,1).getDay()+6)%7;
+  let cells='';
+  for(let i=0;i<lead;i++) cells+='<div class="ck-d b"></div>';
+  for(let d=1; d<=now.getDate(); d++){
+    const k=ym+'-'+pad2(d), v=log[k]||0, lv=ckHeatLvl(v);
+    cells+=`<div class="ck-d${lv?' l'+lv:''}${k===todayKey?' today':''}" title="${k} · ${Math.round(v/60000)} 分钟">${d}</div>`;
+  }
+  const hd=['一','二','三','四','五','六','日'].map(x=>`<div class="ck-hd">${x}</div>`).join('');
+  const note = !Object.keys(log).length
+    ? '以前的时长只存了总数，拆不到哪天。从今天起，每练完一段就记一次。'
+    : '每天练完记一次；中途中断、没坐满的那段不算。';
+
+  return `<div class="ck-two">
+      <div><b>${ckFmtFocus(todayMs)}</b><span>今天</span></div>
+      <div><b>${ckFmtFocus(monthMs)}</b><span>本月</span></div>
+      <div><b>${ckFmtFocus(avgMs)}</b><span>本月日均</span></div>
+    </div>
+    <div class="ck-sec"><b>${mo+1} 月</b><small>${daysWith?daysWith+' 天有专注':'还没有记录'}</small></div>
+    <div class="ck-heat">${hd}${cells}</div>
+    <div class="ck-note">累计 ${ckFmtFocus(total)} · ${note}</div>`;
+}
+/* 桌面端顺手：Esc 收掉明细（手机上走返回键 / 点空白） */
+document.addEventListener('keydown', function(e){
+  if((e.key==='Escape' || e.keyCode===27) && ckSheetOpen()){ closeFocusStats(); }
+});
 
 /* ---- 修炼打卡 · 经验：checkins 是当前等级已打卡数，lv.need 是升到下一级所需次数；满 need 自动升级 ---- */
 function lvNeed(sk){ const lv=sk.levels[clamp(sk.level,1,5)-1]; return Math.max(1, num(lv&&lv.need)||DEFAULT_LV_NEED); }
@@ -6364,6 +6532,9 @@ function applySnapshot(obj, force, done){
       .filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d));
     state.checkinStats.total   = Math.max(0, Math.round(num(state.checkinStats.total))||0);
     state.checkinStats.focusMs = Math.max(0, Math.round(num(state.checkinStats.focusMs))||0);
+    /* 按天账本跟着备份走，换设备后日 / 月明细还在 */
+    state.focusLog = normalizeFocusLog(life.focusLog);
+    (state.skills||[]).forEach(sk=>{ if(sk.ck && typeof sk.ck==='object') sk.ck.log = normalizeFocusLog(sk.ck.log); });
     if(life.pref && typeof life.pref==='object'){
       state.pref = Object.assign({skillSort:'recent',skillTab:'list'}, life.pref);
       if(['recent','created','level'].indexOf(state.pref.skillSort)<0) state.pref.skillSort='recent';
@@ -7712,6 +7883,51 @@ if(location.search.indexOf('selftest')>=0){
       const okSum=ckSum().focusMs>=180000 && ckSum().total>=1;
       state.skills=state.skills.filter(function(x){ return x.id!=='__ckA'&&x.id!=='__ckB'; });
       return okA && okB && okSum;
+    })());
+    /* 回归：以前 finishFocus 先把 focusSkill 清空再去入账，时长全掉进没有归属的旧全局口袋，界面上永远 0 分 */
+    ok('专注结算把时长记在这一段所属的技能上', (function(){
+      const sk=state.skills[0]; if(!sk) return false;
+      try{ Yi.giveUp(); }catch(e){}
+      const before=Number(skCk(sk).focusMs)||0, gBefore=Number(ckStats().focusMs)||0;
+      const realNow=Date.now, base=realNow();
+      let started=false;
+      try{
+        Yi.setRewardMode('fixed');
+        started=!!Yi.startFocus(sk.id, sk.name);
+        Date.now=function(){ return base+6*60000; };   // 假装已经坐满 6 分钟
+        Yi.finishFocus(true);
+      }finally{ Date.now=realNow; }
+      const gained=(Number(skCk(sk).focusMs)||0)-before;
+      const gGained=(Number(ckStats().focusMs)||0)-gBefore;
+      return started && gained>=6*60000-1000 && gGained===0;
+    })());
+    // -- 专注时长明细（日 / 月）--
+    ok('「累计专注」那格点一下就开明细', (function(){
+      const box=document.createElement('div'); box.innerHTML=ckStatHTML(); document.body.appendChild(box);
+      const btn=box.querySelector('button.ck-cell.act'); let opened=false;
+      if(btn){ btn.click(); opened=ckSheetOpen(); closeFocusStats(); }
+      document.body.removeChild(box);
+      return opened;
+    })());
+    ok('专注按天记账：全局与技能各记一份', (function(){
+      state.focusLog={};
+      const sk=state.skills[0]; if(!sk) return false;
+      skCk(sk).log={};
+      ckFocusAdd(25*60000, sk.id);
+      const t=todayStr();
+      return Number(state.focusLog[t])>=25*60000 && Number(skCk(sk).log[t])>=25*60000;
+    })());
+    ok('明细页显示今天/本月且按技能区分', (function(){
+      const sk=state.skills[0]; if(!sk) return false;
+      openFocusStats('');
+      const h=$('#ckBody').innerHTML;
+      const allOk = ckSheetOpen() && h.indexOf('今天')>=0 && h.indexOf('本月')>=0 && h.indexOf('25<i>分</i>')>=0
+        && h.indexOf('本月日均')>=0 && document.querySelectorAll('#ckBody .ck-d').length>=new Date().getDate();
+      closeFocusStats();
+      openFocusStats(sk.id);
+      const ownOk = $('#ckTitle').textContent.indexOf(sk.name)>=0 && $('#ckBody').innerHTML.indexOf('25<i>分</i>')>=0;
+      const backOk = (function(){ const r=window.__androidBack(); return r===true && !ckSheetOpen(); })();
+      return allOk && ownOk && backOk;
     })());
     switchPage('health');
     ok('健康页含职业页签', $$('#page-health .seg-bar .seg-btn').length===2);
